@@ -23,14 +23,18 @@
       overflow: hidden;
       background-color: #0f172a;
     }
+    .header-container {
+      height: 56px;
+      width: 100%;
+    }
     .map-container {
-      height: 40vh;
+      height: 35vh;
       width: 100%;
       position: relative;
       z-index: 10;
     }
     .content-container {
-      height: calc(60vh - 64px); /* Remaining height minus bottom nav */
+      height: calc(65vh - 56px - 64px); 
       width: 100%;
       overflow-y: auto;
     }
@@ -43,19 +47,31 @@
 </head>
 <body class="flex flex-col font-sans text-slate-100">
 
-  <!-- TOP SECTION: Interactive Map (40% Screen Height) -->
+  <!-- TOP HEADER BAR: Branding & Logo -->
+  <header class="header-container bg-slate-900 border-b border-slate-800 px-4 flex items-center justify-between shrink-0 z-20">
+    <div class="flex items-center gap-2.5">
+      <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center font-bold text-slate-950 text-base shadow-lg shadow-emerald-500/20">
+        S
+      </div>
+      <div>
+        <h1 class="font-bold text-sm leading-tight text-slate-100">SpotTribe <span class="text-emerald-400 text-[10px] font-mono font-normal">BALI</span></h1>
+        <p class="text-[10px] text-slate-400">Nomad & Expat Guide</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-2">
+      <span class="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse mr-1.5"></span> Live Map
+      </span>
+    </div>
+  </header>
+
+  <!-- MAP SECTION (35% Screen Height) -->
   <div class="map-container">
     <div id="map" class="w-full h-full"></div>
-
-    <!-- Live Map Badge -->
-    <div class="absolute top-3 left-3 bg-slate-900/80 backdrop-blur border border-slate-700 text-slate-200 px-3 py-1.5 rounded-full shadow-lg z-20 flex items-center gap-2 text-xs font-medium">
-      <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-      Bali Live Map
-    </div>
   </div>
 
-  <!-- BOTTOM SECTION: Search & Rich Categories (60% Screen Height with Scroll) -->
-  <div class="content-container bg-slate-50 text-slate-800 px-4 pt-4 pb-24">
+  <!-- CONTENT & CATEGORIES SECTION (Scrollable) -->
+  <div class="content-container bg-slate-50 text-slate-800 px-4 pt-4 pb-20">
     
     <!-- Search Bar -->
     <div class="relative mb-5">
@@ -65,13 +81,34 @@
       <input 
         type="text" 
         id="searchInput" 
-        placeholder="Search waterfall, cafe, rentcar, nightclub..." 
+        placeholder="Search villa, hotel, waterfall, cafe..." 
         class="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-2xl text-sm text-slate-800 placeholder-slate-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
         onkeypress="handleSearch(event)"
       />
     </div>
 
-    <!-- GROUP 1: Nature & Adventure -->
+    <!-- GROUP 1: Accommodation & Living (BARU) -->
+    <div class="mb-6">
+      <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 px-1 flex items-center gap-1.5">
+        <span>🏡</span> Accommodation & Living
+      </h2>
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+        <button onclick="goToCategory('villas')" class="flex items-center gap-3 p-3 bg-white border border-slate-100 rounded-2xl shadow-sm hover:border-emerald-500/50 transition-all text-left group">
+          <div class="w-10 h-10 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform"><i data-lucide="home" class="w-5 h-5"></i></div>
+          <div><div class="text-xs font-semibold text-slate-800">Villas & Houses</div><div class="text-[10px] text-slate-400">Long-term Stay</div></div>
+        </button>
+        <button onclick="goToCategory('coliving')" class="flex items-center gap-3 p-3 bg-white border border-slate-100 rounded-2xl shadow-sm hover:border-emerald-500/50 transition-all text-left group">
+          <div class="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform"><i data-lucide="building-2" class="w-5 h-5"></i></div>
+          <div><div class="text-xs font-semibold text-slate-800">Coliving Hubs</div><div class="text-[10px] text-slate-400">Nomad Living</div></div>
+        </button>
+        <button onclick="goToCategory('hotels')" class="flex items-center gap-3 p-3 bg-white border border-slate-100 rounded-2xl shadow-sm hover:border-emerald-500/50 transition-all text-left group">
+          <div class="w-10 h-10 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform"><i data-lucide="bed" class="w-5 h-5"></i></div>
+          <div><div class="text-xs font-semibold text-slate-800">Hotels & Resorts</div><div class="text-[10px] text-slate-400">Short Stay</div></div>
+        </button>
+      </div>
+    </div>
+
+    <!-- GROUP 2: Nature & Adventure -->
     <div class="mb-6">
       <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 px-1 flex items-center gap-1.5">
         <span>🌿</span> Nature & Adventure
@@ -96,7 +133,7 @@
       </div>
     </div>
 
-    <!-- GROUP 2: Essentials & Work -->
+    <!-- GROUP 3: Essentials & Work -->
     <div class="mb-6">
       <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 px-1 flex items-center gap-1.5">
         <span>💼</span> Essentials & Work
@@ -125,7 +162,7 @@
       </div>
     </div>
 
-    <!-- GROUP 3: Lifestyle & Culture -->
+    <!-- GROUP 4: Lifestyle & Culture -->
     <div class="mb-6">
       <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 px-1 flex items-center gap-1.5">
         <span>🎉</span> Lifestyle & Culture
@@ -150,7 +187,7 @@
       </div>
     </div>
 
-    <!-- GROUP 4: Community Focus -->
+    <!-- GROUP 5: Community Focus -->
     <div class="mb-4">
       <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 px-1 flex items-center gap-1.5">
         <span>🤝</span> Community Focus
