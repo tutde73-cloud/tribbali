@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SpotTribe Bali - Category Spots</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 font-sans min-h-screen flex flex-col pb-24">
+
+  <!-- TOP HEADER BAR -->
+  <header class="h-16 bg-slate-900/90 backdrop-blur border-b border-slate-800 px-4 flex items-center justify-between sticky top-0 z-30">
+    <div class="flex items-center gap-3">
+      <button onclick="window.location.href='index.html'" class="w-9 h-9 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 hover:text-white transition-colors">
+        <i data-lucide="arrow-left" class="w-5 h-5"></i>
+      </button>
+      <div>
+        <h1 id="categoryTitle" class="font-bold text-base text-slate-100 capitalize leading-tight">Loading Spots...</h1>
+        <p id="spotCount" class="text-[11px] text-slate-400">Fetching live data from Bali...</p>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT CONTAINER -->
+  <main class="flex-1 p-4 max-w-2xl mx-auto w-full">
+
+    <!-- Loading State -->
+    <div id="loading" class="flex flex-col items-center justify-center py-20 text-slate-400 gap-3">
+      <div class="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+      <p class="text-xs font-medium">Scanning live OpenStreetMap database...</p>
+    </div>
+
+    <!-- Spots List -->
+    <div id="spotsList" class="grid grid-cols-1 gap-3.5 hidden"></div>
+
+    <!-- Empty State -->
+    <div id="emptyState" class="hidden text-center py-20 px-4">
+      <div class="w-12 h-12 rounded-2xl bg-slate-800 text-slate-400 flex items-center justify-center mx-auto mb-3">
+        <i data-lucide="map-pin-off" class="w-6 h-6"></i>
+      </div>
+      <h3 class="text-sm font-semibold text-slate-200 mb-1">No spots found</h3>
+      <p class="text-xs text-slate-400 max-w-xs mx-auto mb-4">No results found for this category right now.</p>
+      <button onclick="loadCategoryData()" class="px-4 py-2 bg-emerald-600 text-white rounded-xl text-xs font-semibold hover:bg-emerald-700 transition-colors">
+        Try Again
+      </button>
+    </div>
+
+  </main>
+
+  <!-- BOTTOM NAVIGATION BAR -->
+  <nav class="fixed bottom-0 left-0 right-0 h-16 bg-slate-900/95 backdrop-blur border-t border-slate-800 flex items-center justify-around px-4 z-30">
+    <a href="index.html" class="flex flex-col items-center gap-1 text-emerald-400">
+      <i data-lucide="map" class="w-5 h-5"></i>
+      <span class="text-[10px] font-medium">Explore</span>
+    </a>
+    <a href="messages.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 transition-colors">
+      <i data-lucide="message-square" class="w-5 h-5"></i>
+      <span class="text-[10px] font-medium">Chats</span>
+    </a>
+    <a href="profile.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 transition-colors">
+      <i data-lucide="user" class="w-5 h-5"></i>
+      <span class="text-[10px] font-medium">Profile</span>
+    </a>
+  </nav>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    // Pemetaan Query Overpass API berdasarkan parameter kategori URL
+    const osmQueries = {
+      'villas': 'node["tourism"="guest_house"]',
+      'coliving': 'node["tourism"="hostel"]',
+      'hotels': 'node["tourism"="hotel"]',
+      'waterfall': 'node["waterway"="waterfall"]',
+      'beach-surf': 'node["natural"="beach"]',
+      'volcano-trekking': 'node["natural"="peak"]',
+      'wildlife': 'node["leisure"="park"]',
+      'rental': 'node["shop"="motorcycle"]',
+      'cafe': 'node["amenity"="cafe"]',
+      'coworking': 'node["office"="coworking"]',
+      'visa-agency': 'node["office"="administrative"]',
+      'medical': 'node["amenity"="clinic"]',
+      'nightclub': 'node["amenity"="nightclub"]',
+      'beach-club': 'node["amenity"="bar"]',
+      'temples': 'node["historic"="manor"]',
+      'yoga-wellness': 'node["leisure"="fitness_centre"]',
+      'meetups': 'node["amenity"="cafe"]',
+      'surfing-buddies': 'node["natural"="beach"]'
+    };
+
+    const categoryNames = {
+      'villas': 'Villas & Houses',
+      'coliving': 'Coliving Hubs',
+      'hotels': 'Hotels & Resorts',
+      'waterfall': 'Waterfalls',
+      'beach-surf': 'Beaches & Surf Spots',
+      'volcano-trekking': 'Volcano & Hiking Spots',
+      'wildlife': 'Wildlife & Nature',
+      'rental': 'Vehicle Rentals',
+      'cafe': 'Cafés & Brunch',
+      'coworking': 'Coworking Spaces',
+      'visa-agency': 'Visa Agencies',
+      'medical': 'Medical Clinics',
+      'nightclub': 'Nightclubs',
+      'beach-club': 'Beach Clubs',
+      'temples': 'Temples & Culture',
+      'yoga-wellness': 'Yoga & Wellness',
+      'meetups': 'Community Meetups',
+      'surfing-buddies': 'Surf Buddies'
+    };
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const categoryType = urlParams.get('type') || 'cafe';
+    const searchQuery = urlParams.get('q') || urlParams.get('search');
+
+    async function loadCategoryData() {
+      const titleEl = document.getElementById('categoryTitle');
+      const countEl = document.getElementById('spotCount');
+      const loadingEl = document.getElementById('loading');
+      const spotsListEl = document.getElementById('spotsList');
+      const emptyStateEl = document.getElementById('emptyState');
+
+      loadingEl.classList.remove('hidden');
+      spotsListEl.classList.add('hidden');
+      emptyStateEl.classList.add('hidden');
+
+      if (searchQuery) {
+        titleEl.innerText = `Search: "${searchQuery}"`;
+      } else {
+        titleEl.innerText = categoryNames[categoryType] || 'Bali Spots';
+      }
+
+      const baliBBox = "-8.9,114.4,-8.0,115.7";
+      let tagQuery = osmQueries[categoryType] || 'node["amenity"="cafe"]';
+
+      if (searchQuery) {
+        tagQuery = `node["name"~"${searchQuery}",i]`;
+      }
+
+      const overpassQuery = `[out:json][timeout:25];(${tagQuery}(${baliBBox}););out body;`;
+      const url = `https://overpass-api.de/api/interpreter?data=${encodeURIComponent(overpassQuery)}`;
+
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+        const spots = [];
+
+        if (data.elements) {
+          data.elements.forEach(el => {
+            if (el.lat && el.lon) {
+              spots.push({
+                name: el.tags && el.tags.name ? el.tags.name : "Popular Bali Spot",
+                address: el.tags && el.tags["addr:suburb"] ? el.tags["addr:suburb"] : "Bali"
+              });
+            }
+          });
+        }
+
+        loadingEl.classList.add('hidden');
+
+        if (spots.length > 0) {
+          countEl.innerText = `${spots.length} locations found`;
+          spotsListEl.innerHTML = spots.slice(0, 40).map(spot => `
+            <div class="bg-slate-800/90 border border-slate-700/70 rounded-2xl p-4 shadow-sm flex flex-col justify-between gap-3">
+              <div>
+                <h3 class="font-bold text-sm text-slate-100">${escapeHtml(spot.name)}</h3>
+                <p class="text-xs text-slate-400 mt-0.5">📍 ${escapeHtml(spot.address)}</p>
+              </div>
+              <button onclick="goToChat('${escapeHtml(spot.name)}')" class="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold transition-colors flex items-center justify-center gap-1.5">
+                💬 Join Local Chat
+              </button>
+            </div>
+          `).join('');
+          spotsListEl.classList.remove('hidden');
+        } else {
+          emptyStateEl.classList.remove('hidden');
+        }
+      } catch (err) {
+        console.error(err);
+        loadingEl.classList.add('hidden');
+        emptyStateEl.classList.remove('hidden');
+      }
+      lucide.createIcons();
+    }
+
+    function goToChat(spotName) {
+      const room = encodeURIComponent(spotName.toLowerCase().replace(/\s+/g, '-'));
+      window.location.href = `messages.html?room=${room}`;
+    }
+
+    function escapeHtml(text) {
+      return text.replace(/"/g, '&quot;');
+    }
+
+    loadCategoryData();
+    lucide.createIcons();
+  </script>
+</body>
+</html>
