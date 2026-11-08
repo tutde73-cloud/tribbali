@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SpotTribe Bali - Live Nomad & Expat Map</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Leaflet CSS & JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    #map { height: calc(100vh - 64px); }
+    .leaflet-popup-content-wrapper {
+      border-radius: 12px;
+      padding: 4px;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-100 font-sans overflow-hidden">
+
+  <!-- Header / Navigation Bar -->
+  <header class="h-16 bg-slate-800/90 backdrop-blur border-b border-slate-700/60 px-4 flex items-center justify-between z-20 relative">
+    <div class="flex items-center gap-2">
+      <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center font-bold text-slate-950 text-xl shadow-lg shadow-emerald-500/20">
+        S
+      </div>
+      <div>
+        <h1 class="font-bold text-lg leading-tight">SpotTribe <span class="text-emerald-400 text-xs font-mono font-normal">BALI (LIVE)</span></h1>
+        <p class="text-xs text-slate-400 hidden sm:block">OpenStreetMap Live Data Integration</p>
+      </div>
+    </div>
+
+    <!-- Filter Buttons -->
+    <div class="flex items-center gap-1.5 sm:gap-2 overflow-x-auto py-1 max-w-[60%] sm:max-w-none">
+      <button onclick="switchCategory('cafe')" class="filter-btn active px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-500 text-slate-950 shadow-sm transition-all" data-category="cafe">
+        ☕ Cafe & Work
+      </button>
+      <button onclick="switchCategory('rental')" class="filter-btn px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-700/80 hover:bg-slate-700 text-slate-300 transition-all border border-slate-600/50" data-category="rental">
+        🛵 Rental Motor / Bike
+      </button>
+      <button onclick="switchCategory('visa')" class="filter-btn px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-700/80 hover:bg-slate-700 text-slate-300 transition-all border border-slate-600/50" data-category="visa">
+        📑 Gov / Visa Agency
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Map Container -->
+  <main class="relative w-full h-[calc(100vh-64px)]">
+    <div id="map" class="w-full z-10"></div>
+
+    <!-- Loading Indicator Overlay -->
+    <div id="loading-indicator" class="hidden absolute top-4 left-1/2 -translate-x-1/2 bg-slate-800/90 border border-emerald-500/40 text-emerald-300 px-4 py-2 rounded-full shadow-2xl z-30 flex items-center gap-2 text-xs font-medium">
+      <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-emerald-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+      Menarik data asli dari OpenStreetMap Bali...
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="hidden absolute bottom-6 right-6 bg-slate-800 border border-emerald-500/40 text-slate-200 px-4 py-3 rounded-xl shadow-2xl z-30 flex items-center gap-3 animate-bounce">
+      <i data-lucide="message-square text-emerald-400"></i>
+      <div>
+        <p id="toast-text" class="text-sm font-medium"></p>
+        <p class="text-xs text-slate-400">(Fitur Real-time Chat akan aktif di Tahap 3)</p>
+      </div>
+    </div>
+  </main>
+
+  <!-- Application Logic & Overpass API Integration -->
+  <script>
+    // Inisialisasi Peta Leaflet (Fokus di Bali: -8.5500, 115.1800)
+    const map = L.map('map', { zoomControl: false }).setView([-8.5500, 115.1800], 11);
+    L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+    // Dark Tile Layer (CartoDB)
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; <a href="https://carto.com/">CARTO</a> & OpenStreetMap',
+      subdomains: 'abcd',
+      maxZoom: 19
+    }).addTo(map);
+
+    let activeMarkers = [];
+
+    // Fungsi untuk menampilkan / menyembunyikan status loading
+    function setLoading(isLoading) {
+      const loader = document.getElementById('loading-indicator');
+      if (isLoading) {
+        loader.classList.remove('hidden');
+      } else {
+        loader.classList.add('hidden');
+      }
+    }
+
+    // Fungsi Utama: Mengambil data real-time dari Overpass API (OpenStreetMap)
+    async function fetchRealTimeSpots(category) {
+      setLoading(true);
+
+      // Bounding box wilayah Bali secara garis besar [selatan, barat, utara, timur]
+      // Area mencakup Denpasar, Canggu, Kuta, Ubud, Seminyak, dll.
+      const baliBBox = "-8.9,114.4,-8.1,115.7";
+      let overpassQuery = "";
+
+      // Membangun query Overpass QL berdasarkan kategori pilihan user
+      if (category === 'cafe') {
+        // Mencari kafe atau tempat kerja/internet di Bali
+        overpassQuery = `[out:json][timeout:25];(
+          node["amenity"="cafe"](${baliBBox});
+          way["amenity"="cafe"](${baliBBox});
+          node["workspace"](${baliBBox});
+        );out body;>;out skel qt;`;
+      } else if (category === 'rental') {
+        // Mencari tempat rental motor atau sepeda
+        overpassQuery = `[out:json][timeout:25];(
+          node["amenity"="bicycle_rental"](${baliBBox});
+          node["shop"="motorcycle"](${baliBBox});
+          way["shop"="motorcycle"](${baliBBox});
+        );out body;>;out skel qt;`;
+      } else if (category === 'visa') {
+        // Mencari kantor imigrasi, agen, atau layanan pemerintah/administratif terkait
+        overpassQuery = `[out:json][timeout:25];(
+          node["amenity"="embassy"](${baliBBox});
+          node["office"="government"](${baliBBox});
+          node["office"="administrative"](${baliBBox});
+          way["office"="administrative"](${baliBBox});
+        );out body;>;out skel qt;`;
+      }
+
+      const url = `https://overpass-api.de/api/interpreter?data=${encodeURIComponent(overpassQuery)}`;
+
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        // Ekstrak elemen yang memiliki koordinat lat & lon
+        const spots = [];
+        data.elements.forEach(el => {
+          let lat = el.lat;
+          let lon = el.lon;
+
+          // Jika elemen berupa 'way' (area/gedung), ambil titik tengah dari pusat bangunannya jika ada
+          if (!lat && el.center) {
+            lat = el.center.lat;
+            lon = el.center.lon;
+          }
+
+          if (lat && lon) {
+            const name = el.tags && el.tags.name ? el.tags.name : "Spot Tanpa Nama (OpenStreetMap)";
+            const address = el.tags && (el.tags["addr:street"] || el.tags["addr:suburb"] || el.tags["addr:city"]) 
+              ? `${el.tags["addr:street"] || ''} ${el.tags["addr:suburb"] || ''} ${el.tags["addr:city"] || 'Bali'}`
+              : "Wilayah Bali";
+
+            spots.push({
+              id: el.id,
+              name: name,
+              lat: lat,
+              lng: lon,
+              address: address.trim(),
+              category: category
+            });
+          }
+        });
+
+        renderSpotsToMap(spots, category);
+      } catch (error) {
+        console.error("Gagal menarik data dari Overpass API:", error);
+        alert("Gagal memuat data langsung dari server peta. Silakan coba beberapa saat lagi.");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    // Render hasil fetch API ke dalam marker Leaflet
+    function renderSpotsToMap(spots, category) {
+      // Bersihkan marker lama
+      activeMarkers.forEach(m => map.removeLayer(m));
+      activeMarkers = [];
+
+      if (spots.length === 0) {
+        alert("Tidak ada data ditemukan di area pandang saat ini untuk kategori ini.");
+        return;
+      }
+
+      // Batasi render maksimal 60 titik agar browser tidak lag
+      const limitedSpots = spots.slice(0, 60);
+
+      limitedSpots.forEach(spot => {
+        const badgeColor = category === 'cafe' ? 'bg-amber-500/20 text-amber-300 border-amber-500/30' :
+                           category === 'rental' ? 'bg-blue-500/20 text-blue-300 border-blue-500/30' :
+                           'bg-purple-500/20 text-purple-300 border-purple-500/30';
+
+        const categoryText = category === 'cafe' ? 'Cafe & Work' : category === 'rental' ? 'Rental Motor' : 'Gov / Visa';
+
+        const popupContent = `
+          <div class="p-3 max-w-xs text-slate-900">
+            <div class="flex items-center justify-between mb-1 gap-2">
+              <h3 class="font-bold text-sm text-slate-900 leading-snug">${spot.name}</h3>
+              <span class="text-[10px] font-semibold px-2 py-0.5 rounded border ${badgeColor}">${categoryText}</span>
+            </div>
+            <p class="text-xs text-slate-500 mb-3">📍 ${spot.address}</p>
+            <button onclick="joinGroupChat('${escapeHtml(spot.name)}')" class="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs rounded-lg transition-colors flex items-center justify-center gap-1.5 shadow-md shadow-emerald-600/30">
+              💬 Masuk Group Chat Area
+            </button>
+          </div>
+        `;
+
+        const marker = L.marker([spot.lat, spot.lng]).addTo(map);
+        marker.bindPopup(popupContent);
+        activeMarkers.push(marker);
+      });
+    }
+
+    // Fungsi bantu untuk membersihkan string kutipan pada nama tempat
+    function escapeHtml(text) {
+      return text.replace(/"/g, '&quot;');
+    }
+
+    // Navigasi tombol filter kategori
+    function switchCategory(category) {
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        if (btn.dataset.category === category) {
+          btn.className = "filter-btn active px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-500 text-slate-950 shadow-sm transition-all";
+        } else {
+          btn.className = "filter-btn px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-700/80 hover:bg-slate-700 text-slate-300 transition-all border border-slate-600/50";
+        }
+      });
+
+      fetchRealTimeSpots(category);
+    }
+
+    // Simulasi klik tombol join chat
+    function joinGroupChat(spotName) {
+      const toast = document.getElementById('toast');
+      const toastText = document.getElementById('toast-text');
+      toastText.innerText = `Menghubungkan ke ruang chat "${spotName}"...`;
+      toast.classList.remove('hidden');
+
+      setTimeout(() => {
+        toast.classList.add('hidden');
+      }, 3500);
+    }
+
+    // Load data pertama kali saat web dibuka (default: cafe)
+    fetchRealTimeSpots('cafe');
+    lucide.createIcons();
+  </script>
+</body>
+</html>
