@@ -5,103 +5,61 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>SpotTribe Bali - Explore Spots & Communities</title>
   
-  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  
-  <!-- Leaflet CSS & JS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-  <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
 
   <style>
-    html, body {
-      height: 100vh;
-      margin: 0;
-      overflow: hidden;
-      background-color: #0f172a;
-    }
-    .header-container {
-      height: 56px;
-      width: 100%;
-    }
-    .map-container {
-      height: 35vh;
-      width: 100%;
-      position: relative;
-      z-index: 10;
-    }
-    .content-container {
-      height: calc(65vh - 56px - 64px); 
-      width: 100%;
-      overflow-y: auto;
-    }
-    .leaflet-popup-content-wrapper {
-      border-radius: 12px;
-      padding: 4px;
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-    }
+    html, body { height: 100vh; margin: 0; overflow: hidden; background-color: #0f172a; }
+    .header-container { height: 56px; width: 100%; }
+    .map-container { height: 35vh; width: 100%; position: relative; z-index: 10; }
+    .content-container { height: calc(65vh - 56px - 64px); width: 100%; overflow-y: auto; }
   </style>
 </head>
 <body class="flex flex-col font-sans text-slate-100">
 
-  <!-- TOP HEADER BAR -->
   <header class="header-container bg-slate-900 border-b border-slate-800 px-4 flex items-center justify-between shrink-0 z-20">
     <div class="flex items-center gap-2.5">
-      <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center font-bold text-slate-950 text-base shadow-lg shadow-emerald-500/20">
-        S
-      </div>
+      <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center font-bold text-slate-950 text-base shadow-lg shadow-emerald-500/20">S</div>
       <div>
         <h1 class="font-bold text-sm leading-tight text-slate-100">SpotTribe <span class="text-emerald-400 text-[10px] font-mono font-normal">BALI</span></h1>
         <p class="text-[10px] text-slate-400">Nomad & Expat Guide</p>
       </div>
     </div>
-    <div class="flex items-center gap-2">
-      <span class="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse mr-1.5"></span> Live Map
-      </span>
-    </div>
+    <span class="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+      <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse mr-1.5"></span> Live Map
+    </span>
   </header>
 
-  <!-- MAP SECTION (35% Screen Height) -->
   <div class="map-container">
     <div id="map" class="w-full h-full"></div>
   </div>
 
-  <!-- CONTENT & CATEGORIES SECTION -->
-  <div class="content-container bg-slate-50 text-slate-800 px-4 pt-4 pb-20">
+  <div class="content-container bg-slate-50 text-slate-800 px-4 pt-4 pb-24">
     
     <!-- Search Bar -->
     <div class="relative mb-5">
       <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
         <i data-lucide="search" class="w-4 h-4"></i>
       </span>
-      <input 
-        type="text" 
-        id="searchInput" 
-        placeholder="Search villa, hotel, waterfall, cafe..." 
-        class="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-2xl text-sm text-slate-800 placeholder-slate-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
-        onkeypress="handleSearch(event)"
-      />
+      <input type="text" id="searchInput" placeholder="Search villa, hotel, waterfall, cafe..." class="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-2xl text-sm text-slate-800 placeholder-slate-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all" onkeypress="handleSearch(event)" />
     </div>
 
     <!-- GROUP 1: Accommodation & Living -->
     <div class="mb-6">
-      <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 px-1 flex items-center gap-1.5">
-        <span>🏡</span> Accommodation & Living
-      </h2>
+      <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 px-1">🏡 Accommodation & Living</h2>
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-        <button onclick="window.location.href='villas.html'" class="flex items-center gap-3 p-3 bg-white border border-slate-100 rounded-2xl shadow-sm hover:border-emerald-500/50 transition-all text-left group">
-          <div class="w-10 h-10 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform"><i data-lucide="home" class="w-5 h-5"></i></div>
+        <button onclick="goToCategory('villas')" class="flex items-center gap-3 p-3 bg-white border border-slate-100 rounded-2xl shadow-sm hover:border-emerald-500/50 transition-all text-left group">
+          <div class="w-10 h-10 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center shrink-0"><i data-lucide="home" class="w-5 h-5"></i></div>
           <div><div class="text-xs font-semibold text-slate-800">Villas & Houses</div><div class="text-[10px] text-slate-400">Long-term Stay</div></div>
         </button>
-        <button onclick="window.location.href='coliving.html'" class="flex items-center gap-3 p-3 bg-white border border-slate-100 rounded-2xl shadow-sm hover:border-emerald-500/50 transition-all text-left group">
-          <div class="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform"><i data-lucide="building-2" class="w-5 h-5"></i></div>
+        <button onclick="goToCategory('coliving')" class="flex items-center gap-3 p-3 bg-white border border-slate-100 rounded-2xl shadow-sm hover:border-emerald-500/50 transition-all text-left group">
+          <div class="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center shrink-0"><i data-lucide="building-2" class="w-5 h-5"></i></div>
           <div><div class="text-xs font-semibold text-slate-800">Coliving Hubs</div><div class="text-[10px] text-slate-400">Nomad Living</div></div>
         </button>
-        <button onclick="window.location.href='hotels.html'" class="flex items-center gap-3 p-3 bg-white border border-slate-100 rounded-2xl shadow-sm hover:border-emerald-500/50 transition-all text-left group">
-          <div class="w-10 h-10 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform"><i data-lucide="bed" class="w-5 h-5"></i></div>
+        <button onclick="goToCategory('hotels')" class="flex items-center gap-3 p-3 bg-white border border-slate-100 rounded-2xl shadow-sm hover:border-emerald-500/50 transition-all text-left group">
+          <div class="w-10 h-10 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center shrink-0"><i data-lucide="bed" class="w-5 h-5"></i></div>
           <div><div class="text-xs font-semibold text-slate-800">Hotels & Resorts</div><div class="text-[10px] text-slate-400">Short Stay</div></div>
         </button>
       </div>
@@ -109,24 +67,22 @@
 
     <!-- GROUP 2: Nature & Adventure -->
     <div class="mb-6">
-      <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 px-1 flex items-center gap-1.5">
-        <span>🌿</span> Nature & Adventure
-      </h2>
+      <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 px-1">🌿 Nature & Adventure</h2>
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-        <button onclick="window.location.href='waterfall.html'" class="flex items-center gap-3 p-3 bg-white border border-slate-100 rounded-2xl shadow-sm hover:border-emerald-500/50 transition-all text-left group">
-          <div class="w-10 h-10 rounded-xl bg-cyan-50 text-cyan-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform"><i data-lucide="waves" class="w-5 h-5"></i></div>
+        <button onclick="goToCategory('waterfall')" class="flex items-center gap-3 p-3 bg-white border border-slate-100 rounded-2xl shadow-sm hover:border-emerald-500/50 transition-all text-left group">
+          <div class="w-10 h-10 rounded-xl bg-cyan-50 text-cyan-600 flex items-center justify-center shrink-0"><i data-lucide="waves" class="w-5 h-5"></i></div>
           <div><div class="text-xs font-semibold text-slate-800">Waterfall</div><div class="text-[10px] text-slate-400">Nature Spot</div></div>
         </button>
-        <button onclick="window.location.href='beach-surf.html'" class="flex items-center gap-3 p-3 bg-white border border-slate-100 rounded-2xl shadow-sm hover:border-emerald-500/50 transition-all text-left group">
-          <div class="w-10 h-10 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform"><i data-lucide="sun" class="w-5 h-5"></i></div>
+        <button onclick="goToCategory('beach-surf')" class="flex items-center gap-3 p-3 bg-white border border-slate-100 rounded-2xl shadow-sm hover:border-emerald-500/50 transition-all text-left group">
+          <div class="w-10 h-10 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center shrink-0"><i data-lucide="sun" class="w-5 h-5"></i></div>
           <div><div class="text-xs font-semibold text-slate-800">Beach & Surf</div><div class="text-[10px] text-slate-400">Coastal Area</div></div>
         </button>
-        <button onclick="window.location.href='volcano-trekking.html'" class="flex items-center gap-3 p-3 bg-white border border-slate-100 rounded-2xl shadow-sm hover:border-emerald-500/50 transition-all text-left group">
-          <div class="w-10 h-10 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform"><i data-lucide="mountain" class="w-5 h-5"></i></div>
+        <button onclick="goToCategory('volcano-trekking')" class="flex items-center gap-3 p-3 bg-white border border-slate-100 rounded-2xl shadow-sm hover:border-emerald-500/50 transition-all text-left group">
+          <div class="w-10 h-10 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center shrink-0"><i data-lucide="mountain" class="w-5 h-5"></i></div>
           <div><div class="text-xs font-semibold text-slate-800">Volcano Trek</div><div class="text-[10px] text-slate-400">Hiking Spot</div></div>
         </button>
-        <button onclick="window.location.href='wildlife.html'" class="flex items-center gap-3 p-3 bg-white border border-slate-100 rounded-2xl shadow-sm hover:border-emerald-500/50 transition-all text-left group">
-          <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform"><i data-lucide="trees" class="w-5 h-5"></i></div>
+        <button onclick="goToCategory('wildlife')" class="flex items-center gap-3 p-3 bg-white border border-slate-100 rounded-2xl shadow-sm hover:border-emerald-500/50 transition-all text-left group">
+          <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0"><i data-lucide="trees" class="w-5 h-5"></i></div>
           <div><div class="text-xs font-semibold text-slate-800">Wildlife</div><div class="text-[10px] text-slate-400">Forest & Fauna</div></div>
         </button>
       </div>
@@ -134,32 +90,71 @@
 
     <!-- GROUP 3: Essentials & Work -->
     <div class="mb-6">
-      <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 px-1 flex items-center gap-1.5">
-        <span>💼</span> Essentials & Work
-      </h2>
+      <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 px-1">💼 Essentials & Work</h2>
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-        <button onclick="window.location.href='rental.html'" class="flex items-center gap-3 p-3 bg-white border border-slate-100 rounded-2xl shadow-sm hover:border-emerald-500/50 transition-all text-left group">
-          <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform"><i data-lucide="bike" class="w-5 h-5"></i></div>
+        <button onclick="goToCategory('rental')" class="flex items-center gap-3 p-3 bg-white border border-slate-100 rounded-2xl shadow-sm hover:border-emerald-500/50 transition-all text-left group">
+          <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0"><i data-lucide="bike" class="w-5 h-5"></i></div>
           <div><div class="text-xs font-semibold text-slate-800">Rent Vehicle</div><div class="text-[10px] text-slate-400">Bike & Car</div></div>
         </button>
-        <button onclick="window.location.href='cafe.html'" class="flex items-center gap-3 p-3 bg-white border border-slate-100 rounded-2xl shadow-sm hover:border-emerald-500/50 transition-all text-left group">
-          <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform"><i data-lucide="coffee" class="w-5 h-5"></i></div>
+        <button onclick="goToCategory('cafe')" class="flex items-center gap-3 p-3 bg-white border border-slate-100 rounded-2xl shadow-sm hover:border-emerald-500/50 transition-all text-left group">
+          <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0"><i data-lucide="coffee" class="w-5 h-5"></i></div>
           <div><div class="text-xs font-semibold text-slate-800">Cafés & Brunch</div><div class="text-[10px] text-slate-400">Coffee Spots</div></div>
         </button>
-        <button onclick="window.location.href='coworking.html'" class="flex items-center gap-3 p-3 bg-white border border-slate-100 rounded-2xl shadow-sm hover:border-emerald-500/50 transition-all text-left group">
-          <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform"><i data-lucide="laptop" class="w-5 h-5"></i></div>
+        <button onclick="goToCategory('coworking')" class="flex items-center gap-3 p-3 bg-white border border-slate-100 rounded-2xl shadow-sm hover:border-emerald-500/50 transition-all text-left group">
+          <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0"><i data-lucide="laptop" class="w-5 h-5"></i></div>
           <div><div class="text-xs font-semibold text-slate-800">Coworking</div><div class="text-[10px] text-slate-400">Workspaces</div></div>
         </button>
-        <button onclick="window.location.href='visa-agency.html'" class="flex items-center gap-3 p-3 bg-white border border-slate-100 rounded-2xl shadow-sm hover:border-emerald-500/50 transition-all text-left group">
-          <div class="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform"><i data-lucide="file-text" class="w-5 h-5"></i></div>
+        <button onclick="goToCategory('visa-agency')" class="flex items-center gap-3 p-3 bg-white border border-slate-100 rounded-2xl shadow-sm hover:border-emerald-500/50 transition-all text-left group">
+          <div class="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center shrink-0"><i data-lucide="file-text" class="w-5 h-5"></i></div>
           <div><div class="text-xs font-semibold text-slate-800">Visa Agency</div><div class="text-[10px] text-slate-400">Legal & Docs</div></div>
+        </button>
+        <button onclick="goToCategory('medical')" class="flex items-center gap-3 p-3 bg-white border border-slate-100 rounded-2xl shadow-sm hover:border-emerald-500/50 transition-all text-left group">
+          <div class="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center shrink-0"><i data-lucide="plus-circle" class="w-5 h-5"></i></div>
+          <div><div class="text-xs font-semibold text-slate-800">Medical / Clinic</div><div class="text-[10px] text-slate-400">Health Care</div></div>
+        </button>
+      </div>
+    </div>
+
+    <!-- GROUP 4: Lifestyle & Culture -->
+    <div class="mb-6">
+      <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 px-1">🎉 Lifestyle & Culture</h2>
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+        <button onclick="goToCategory('nightclub')" class="flex items-center gap-3 p-3 bg-white border border-slate-100 rounded-2xl shadow-sm hover:border-emerald-500/50 transition-all text-left group">
+          <div class="w-10 h-10 rounded-xl bg-fuchsia-50 text-fuchsia-600 flex items-center justify-center shrink-0"><i data-lucide="party-popper" class="w-5 h-5"></i></div>
+          <div><div class="text-xs font-semibold text-slate-800">Nightclub</div><div class="text-[10px] text-slate-400">Nightlife</div></div>
+        </button>
+        <button onclick="goToCategory('beach-club')" class="flex items-center gap-3 p-3 bg-white border border-slate-100 rounded-2xl shadow-sm hover:border-emerald-500/50 transition-all text-left group">
+          <div class="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center shrink-0"><i data-lucide="glass-water" class="w-5 h-5"></i></div>
+          <div><div class="text-xs font-semibold text-slate-800">Beach Clubs</div><div class="text-[10px] text-slate-400">Sunset Lounge</div></div>
+        </button>
+        <button onclick="goToCategory('temples')" class="flex items-center gap-3 p-3 bg-white border border-slate-100 rounded-2xl shadow-sm hover:border-emerald-500/50 transition-all text-left group">
+          <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center shrink-0"><i data-lucide="landmark" class="w-5 h-5"></i></div>
+          <div><div class="text-xs font-semibold text-slate-800">Temples</div><div class="text-[10px] text-slate-400">Culture & Heritage</div></div>
+        </button>
+        <button onclick="goToCategory('yoga-wellness')" class="flex items-center gap-3 p-3 bg-white border border-slate-100 rounded-2xl shadow-sm hover:border-emerald-500/50 transition-all text-left group">
+          <div class="w-10 h-10 rounded-xl bg-lime-50 text-lime-700 flex items-center justify-center shrink-0"><i data-lucide="heart-pulse" class="w-5 h-5"></i></div>
+          <div><div class="text-xs font-semibold text-slate-800">Yoga & Spa</div><div class="text-[10px] text-slate-400">Wellness</div></div>
+        </button>
+      </div>
+    </div>
+
+    <!-- GROUP 5: Community Focus -->
+    <div class="mb-4">
+      <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 px-1">🤝 Community Focus</h2>
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+        <button onclick="goToCategory('meetups')" class="flex items-center gap-3 p-3 bg-white border border-slate-100 rounded-2xl shadow-sm hover:border-emerald-500/50 transition-all text-left group">
+          <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0"><i data-lucide="users" class="w-5 h-5"></i></div>
+          <div><div class="text-xs font-semibold text-slate-800">Meetups</div><div class="text-[10px] text-slate-400">Social Events</div></div>
+        </button>
+        <button onclick="goToCategory('surfing-buddies')" class="flex items-center gap-3 p-3 bg-white border border-slate-100 rounded-2xl shadow-sm hover:border-emerald-500/50 transition-all text-left group">
+          <div class="w-10 h-10 rounded-xl bg-cyan-50 text-cyan-700 flex items-center justify-center shrink-0"><i data-lucide="compass" class="w-5 h-5"></i></div>
+          <div><div class="text-xs font-semibold text-slate-800">Surf Buddies</div><div class="text-[10px] text-slate-400">Find Partners</div></div>
         </button>
       </div>
     </div>
 
   </div>
 
-  <!-- BOTTOM NAVIGATION BAR -->
   <nav class="absolute bottom-0 left-0 right-0 h-16 bg-slate-900/95 backdrop-blur border-t border-slate-800 flex items-center justify-around px-4 z-30">
     <a href="index.html" class="flex flex-col items-center gap-1 text-emerald-400">
       <i data-lucide="map" class="w-5 h-5"></i>
@@ -175,21 +170,20 @@
     </a>
   </nav>
 
-  <!-- SCRIPT -->
   <script>
     const map = L.map('map', { zoomControl: false }).setView([-8.5500, 115.1800], 10);
     L.control.zoom({ position: 'topright' }).addTo(map);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap' }).addTo(map);
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '&copy; OpenStreetMap'
-    }).addTo(map);
+    function goToCategory(type) {
+      window.location.href = `category.html?type=${type}`;
+    }
 
     function handleSearch(event) {
       if (event.key === 'Enter') {
         const query = document.getElementById('searchInput').value.trim();
         if (query) {
-          window.location.href = `search.html?q=${encodeURIComponent(query)}`;
+          window.location.href = `category.html?search=${encodeURIComponent(query)}`;
         }
       }
     }
