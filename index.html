@@ -16,7 +16,7 @@
   <script src="https://unpkg.com/lucide@latest"></script>
 
   <style>
-    #map { height: calc(100vh - 64px); }
+    #map { height: calc(100vh - 64px); background-color: #0f172a; }
     .leaflet-popup-content-wrapper {
       border-radius: 12px;
       padding: 4px;
@@ -33,8 +33,8 @@
         S
       </div>
       <div>
-        <h1 class="font-bold text-lg leading-tight">SpotTribe <span class="text-emerald-400 text-xs font-mono font-normal">BALI (LIVE)</span></h1>
-        <p class="text-xs text-slate-400 hidden sm:block">OpenStreetMap Live Data Integration</p>
+        <h1 class="font-bold text-lg leading-tight">SpotTribe <span class="text-emerald-400 text-xs font-mono font-normal">BALI</span></h1>
+        <p class="text-xs text-slate-400 hidden sm:block">OpenStreetMap Live Integration</p>
       </div>
     </div>
 
@@ -44,7 +44,7 @@
         ☕ Cafe & Work
       </button>
       <button onclick="switchCategory('rental')" class="filter-btn px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-700/80 hover:bg-slate-700 text-slate-300 transition-all border border-slate-600/50" data-category="rental">
-        🛵 Rental Motor / Bike
+        🛵 Rental Motor
       </button>
       <button onclick="switchCategory('visa')" class="filter-btn px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-700/80 hover:bg-slate-700 text-slate-300 transition-all border border-slate-600/50" data-category="visa">
         📑 Gov / Visa Agency
@@ -62,7 +62,7 @@
         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
       </svg>
-      Menarik data asli dari OpenStreetMap Bali...
+      <span id="loader-text">Menarik data asli dari OpenStreetMap Bali...</span>
     </div>
 
     <!-- Notification Toast -->
@@ -75,121 +75,109 @@
     </div>
   </main>
 
-  <!-- Application Logic & Overpass API Integration -->
+  <!-- Application Logic & Leaflet Initialization -->
   <script>
-    // Inisialisasi Peta Leaflet (Fokus di Bali: -8.5500, 115.1800)
+    // 1. Inisialisasi Peta Leaflet (Fokus di Tengah Bali)
     const map = L.map('map', { zoomControl: false }).setView([-8.5500, 115.1800], 11);
     L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-    // Dark Tile Layer (CartoDB)
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-      attribution: '&copy; <a href="https://carto.com/">CARTO</a> & OpenStreetMap',
-      subdomains: 'abcd',
-      maxZoom: 19
+    // 2. Menggunakan Tile Layer Resmi OpenStreetMap 100% Gratis Tanpa API Key
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
 
     let activeMarkers = [];
 
-    // Fungsi untuk menampilkan / menyembunyikan status loading
-    function setLoading(isLoading) {
+    // Fungsi Pengatur Indikator Loading di UI
+    function setLoading(isLoading, text = "Menarik data asli dari OpenStreetMap Bali...") {
       const loader = document.getElementById('loading-indicator');
+      const loaderText = document.getElementById('loader-text');
       if (isLoading) {
+        if (loaderText) loaderText.innerText = text;
         loader.classList.remove('hidden');
       } else {
         loader.classList.add('hidden');
       }
     }
 
-    // Fungsi Utama: Mengambil data real-time dari Overpass API (OpenStreetMap)
-    async function fetchRealTimeSpots(category) {
-      setLoading(true);
+    // 3. Fungsi Utama: Menarik Data Real-Time dengan Overpass API + Sistem Retry Otomatis
+    async function fetchRealTimeSpots(category, retryCount = 0) {
+      setLoading(true, retryCount > 0 ? `Server sibuk, mencoba ulang (${retryCount}/2)...` : "Menarik data asli dari OpenStreetMap Bali...");
 
-      // Bounding box wilayah Bali secara garis besar [selatan, barat, utara, timur]
-      // Area mencakup Denpasar, Canggu, Kuta, Ubud, Seminyak, dll.
-      const baliBBox = "-8.9,114.4,-8.1,115.7";
-      let overpassQuery = "";
+      // Bounding box khusus pulau Bali
+      const baliBBox = "-8.9,114.4,-8.0,115.7";
+      let tagQuery = "";
 
-      // Membangun query Overpass QL berdasarkan kategori pilihan user
       if (category === 'cafe') {
-        // Mencari kafe atau tempat kerja/internet di Bali
-        overpassQuery = `[out:json][timeout:25];(
-          node["amenity"="cafe"](${baliBBox});
-          way["amenity"="cafe"](${baliBBox});
-          node["workspace"](${baliBBox});
-        );out body;>;out skel qt;`;
+        tagQuery = 'node["amenity"="cafe"]';
       } else if (category === 'rental') {
-        // Mencari tempat rental motor atau sepeda
-        overpassQuery = `[out:json][timeout:25];(
-          node["amenity"="bicycle_rental"](${baliBBox});
-          node["shop"="motorcycle"](${baliBBox});
-          way["shop"="motorcycle"](${baliBBox});
-        );out body;>;out skel qt;`;
+        tagQuery = 'node["shop"="motorcycle"]';
       } else if (category === 'visa') {
-        // Mencari kantor imigrasi, agen, atau layanan pemerintah/administratif terkait
-        overpassQuery = `[out:json][timeout:25];(
-          node["amenity"="embassy"](${baliBBox});
-          node["office"="government"](${baliBBox});
-          node["office"="administrative"](${baliBBox});
-          way["office"="administrative"](${baliBBox});
-        );out body;>;out skel qt;`;
+        tagQuery = 'node["office"="administrative"]';
       }
 
+      // Query Overpass terstruktur dengan timeout:25 dan area Bali
+      const overpassQuery = `[out:json][timeout:25];(${tagQuery}(${baliBBox}););out body;`;
       const url = `https://overpass-api.de/api/interpreter?data=${encodeURIComponent(overpassQuery)}`;
 
       try {
         const response = await fetch(url);
-        const data = await response.json();
         
-        // Ekstrak elemen yang memiliki koordinat lat & lon
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
         const spots = [];
-        data.elements.forEach(el => {
-          let lat = el.lat;
-          let lon = el.lon;
 
-          // Jika elemen berupa 'way' (area/gedung), ambil titik tengah dari pusat bangunannya jika ada
-          if (!lat && el.center) {
-            lat = el.center.lat;
-            lon = el.center.lon;
-          }
+        if (data.elements && data.elements.length > 0) {
+          data.elements.forEach(el => {
+            if (el.lat && el.lon) {
+              const name = el.tags && el.tags.name ? el.tags.name : "Spot Publik (OSM Bali)";
+              const address = el.tags && (el.tags["addr:street"] || el.tags["addr:suburb"] || el.tags["addr:city"]) 
+                ? `${el.tags["addr:street"] || ''} ${el.tags["addr:suburb"] || ''} ${el.tags["addr:city"] || 'Bali'}`
+                : "Wilayah Bali";
 
-          if (lat && lon) {
-            const name = el.tags && el.tags.name ? el.tags.name : "Spot Tanpa Nama (OpenStreetMap)";
-            const address = el.tags && (el.tags["addr:street"] || el.tags["addr:suburb"] || el.tags["addr:city"]) 
-              ? `${el.tags["addr:street"] || ''} ${el.tags["addr:suburb"] || ''} ${el.tags["addr:city"] || 'Bali'}`
-              : "Wilayah Bali";
-
-            spots.push({
-              id: el.id,
-              name: name,
-              lat: lat,
-              lng: lon,
-              address: address.trim(),
-              category: category
-            });
-          }
-        });
+              spots.push({
+                id: el.id,
+                name: name,
+                lat: el.lat,
+                lng: el.lon,
+                address: address.trim(),
+                category: category
+              });
+            }
+          });
+        }
 
         renderSpotsToMap(spots, category);
-      } catch (error) {
-        console.error("Gagal menarik data dari Overpass API:", error);
-        alert("Gagal memuat data langsung dari server peta. Silakan coba beberapa saat lagi.");
-      } finally {
         setLoading(false);
+
+      } catch (error) {
+        console.warn(`Percobaan fetch gagal (Percobaan ke-${retryCount + 1}):`, error);
+        
+        if (retryCount < 2) {
+          setTimeout(() => {
+            fetchRealTimeSpots(category, retryCount + 1);
+          }, 2000);
+        } else {
+          setLoading(false);
+          showFriendlyNotice("Server Overpass sedang padat. Silakan klik ulang kategori atau tunggu sebentar.");
+        }
       }
     }
 
-    // Render hasil fetch API ke dalam marker Leaflet
+    // 4. Render Hasil Data ke Peta Leaflet
     function renderSpotsToMap(spots, category) {
-      // Bersihkan marker lama
       activeMarkers.forEach(m => map.removeLayer(m));
       activeMarkers = [];
 
       if (spots.length === 0) {
-        alert("Tidak ada data ditemukan di area pandang saat ini untuk kategori ini.");
+        showFriendlyNotice("Tidak ada data ditemukan untuk kategori ini di wilayah Bali.");
         return;
       }
 
-      // Batasi render maksimal 60 titik agar browser tidak lag
       const limitedSpots = spots.slice(0, 60);
 
       limitedSpots.forEach(spot => {
@@ -218,12 +206,21 @@
       });
     }
 
-    // Fungsi bantu untuk membersihkan string kutipan pada nama tempat
     function escapeHtml(text) {
       return text.replace(/"/g, '&quot;');
     }
 
-    // Navigasi tombol filter kategori
+    function showFriendlyNotice(message) {
+      const toast = document.getElementById('toast');
+      const toastText = document.getElementById('toast-text');
+      toastText.innerText = message;
+      toast.classList.remove('hidden');
+      setTimeout(() => {
+        toast.classList.add('hidden');
+      }, 4000);
+    }
+
+    // 5. Navigasi Tombol Filter Kategori
     function switchCategory(category) {
       document.querySelectorAll('.filter-btn').forEach(btn => {
         if (btn.dataset.category === category) {
@@ -236,19 +233,11 @@
       fetchRealTimeSpots(category);
     }
 
-    // Simulasi klik tombol join chat
     function joinGroupChat(spotName) {
-      const toast = document.getElementById('toast');
-      const toastText = document.getElementById('toast-text');
-      toastText.innerText = `Menghubungkan ke ruang chat "${spotName}"...`;
-      toast.classList.remove('hidden');
-
-      setTimeout(() => {
-        toast.classList.add('hidden');
-      }, 3500);
+      showFriendlyNotice(`Menghubungkan ke ruang chat "${spotName}"...`);
     }
 
-    // Load data pertama kali saat web dibuka (default: cafe)
+    // Jalankan pemanggilan data pertama kali saat halaman dimuat
     fetchRealTimeSpots('cafe');
     lucide.createIcons();
   </script>
