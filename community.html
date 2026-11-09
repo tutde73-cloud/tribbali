@@ -64,7 +64,7 @@
       </div>
     </section>
 
-    <!-- SECTION 2: SURF BUDDIES / STATUS TAB (Hidden by Default) -->
+    <!-- SECTION 2: SURF BUDDIES / STATUS TAB -->
     <section id="buddiesSection" class="space-y-4 hidden">
       <div class="flex justify-between items-center mb-4">
         <h2 class="text-lg font-bold text-slate-800">Members Available to Hangout</h2>
@@ -77,20 +77,25 @@
       </div>
     </section>
 
-    <!-- SECTION 3: GLOBAL CHAT TAB (Hidden by Default) -->
+    <!-- SECTION 3: GLOBAL CHAT TAB (Redesigned & Elegant Frame) -->
     <section id="chatSection" class="space-y-4 hidden flex-grow flex flex-col">
-      <div class="flex justify-between items-center mb-2">
-        <h2 class="text-lg font-bold text-slate-800">Bali Nomad Global Chat</h2>
-        <span class="text-[11px] bg-sky-100 text-sky-800 font-semibold px-2.5 py-1 rounded-full">Auto-clear every 3 days</span>
+      <div class="flex justify-between items-center mb-1">
+        <h2 class="text-lg font-bold text-slate-900 tracking-tight">Tribali Global Chat</h2>
+        <span class="text-[11px] bg-sky-50 text-sky-700 font-medium px-3 py-1 rounded-full border border-sky-100 shadow-2xs">Auto-clear every 3 days</span>
       </div>
 
-      <div class="bg-white border border-slate-200 rounded-2xl shadow-sm flex flex-col h-[500px] overflow-hidden">
-        <div id="chatMessagesContainer" class="flex-grow p-4 overflow-y-auto space-y-4 bg-slate-50/50">
-          <p class="text-slate-400 text-xs italic text-center py-10">Loading live conversation...</p>
+      <!-- Elegant Chat Box Wrapper -->
+      <div class="bg-white border border-slate-200/80 rounded-3xl shadow-sm hover:shadow-md transition flex flex-col h-[520px] overflow-hidden">
+        
+        <!-- Messages Scroll Area -->
+        <div id="chatMessagesContainer" class="flex-grow p-5 overflow-y-auto space-y-4 bg-slate-50/40">
+          <p class="text-slate-400 text-xs italic text-center py-12">Loading live conversation...</p>
         </div>
-        <form id="chatForm" onsubmit="handleSendMessage(event)" class="p-3 bg-white border-t border-slate-200 flex gap-2">
-          <input type="text" id="chatInputMessage" required placeholder="Say something to the tribe..." class="flex-grow text-sm border border-slate-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-sky-500">
-          <button type="submit" class="bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition">
+
+        <!-- Chat Input Form Area -->
+        <form id="chatForm" onsubmit="handleSendMessage(event)" class="p-4 bg-white border-t border-slate-100 flex items-center gap-3">
+          <input type="text" id="chatInputMessage" required placeholder="Say something to the tribe..." class="flex-grow text-sm bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 focus:outline-none focus:bg-white focus:border-sky-500 focus:ring-2 focus:ring-sky-500/10 transition">
+          <button type="submit" class="bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold px-6 py-3 rounded-2xl shadow-sm hover:shadow transition flex-shrink-0">
             Send 🚀
           </button>
         </form>
@@ -186,6 +191,7 @@
 
     let currentUserSession = null;
     let currentUserProfile = null;
+    let globalMessagesCache = [];
 
     async function initAuth() {
       const { data: { session } } = await supabaseClient.auth.getSession();
@@ -350,26 +356,23 @@
       }).join('');
     }
 
-    // 3. Fetch Global Chat Messages
+    // 3. Fetch Global Chat Messages & Real-time Fix
     async function fetchMessages() {
-      const container = document.getElementById('chatMessagesContainer');
       const { data, error } = await supabaseClient
         .from('messages')
         .select('*')
         .order('created_at', { ascending: true });
 
-      if (error) {
-        container.innerHTML = `<p class="text-rose-500 text-xs text-center">Failed to load messages.</p>`;
-        return;
+      if (!error && data) {
+        globalMessagesCache = data;
+        renderMessages(globalMessagesCache);
       }
-
-      renderMessages(data);
     }
 
     function renderMessages(messages) {
       const container = document.getElementById('chatMessagesContainer');
       if (!messages || messages.length === 0) {
-        container.innerHTML = `<p class="text-slate-400 text-xs italic text-center py-10">No messages yet. Be the first to say hello to the tribe!</p>`;
+        container.innerHTML = `<p class="text-slate-400 text-xs italic text-center py-12">No messages yet. Be the first to say hello to the tribe!</p>`;
         return;
       }
 
@@ -386,7 +389,7 @@
                 <span class="text-xs font-bold text-slate-700">${escapeHtml(msg.sender_name)}</span>
                 <span class="text-[10px] text-slate-400">${timeStr}</span>
               </div>
-              <div class="p-3 rounded-2xl text-xs leading-relaxed ${isMe ? 'bg-sky-600 text-white rounded-tr-none' : 'bg-white border border-slate-200 text-slate-800 rounded-tl-none shadow-sm'}">
+              <div class="p-3.5 rounded-2xl text-xs leading-relaxed ${isMe ? 'bg-sky-600 text-white rounded-tr-none shadow-sm' : 'bg-white border border-slate-200 text-slate-800 rounded-tl-none shadow-sm'}">
                 ${escapeHtml(msg.message_text)}
               </div>
             </div>
@@ -412,12 +415,13 @@
       const senderName = currentUserProfile?.full_name || currentUserSession.user.user_metadata.full_name || 'Member';
       const senderAvatar = currentUserProfile?.avatar_url || currentUserSession.user.user_metadata.avatar_url || null;
 
-      const { error } = await supabaseClient.from('messages').insert([{
+      // Optimistic UI insert or direct wait
+      const { data, error } = await supabaseClient.from('messages').insert([{
         sender_id: currentUserSession.user.id,
         sender_name: senderName,
         sender_avatar: senderAvatar,
         message_text: text
-      }]);
+      }]).select();
 
       if (error) {
         alert("Error sending message: " + error.message);
@@ -425,13 +429,23 @@
       }
 
       input.value = '';
+      if (data && data.length > 0) {
+        // Langsung tambahkan ke cache dan render instant tanpa tunggu refresh
+        globalMessagesCache.push(data[0]);
+        renderMessages(globalMessagesCache);
+      }
     }
 
     function setupRealtimeChat() {
       supabaseClient
         .channel('public:messages')
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
-          fetchMessages();
+          const newMessage = payload.new;
+          // Hindari duplikat jika pesan dari user sendiri sudah masuk lewat optimistic insert
+          if (!globalMessagesCache.some(m => m.id === newMessage.id)) {
+            globalMessagesCache.push(newMessage);
+            renderMessages(globalMessagesCache);
+          }
         })
         .subscribe();
     }
@@ -519,7 +533,6 @@
       const buddiesSec = document.getElementById('buddiesSection');
       const chatSec = document.getElementById('chatSection');
 
-      // Reset styles
       const activeClass = "flex-1 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold transition bg-white text-slate-900 shadow-sm";
       const inactiveClass = "flex-1 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold transition text-slate-600 hover:text-slate-900";
 
