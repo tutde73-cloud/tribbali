@@ -121,14 +121,17 @@
         if (searchQuery) {
           query = query.ilike('name', `%${searchQuery}%`);
         } else {
-          // Normalisasi total string parameter URL dari tombol index.html
           const type = rawType.toLowerCase().trim();
           let dbCategory = type;
 
           if (type.includes('hotel') || type.includes('resort')) {
             dbCategory = 'hotel';
-          } else if (type.includes('beach') || type.includes('surf') || type.includes('club')) {
+          } else if (type.includes('beach-club') || type.includes('beachclub')) {
+            dbCategory = 'beachclub';
+          } else if (type.includes('beach') || type.includes('surf')) {
             dbCategory = 'beach';
+          } else if (type.includes('nightclub') || type.includes('club')) {
+            dbCategory = 'nightclub';
           } else if (type.includes('villa') || type.includes('house')) {
             dbCategory = 'villas';
           } else if (type.includes('waterfall')) {
@@ -149,6 +152,10 @@
             dbCategory = 'medical';
           } else if (type.includes('visa') || type.includes('agency') || type.includes('legal')) {
             dbCategory = 'visa';
+          } else if (type.includes('temple') || type.includes('culture') || type.includes('heritage')) {
+            dbCategory = 'temple';
+          } else if (type.includes('yoga') || type.includes('spa') || type.includes('wellness')) {
+            dbCategory = 'wellness';
           }
 
           query = query.eq('category', dbCategory);
