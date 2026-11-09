@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>SpotTribe Bali - Category Spots</title>
+  <title>SpotTribe Bali - Explore Spots</title>
   
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body class="bg-slate-900 text-slate-100 font-sans min-h-screen flex flex-col pb-24">
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col pb-24">
 
   <!-- TOP HEADER BAR -->
   <header class="h-16 bg-slate-900/90 backdrop-blur border-b border-slate-800 px-4 flex items-center justify-between sticky top-0 z-30">
@@ -17,31 +17,31 @@
         <i data-lucide="arrow-left" class="w-5 h-5"></i>
       </button>
       <div>
-        <h1 id="categoryTitle" class="font-bold text-base text-slate-100 capitalize leading-tight">Loading Spots...</h1>
-        <p id="spotCount" class="text-[11px] text-slate-400">Fetching live data from Bali...</p>
+        <h1 id="categoryTitle" class="font-bold text-base text-slate-100 capitalize leading-tight">Exploring Spots</h1>
+        <p id="spotCount" class="text-[11px] text-slate-400">Loading curated listings...</p>
       </div>
     </div>
   </header>
 
   <!-- MAIN CONTENT CONTAINER -->
-  <main class="flex-1 p-4 max-w-2xl mx-auto w-full">
+  <main class="flex-1 p-4 max-w-xl mx-auto w-full">
 
     <!-- Loading State -->
     <div id="loading" class="flex flex-col items-center justify-center py-20 text-slate-400 gap-3">
       <div class="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
-      <p class="text-xs font-medium">Scanning live OpenStreetMap database...</p>
+      <p class="text-xs font-medium">Curating top spots in Bali...</p>
     </div>
 
-    <!-- Spots List -->
-    <div id="spotsList" class="grid grid-cols-1 gap-3.5 hidden"></div>
+    <!-- Spots Card Grid -->
+    <div id="spotsList" class="flex flex-col gap-4 hidden"></div>
 
     <!-- Empty State -->
     <div id="emptyState" class="hidden text-center py-20 px-4">
-      <div class="w-12 h-12 rounded-2xl bg-slate-800 text-slate-400 flex items-center justify-center mx-auto mb-3">
+      <div class="w-12 h-12 rounded-2xl bg-slate-900 text-slate-400 flex items-center justify-center mx-auto mb-3 border border-slate-800">
         <i data-lucide="map-pin-off" class="w-6 h-6"></i>
       </div>
       <h3 class="text-sm font-semibold text-slate-200 mb-1">No spots found</h3>
-      <p class="text-xs text-slate-400 max-w-xs mx-auto mb-4">No results found for this category right now.</p>
+      <p class="text-xs text-slate-400 max-w-xs mx-auto mb-4">No listings available for this category right now.</p>
       <button onclick="loadCategoryData()" class="px-4 py-2 bg-emerald-600 text-white rounded-xl text-xs font-semibold hover:bg-emerald-700 transition-colors">
         Try Again
       </button>
@@ -65,30 +65,8 @@
     </a>
   </nav>
 
-  <!-- JAVASCRIPT LOGIC -->
+  <!-- JAVASCRIPT LOGIC & MOCK DATA -->
   <script>
-    // Pemetaan Query Overpass API berdasarkan parameter kategori URL
-    const osmQueries = {
-      'villas': 'node["tourism"="guest_house"]',
-      'coliving': 'node["tourism"="hostel"]',
-      'hotels': 'node["tourism"="hotel"]',
-      'waterfall': 'node["waterway"="waterfall"]',
-      'beach-surf': 'node["natural"="beach"]',
-      'volcano-trekking': 'node["natural"="peak"]',
-      'wildlife': 'node["leisure"="park"]',
-      'rental': 'node["shop"="motorcycle"]',
-      'cafe': 'node["amenity"="cafe"]',
-      'coworking': 'node["office"="coworking"]',
-      'visa-agency': 'node["office"="administrative"]',
-      'medical': 'node["amenity"="clinic"]',
-      'nightclub': 'node["amenity"="nightclub"]',
-      'beach-club': 'node["amenity"="bar"]',
-      'temples': 'node["historic"="manor"]',
-      'yoga-wellness': 'node["leisure"="fitness_centre"]',
-      'meetups': 'node["amenity"="cafe"]',
-      'surfing-buddies': 'node["natural"="beach"]'
-    };
-
     const categoryNames = {
       'villas': 'Villas & Houses',
       'coliving': 'Coliving Hubs',
@@ -114,6 +92,26 @@
     const categoryType = urlParams.get('type') || 'cafe';
     const searchQuery = urlParams.get('q') || urlParams.get('search');
 
+    // Identifikasi apakah kategori ini termasuk dalam Community Focus (Social)
+    const socialCategories = ['meetups', 'surfing-buddies'];
+    const isSocialCategory = socialCategories.includes(categoryType);
+
+    const mockDatabase = {
+      'coliving': [
+        { name: "Griya Taman Gulingan", area: "Jimbaran, Bali", rating: "4.9", price: "$380 / mo", image: "https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=600&q=80", amenity: "📶 Wifi 200Mbps • 🏊 Pool" },
+        { name: "Villa Satay", area: "Canggu, Bali", rating: "4.8", price: "$520 / mo", image: "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=600&q=80", amenity: "📶 Wifi 150Mbps • 🛵 Free Parking" },
+        { name: "The Lemon House", area: "Pererenan, Bali", rating: "4.95", price: "$650 / mo", image: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=600&q=80", amenity: "📶 Wifi 300Mbps • 🌿 Garden" }
+      ],
+      'meetups': [
+        { name: "Canggu Nomad Sunset Gathering", area: "Echo Beach, Canggu", rating: "4.9", price: "Free Event", image: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=600&q=80", amenity: "👥 45 Nomads Attending • 🍻 Drinks & Chill" },
+        { name: "Ubud Startup Founders Circle", area: "Monkey Forest, Ubud", rating: "4.95", price: "Free Event", image: "https://images.unsplash.com/photo-1528605248644-14dd04022da1?auto=format&fit=crop&w=600&q=80", amenity: "💡 Pitching & Networking • ☕ Coffee" }
+      ],
+      'surfing-buddies': [
+        { name: "Uluwatu Morning Surf Crew", area: "Padang Padang, Uluwatu", rating: "4.85", price: "Community", image: "https://images.unsplash.com/photo-1502680390469-be75c86b636f?auto=format&fit=crop&w=600&q=80", amenity: "🏄 Intermediate/Pro • 🌊 Dawn Patrol" },
+        { name: "Batu Bolong Sunset Longboarders", area: "Canggu, Bali", rating: "4.8", price: "Community", image: "https://images.unsplash.com/photo-1531722569936-825d3dd91b15?auto=format&fit=crop&w=600&q=80", amenity: "🏄 All Levels • 🌴 Fun Session" }
+      ]
+    };
+
     async function loadCategoryData() {
       const titleEl = document.getElementById('categoryTitle');
       const countEl = document.getElementById('spotCount');
@@ -131,57 +129,63 @@
         titleEl.innerText = categoryNames[categoryType] || 'Bali Spots';
       }
 
-      const baliBBox = "-8.9,114.4,-8.0,115.7";
-      let tagQuery = osmQueries[categoryType] || 'node["amenity"="cafe"]';
+      let spots = mockDatabase[categoryType] || [
+        { name: "SpotBali Hub 1", area: "Canggu, Bali", rating: "4.8", price: "$400 / mo", image: "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=600&q=80", amenity: "📶 Wifi 150Mbps • 🏊 Pool" },
+        { name: "Nomad Sanctuary Bali", area: "Ubud, Bali", rating: "4.9", price: "$450 / mo", image: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=600&q=80", amenity: "📶 Wifi 200Mbps • 🌿 Quiet Area" }
+      ];
 
-      if (searchQuery) {
-        tagQuery = `node["name"~"${searchQuery}",i]`;
-      }
-
-      const overpassQuery = `[out:json][timeout:25];(${tagQuery}(${baliBBox}););out body;`;
-      const url = `https://overpass-api.de/api/interpreter?data=${encodeURIComponent(overpassQuery)}`;
-
-      try {
-        const response = await fetch(url);
-        const data = await response.json();
-        const spots = [];
-
-        if (data.elements) {
-          data.elements.forEach(el => {
-            if (el.lat && el.lon) {
-              spots.push({
-                name: el.tags && el.tags.name ? el.tags.name : "Popular Bali Spot",
-                address: el.tags && el.tags["addr:suburb"] ? el.tags["addr:suburb"] : "Bali"
-              });
-            }
-          });
-        }
-
+      setTimeout(() => {
         loadingEl.classList.add('hidden');
-
         if (spots.length > 0) {
-          countEl.innerText = `${spots.length} locations found`;
-          spotsListEl.innerHTML = spots.slice(0, 40).map(spot => `
-            <div class="bg-slate-800/90 border border-slate-700/70 rounded-2xl p-4 shadow-sm flex flex-col justify-between gap-3">
-              <div>
-                <h3 class="font-bold text-sm text-slate-100">${escapeHtml(spot.name)}</h3>
-                <p class="text-xs text-slate-400 mt-0.5">📍 ${escapeHtml(spot.address)}</p>
+          countEl.innerText = `${spots.length} listings found`;
+          spotsListEl.innerHTML = spots.map(spot => `
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-lg flex flex-col sm:flex-row hover:border-slate-700 transition-all group">
+              
+              <!-- Foto Tempat -->
+              <div class="sm:w-36 h-40 sm:h-auto relative shrink-0 overflow-hidden bg-slate-800">
+                <img src="${spot.image}" alt="${spot.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                <div class="absolute top-2.5 left-2.5 bg-slate-950/80 backdrop-blur text-amber-400 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 border border-slate-800">
+                  ★ ${spot.rating}
+                </div>
               </div>
-              <button onclick="goToChat('${escapeHtml(spot.name)}')" class="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold transition-colors flex items-center justify-center gap-1.5">
-                💬 Join Local Chat
-              </button>
+
+              <!-- Detail Informasi -->
+              <div class="p-4 flex-1 flex flex-col justify-between gap-3">
+                <div class="flex items-start justify-between gap-2">
+                  <div>
+                    <h3 class="font-bold text-sm text-slate-100 leading-snug">${escapeHtml(spot.name)}</h3>
+                    <p class="text-xs text-slate-400 mt-0.5 flex items-center gap-1">
+                      <i data-lucide="map-pin" class="w-3.5 h-3.5 text-emerald-400 inline"></i>
+                      ${escapeHtml(spot.area)}
+                    </p>
+                    <p class="text-[11px] text-slate-300 font-medium mt-2 bg-slate-950/50 px-2 py-1 rounded-lg border border-slate-800/80 inline-block">
+                      ${escapeHtml(spot.amenity)}
+                    </p>
+                  </div>
+
+                  <!-- TOMBOL CHAT HANYA MUNCUL JIKA INI KATEGORI SOSIAL (COMMUNITY FOCUS) -->
+                  ${isSocialCategory ? `
+                    <button onclick="goToChat('${escapeHtml(spot.name)}')" title="Join Community Chat" class="w-9 h-9 rounded-xl bg-emerald-500/10 hover:bg-emerald-500 text-emerald-400 hover:text-slate-950 border border-emerald-500/30 flex items-center justify-center transition-all shrink-0 shadow-sm">
+                      <i data-lucide="message-square" class="w-4 h-4"></i>
+                    </button>
+                  ` : ''}
+                </div>
+
+                <!-- Bagian Harga / Status -->
+                <div class="flex items-center justify-between pt-2.5 border-t border-slate-800/80">
+                  <span class="text-xs text-slate-400 font-medium">${isSocialCategory ? 'Status' : 'Starting from'}</span>
+                  <span class="text-xs font-bold text-emerald-400 font-mono">${escapeHtml(spot.price)}</span>
+                </div>
+              </div>
+
             </div>
           `).join('');
           spotsListEl.classList.remove('hidden');
         } else {
           emptyStateEl.classList.remove('hidden');
         }
-      } catch (err) {
-        console.error(err);
-        loadingEl.classList.add('hidden');
-        emptyStateEl.classList.remove('hidden');
-      }
-      lucide.createIcons();
+        lucide.createIcons();
+      }, 300);
     }
 
     function goToChat(spotName) {
