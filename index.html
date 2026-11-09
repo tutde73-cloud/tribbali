@@ -59,7 +59,8 @@
       100% { transform: translate(-25px, 35px) scale(0.95); }
     }
 
-    /* Light Theme Glass & Cards */
+    /* Glass & Cards Style */
+    .glass-nav-dark { background: rgba(15, 23, 42, 0.90); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
     .glass-nav-light { background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
     .glass-chip-light { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px); color: #334155; border: 1px solid rgba(226, 232, 240, 0.8); }
 
@@ -86,21 +87,21 @@
 </head>
 <body class="flex flex-col text-slate-800">
 
-  <!-- SEMANTIC HEADER (LIGHT THEME) -->
-  <header class="glass-nav-light border-b border-slate-200 px-6 h-[72px] flex items-center justify-between sticky top-0 z-50 shadow-sm">
+  <!-- SEMANTIC HEADER (DARK THEME - SAMA SEPERTI FOOTER) -->
+  <header class="glass-nav-dark border-b border-slate-800 px-6 h-[72px] flex items-center justify-between sticky top-0 z-50 shadow-lg">
     <div class="flex items-center gap-3.5">
-      <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-emerald-500 via-teal-400 to-cyan-400 flex items-center justify-center font-black text-white text-xl shadow-md shadow-emerald-500/20 tracking-tighter">S</div>
+      <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-emerald-500 via-teal-400 to-cyan-400 flex items-center justify-center font-black text-slate-950 text-xl shadow-md shadow-emerald-500/20 tracking-tighter">S</div>
       <div>
-        <h1 class="font-extrabold text-sm tracking-tight text-slate-900 flex items-center gap-2">
-          SpotTribe <span class="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent text-[11px] font-mono uppercase px-2 py-0.5 rounded-xl bg-emerald-50 border border-emerald-200 font-bold">BALI</span>
+        <h1 class="font-extrabold text-sm tracking-tight text-white flex items-center gap-2">
+          SpotTribe <span class="bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent text-[11px] font-mono uppercase px-2 py-0.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 font-bold">BALI</span>
         </h1>
-        <p class="text-[10px] text-slate-500 font-medium tracking-wide">Elite Island Guide & Nomad Sanctuary</p>
+        <p class="text-[10px] text-slate-400 font-medium tracking-wide">Elite Island Guide & Nomad Sanctuary</p>
       </div>
     </div>
     
     <div class="flex items-center">
-      <span class="inline-flex items-center px-3.5 py-1.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-inner">
-        <span class="w-2 h-2 rounded-full bg-emerald-500 pulse-live mr-2"></span> 
+      <span class="inline-flex items-center px-3.5 py-1.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 shadow-inner">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 pulse-live mr-2"></span> 
         <span id="mapCount" class="font-mono text-xs font-black">0</span> <span class="ml-1 tracking-wider uppercase font-semibold">Live Spots</span>
       </span>
     </div>
@@ -114,16 +115,16 @@
     <div class="absolute bottom-4 left-0 right-0 z-[400] px-4">
       <div class="max-w-2xl mx-auto space-y-2.5">
         
-        <!-- Search Bar -->
+        <!-- Search Bar (Padding Kanan Diperlebar agar Tombol Press Tidak Hancur) -->
         <div class="relative bg-white/95 backdrop-blur-md rounded-2xl p-1.5 border border-slate-200 shadow-xl flex items-center">
-          <span class="pl-3.5 text-emerald-600 flex items-center pointer-events-none">
+          <span class="pl-3.5 text-emerald-600 flex items-center pointer-events-none shrink-0">
             <i data-lucide="search" class="w-4 h-4"></i>
           </span>
           <input type="text" id="searchInput" placeholder="Explore villas, beach clubs, coworking, cafes..." 
-                 class="w-full pl-3 pr-20 py-2 bg-transparent text-sm text-slate-900 placeholder-slate-400 focus:outline-none font-medium" 
+                 class="w-full pl-3 pr-24 py-2 bg-transparent text-sm text-slate-900 placeholder-slate-400 focus:outline-none font-medium" 
                  onkeypress="handleSearch(event)" />
-          <div class="pr-1.5">
-            <span class="text-[10px] font-mono font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1.5 rounded-xl border border-emerald-200 shadow-sm">Press ↵</span>
+          <div class="absolute right-2 flex items-center">
+            <span class="text-[10px] font-mono font-bold text-emerald-700 bg-emerald-50 px-2 py-1 rounded-lg border border-emerald-200 shadow-sm whitespace-nowrap">Press ↵</span>
           </div>
         </div>
 
@@ -334,7 +335,7 @@
     </div>
 
     <!-- PROFESSIONAL 4-COLUMN FOOTER (FULL ENGLISH & SEO OPTIMIZED) -->
-    <footer class="mt-16 bg-slate-900 text-slate-300 py-12 px-6 border-t border-slate-200 rounded-t-3xl relative z-10 shadow-2xl">
+    <footer class="mt-16 bg-slate-900 text-slate-300 py-12 px-6 border-t border-slate-800 rounded-t-3xl relative z-10 shadow-2xl">
       <div class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
         
         <!-- Column 1: About Us -->
@@ -504,6 +505,6 @@
   </script>
 
   <!-- Staff Admin Quick Link -->
-  <a href="admin.html" aria-label="Staff Administration" style="position: fixed; bottom: 74px; right: 16px; z-index: 9999; color: #475569; font-size: 11px; font-weight: 600; text-decoration: none; background: rgba(255,255,255,0.9); backdrop-filter: blur(8px); padding: 6px 12px; border-radius: 14px; border: 1px solid rgba(226,232,240,0.8); box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);">⚙️ Staff</a>
+  <a href="admin.html" aria-label="Staff Administration" style="position: fixed; bottom: 74px; right: 16px; z-index: 9999; color: #cbd5e1; font-size: 11px; font-weight: 600; text-decoration: none; background: rgba(15,23,42,0.9); backdrop-filter: blur(8px); padding: 6px 12px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3);">⚙️ Staff</a>
 </body>
 </html>
