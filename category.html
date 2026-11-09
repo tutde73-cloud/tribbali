@@ -37,7 +37,7 @@
       Loading curated spots...
     </div>
 
-    <!-- Grid Diperbesar dengan kartu vertikal & foto besar -->
+    <!-- Grid Kartu Vertikal dengan Foto Besar -->
     <div id="spotsContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-6">
       <!-- Hasil query Supabase akan dirender di sini secara dinamis -->
     </div>
@@ -53,24 +53,9 @@
     const categoryType = urlParams.get('type');
     const searchQuery = urlParams.get('q');
 
-    // Function untuk membuat badge amenities otomatis dengan ikon
-    function renderAmenitiesBadges(amenities) {
-      const amenityIcons = {
-        'parking': { icon: '🅿️', label: 'Parking' },
-        'wifi': { icon: '📶', label: 'Wi-Fi' },
-        'restroom': { icon: '🚻', label: 'Toilet' },
-        'toilet': { icon: '🚻', label: 'Toilet' },
-        'shower': { icon: '🚿', label: 'Shower' },
-        'pool': { icon: '🏊‍♂️', label: 'Pool' },
-        'bar': { icon: '🍹', label: 'Bar & Drinks' },
-        'restaurant': { icon: '🍽️', label: 'Dining' },
-        'scenic': { icon: '🏞️', label: 'Scenic View' },
-        'waterfall': { icon: '🌊', label: 'Swimming Spot' },
-        'locker': { icon: '🔒', label: 'Lockers' },
-        'entry fee': { icon: '🎟️', label: 'Ticket Required' }
-      };
-
-      if (!amenities || !Array.isArray(amenities) || amenities.length === 0) {
+    // Function untuk memecah teks kolom 'amenity' dari database menjadi badge rapi
+    function renderAmenitiesBadges(amenityString) {
+      if (!amenityString || typeof amenityString !== 'string') {
         return `
           <span class="inline-flex items-center gap-1 bg-slate-100 text-slate-600 text-[11px] font-medium px-2.5 py-1 rounded-lg">
             📍 Scenic Area
@@ -81,16 +66,15 @@
         `;
       }
 
-      return amenities.map(item => {
-        const key = String(item).toLowerCase().trim();
-        const config = amenityIcons[key] || { icon: '✨', label: item };
-        return `
-          <span class="inline-flex items-center gap-1 bg-slate-100 text-slate-700 text-[11px] font-medium px-2.5 py-1 rounded-lg border border-slate-200/60">
-            <span>${config.icon}</span>
-            <span>${escapeHtml(config.label)}</span>
-          </span>
-        `;
-      }).join('');
+      // Pecah berdasarkan pemisah titik (•) atau koma (,)
+      const items = amenityString.split(/[•,]/).map(i => i.trim()).filter(Boolean);
+
+      return items.map(item => `
+        <span class="inline-flex items-center gap-1 bg-slate-100 text-slate-700 text-[11px] font-medium px-2.5 py-1 rounded-lg border border-slate-200/60">
+          <span>✨</span>
+          <span>${escapeHtml(item)}</span>
+        </span>
+      `).join('');
     }
 
     async function loadCategorySpots() {
@@ -130,13 +114,12 @@
         }
 
         container.innerHTML = places.map(spot => {
-          const amenitiesList = spot.amenities || spot.facilities || ['Scenic', 'Photo Spot'];
           const spotImage = spot.image_url || 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=600&q=80';
 
           return `
             <div class="bg-white rounded-3xl border border-slate-200/90 overflow-hidden shadow-sm hover:shadow-md transition flex flex-col justify-between">
               
-              <!-- FOTO DIPERBESAR (BANNER PENUH) -->
+              <!-- FOTO BESAR -->
               <div class="relative w-full h-44 bg-slate-100">
                 <img src="${spotImage}" class="w-full h-full object-cover" alt="${escapeHtml(spot.name)}" />
                 <div class="absolute top-3 right-3 bg-white/90 backdrop-blur-md px-2.5 py-1 rounded-full text-xs font-black text-emerald-600 shadow-xs">
@@ -144,7 +127,7 @@
                 </div>
               </div>
 
-              <!-- KONTEN KARTU -->
+              <!-- KONTEN -->
               <div class="p-5 flex flex-col gap-3 flex-grow justify-between">
                 <div>
                   <h3 class="font-extrabold text-slate-900 text-base leading-snug">${escapeHtml(spot.name)}</h3>
@@ -153,9 +136,9 @@
                   </p>
                 </div>
 
-                <!-- AMENITIES / FASILITAS BADGES -->
+                <!-- AMENITIES DARI KOLOM DATABASE -->
                 <div class="flex flex-wrap gap-1.5 pt-2 border-t border-slate-100">
-                  ${renderAmenitiesBadges(amenitiesList)}
+                  ${renderAmenitiesBadges(spot.amenity)}
                 </div>
 
                 <!-- BOTTOM RATES -->
