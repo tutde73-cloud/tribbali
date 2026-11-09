@@ -61,7 +61,7 @@
       100% { transform: translate(-25px, 35px) scale(0.95); }
     }
 
-    /* Cards & Glass Styling */
+    /* Cards & Glass Styling (Cleaned up specificity conflict) */
     .glass-nav-light { background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
     .glass-chip-light { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px); color: #334155; border: 1px solid rgba(226, 232, 240, 0.8); }
 
@@ -69,8 +69,6 @@
       transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
       position: relative;
       z-index: 20;
-      display: flex;
-      text-decoration: none;
     }
     .category-card-light:hover {
       transform: translateY(-5px);
@@ -175,21 +173,21 @@
           <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Accommodation & Living
         </h2>
         <div class="grid grid-cols-2 sm:grid-cols-3 gap-3.5">
-          <a href="category.html?type=villas" class="category-card-light items-center gap-4 p-4 bg-white/95 backdrop-blur-md border border-slate-200 rounded-3xl shadow-sm text-left group">
+          <a href="category.html?type=villas" class="category-card-light flex items-center gap-4 p-4 bg-white/95 backdrop-blur-md border border-slate-200 rounded-3xl shadow-sm text-left group no-underline">
             <div class="w-12 h-12 rounded-2xl bg-violet-50 text-violet-600 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform"><i data-lucide="home" class="w-6 h-6"></i></div>
             <div>
               <div class="text-xs font-extrabold text-slate-900 group-hover:text-emerald-600 transition-colors">Villas & Houses</div>
               <div class="text-[10px] text-slate-500 font-medium mt-0.5">Long-term Stay</div>
             </div>
           </a>
-          <a href="category.html?type=coliving" class="category-card-light items-center gap-4 p-4 bg-white/95 backdrop-blur-md border border-slate-200 rounded-3xl shadow-sm text-left group">
+          <a href="category.html?type=coliving" class="category-card-light flex items-center gap-4 p-4 bg-white/95 backdrop-blur-md border border-slate-200 rounded-3xl shadow-sm text-left group no-underline">
             <div class="w-12 h-12 rounded-2xl bg-teal-50 text-teal-600 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform"><i data-lucide="building-2" class="w-6 h-6"></i></div>
             <div>
               <div class="text-xs font-extrabold text-slate-900 group-hover:text-emerald-600 transition-colors">Coliving Hubs</div>
               <div class="text-[10px] text-slate-500 font-medium mt-0.5">Nomad Living</div>
             </div>
           </a>
-          <a href="category.html?type=hotel" class="category-card-light col-span-2 sm:col-span-1 items-center gap-4 p-4 bg-white/95 backdrop-blur-md border border-slate-200 rounded-3xl shadow-sm text-left group">
+          <a href="category.html?type=hotel" class="category-card-light col-span-2 sm:col-span-1 flex items-center gap-4 p-4 bg-white/95 backdrop-blur-md border border-slate-200 rounded-3xl shadow-sm text-left group no-underline">
             <div class="w-12 h-12 rounded-2xl bg-sky-50 text-sky-600 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform"><i data-lucide="bed" class="w-6 h-6"></i></div>
             <div>
               <div class="text-xs font-extrabold text-slate-900 group-hover:text-emerald-600 transition-colors">Hotels & Resorts</div>
@@ -205,28 +203,28 @@
           <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Nature & Adventure
         </h2>
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
-          <a href="category.html?type=waterfall" class="category-card-light flex-col justify-between gap-3 p-4 bg-white/95 backdrop-blur-md border border-slate-200 rounded-3xl shadow-sm text-left group">
+          <a href="category.html?type=waterfall" class="category-card-light flex flex-col justify-between gap-3 p-4 bg-white/95 backdrop-blur-md border border-slate-200 rounded-3xl shadow-sm text-left group no-underline">
             <div class="w-12 h-12 rounded-2xl bg-cyan-50 text-cyan-600 flex items-center justify-center group-hover:scale-110 transition-transform"><i data-lucide="waves" class="w-6 h-6"></i></div>
             <div>
               <div class="text-xs font-extrabold text-slate-900 group-hover:text-emerald-600 transition-colors">Waterfall</div>
               <div class="text-[10px] text-slate-500 font-medium mt-0.5">Nature Spot</div>
             </div>
           </a>
-          <a href="category.html?type=beach" class="category-card-light flex-col justify-between gap-3 p-4 bg-white/95 backdrop-blur-md border border-slate-200 rounded-3xl shadow-sm text-left group">
+          <a href="category.html?type=beach" class="category-card-light flex flex-col justify-between gap-3 p-4 bg-white/95 backdrop-blur-md border border-slate-200 rounded-3xl shadow-sm text-left group no-underline">
             <div class="w-12 h-12 rounded-2xl bg-sky-50 text-sky-600 flex items-center justify-center group-hover:scale-110 transition-transform"><i data-lucide="sun" class="w-6 h-6"></i></div>
             <div>
               <div class="text-xs font-extrabold text-slate-900 group-hover:text-emerald-600 transition-colors">Beach & Surf</div>
               <div class="text-[10px] text-slate-500 font-medium mt-0.5">Coastal Area</div>
             </div>
           </a>
-          <a href="category.html?type=volcano" class="category-card-light flex-col justify-between gap-3 p-4 bg-white/95 backdrop-blur-md border border-slate-200 rounded-3xl shadow-sm text-left group">
+          <a href="category.html?type=volcano" class="category-card-light flex flex-col justify-between gap-3 p-4 bg-white/95 backdrop-blur-md border border-slate-200 rounded-3xl shadow-sm text-left group no-underline">
             <div class="w-12 h-12 rounded-2xl bg-orange-50 text-orange-600 flex items-center justify-center group-hover:scale-110 transition-transform"><i data-lucide="mountain" class="w-6 h-6"></i></div>
             <div>
               <div class="text-xs font-extrabold text-slate-900 group-hover:text-emerald-600 transition-colors">Volcano Trek</div>
               <div class="text-[10px] text-slate-500 font-medium mt-0.5">Hiking Spot</div>
             </div>
           </a>
-          <a href="category.html?type=wildlife" class="category-card-light flex-col justify-between gap-3 p-4 bg-white/95 backdrop-blur-md border border-slate-200 rounded-3xl shadow-sm text-left group">
+          <a href="category.html?type=wildlife" class="category-card-light flex flex-col justify-between gap-3 p-4 bg-white/95 backdrop-blur-md border border-slate-200 rounded-3xl shadow-sm text-left group no-underline">
             <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:scale-110 transition-transform"><i data-lucide="trees" class="w-6 h-6"></i></div>
             <div>
               <div class="text-xs font-extrabold text-slate-900 group-hover:text-emerald-600 transition-colors">Wildlife</div>
@@ -242,35 +240,35 @@
           <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Essentials & Work
         </h2>
         <div class="grid grid-cols-2 sm:grid-cols-3 gap-3.5">
-          <a href="category.html?type=vehicle" class="category-card-light items-center gap-4 p-4 bg-white/95 backdrop-blur-md border border-slate-200 rounded-3xl shadow-sm text-left group">
+          <a href="category.html?type=vehicle" class="category-card-light flex items-center gap-4 p-4 bg-white/95 backdrop-blur-md border border-slate-200 rounded-3xl shadow-sm text-left group no-underline">
             <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform"><i data-lucide="bike" class="w-6 h-6"></i></div>
             <div>
               <div class="text-xs font-extrabold text-slate-900 group-hover:text-emerald-600 transition-colors">Rent Vehicle</div>
               <div class="text-[10px] text-slate-500 font-medium mt-0.5">Bike & Car</div>
             </div>
           </a>
-          <a href="category.html?type=cafe" class="category-card-light items-center gap-4 p-4 bg-white/95 backdrop-blur-md border border-slate-200 rounded-3xl shadow-sm text-left group">
+          <a href="category.html?type=cafe" class="category-card-light flex items-center gap-4 p-4 bg-white/95 backdrop-blur-md border border-slate-200 rounded-3xl shadow-sm text-left group no-underline">
             <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform"><i data-lucide="coffee" class="w-6 h-6"></i></div>
             <div>
               <div class="text-xs font-extrabold text-slate-900 group-hover:text-emerald-600 transition-colors">Cafés & Brunch</div>
               <div class="text-[10px] text-slate-500 font-medium mt-0.5">Coffee Spots</div>
             </div>
           </a>
-          <a href="category.html?type=coworking" class="category-card-light items-center gap-4 p-4 bg-white/95 backdrop-blur-md border border-slate-200 rounded-3xl shadow-sm text-left group">
+          <a href="category.html?type=coworking" class="category-card-light flex items-center gap-4 p-4 bg-white/95 backdrop-blur-md border border-slate-200 rounded-3xl shadow-sm text-left group no-underline">
             <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform"><i data-lucide="laptop" class="w-6 h-6"></i></div>
             <div>
               <div class="text-xs font-extrabold text-slate-900 group-hover:text-emerald-600 transition-colors">Coworking</div>
               <div class="text-[10px] text-slate-500 font-medium mt-0.5">Workspaces</div>
             </div>
           </a>
-          <a href="category.html?type=visa" class="category-card-light items-center gap-4 p-4 bg-white/95 backdrop-blur-md border border-slate-200 rounded-3xl shadow-sm text-left group">
+          <a href="category.html?type=visa" class="category-card-light flex items-center gap-4 p-4 bg-white/95 backdrop-blur-md border border-slate-200 rounded-3xl shadow-sm text-left group no-underline">
             <div class="w-12 h-12 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform"><i data-lucide="file-text" class="w-6 h-6"></i></div>
             <div>
               <div class="text-xs font-extrabold text-slate-900 group-hover:text-emerald-600 transition-colors">Visa Agency</div>
               <div class="text-[10px] text-slate-500 font-medium mt-0.5">Legal & Docs</div>
             </div>
           </a>
-          <a href="category.html?type=medical" class="category-card-light col-span-2 sm:col-span-2 items-center gap-4 p-4 bg-white/95 backdrop-blur-md border border-slate-200 rounded-3xl shadow-sm text-left group">
+          <a href="category.html?type=medical" class="category-card-light col-span-2 sm:col-span-2 flex items-center gap-4 p-4 bg-white/95 backdrop-blur-md border border-slate-200 rounded-3xl shadow-sm text-left group no-underline">
             <div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform"><i data-lucide="plus-circle" class="w-6 h-6"></i></div>
             <div>
               <div class="text-xs font-extrabold text-slate-900 group-hover:text-emerald-600 transition-colors">Medical / Clinic</div>
@@ -286,28 +284,28 @@
           <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Lifestyle & Culture
         </h2>
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
-          <a href="category.html?type=nightclub" class="category-card-light flex-col justify-between gap-3 p-4 bg-white/95 backdrop-blur-md border border-slate-200 rounded-3xl shadow-sm text-left group">
+          <a href="category.html?type=nightclub" class="category-card-light flex flex-col justify-between gap-3 p-4 bg-white/95 backdrop-blur-md border border-slate-200 rounded-3xl shadow-sm text-left group no-underline">
             <div class="w-12 h-12 rounded-2xl bg-fuchsia-50 text-fuchsia-600 flex items-center justify-center group-hover:scale-110 transition-transform"><i data-lucide="party-popper" class="w-6 h-6"></i></div>
             <div>
               <div class="text-xs font-extrabold text-slate-900 group-hover:text-emerald-600 transition-colors">Nightclub</div>
               <div class="text-[10px] text-slate-500 font-medium mt-0.5">Nightlife</div>
             </div>
           </a>
-          <a href="category.html?type=beachclub" class="category-card-light flex-col justify-between gap-3 p-4 bg-white/95 backdrop-blur-md border border-slate-200 rounded-3xl shadow-sm text-left group">
+          <a href="category.html?type=beachclub" class="category-card-light flex flex-col justify-between gap-3 p-4 bg-white/95 backdrop-blur-md border border-slate-200 rounded-3xl shadow-sm text-left group no-underline">
             <div class="w-12 h-12 rounded-2xl bg-teal-50 text-teal-600 flex items-center justify-center group-hover:scale-110 transition-transform"><i data-lucide="glass-water" class="w-6 h-6"></i></div>
             <div>
               <div class="text-xs font-extrabold text-slate-900 group-hover:text-emerald-600 transition-colors">Beach Clubs</div>
               <div class="text-[10px] text-slate-500 font-medium mt-0.5">Sunset Lounge</div>
             </div>
           </a>
-          <a href="category.html?type=temple" class="category-card-light flex-col justify-between gap-3 p-4 bg-white/95 backdrop-blur-md border border-slate-200 rounded-3xl shadow-sm text-left group">
+          <a href="category.html?type=temple" class="category-card-light flex flex-col justify-between gap-3 p-4 bg-white/95 backdrop-blur-md border border-slate-200 rounded-3xl shadow-sm text-left group no-underline">
             <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-700 flex items-center justify-center group-hover:scale-110 transition-transform"><i data-lucide="landmark" class="w-6 h-6"></i></div>
             <div>
               <div class="text-xs font-extrabold text-slate-900 group-hover:text-emerald-600 transition-colors">Temples</div>
               <div class="text-[10px] text-slate-500 font-medium mt-0.5">Culture & Heritage</div>
             </div>
           </a>
-          <a href="category.html?type=wellness" class="category-card-light flex-col justify-between gap-3 p-4 bg-white/95 backdrop-blur-md border border-slate-200 rounded-3xl shadow-sm text-left group">
+          <a href="category.html?type=wellness" class="category-card-light flex flex-col justify-between gap-3 p-4 bg-white/95 backdrop-blur-md border border-slate-200 rounded-3xl shadow-sm text-left group no-underline">
             <div class="w-12 h-12 rounded-2xl bg-lime-50 text-lime-700 flex items-center justify-center group-hover:scale-110 transition-transform"><i data-lucide="heart-pulse" class="w-6 h-6"></i></div>
             <div>
               <div class="text-xs font-extrabold text-slate-900 group-hover:text-emerald-600 transition-colors">Yoga & Spa</div>
@@ -323,14 +321,14 @@
           <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Community Focus
         </h2>
         <div class="grid grid-cols-2 sm:grid-cols-2 gap-3.5">
-          <a href="community.html?type=meetups" class="category-card-light items-center gap-4 p-4 bg-white/95 backdrop-blur-md border border-slate-200 rounded-3xl shadow-sm text-left group">
+          <a href="community.html?type=meetups" class="category-card-light flex items-center gap-4 p-4 bg-white/95 backdrop-blur-md border border-slate-200 rounded-3xl shadow-sm text-left group no-underline">
             <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform"><i data-lucide="users" class="w-6 h-6"></i></div>
             <div>
               <div class="text-xs font-extrabold text-slate-900 group-hover:text-emerald-600 transition-colors">Meetups</div>
               <div class="text-[10px] text-slate-500 font-medium mt-0.5">Social Events & Networking</div>
             </div>
           </a>
-          <a href="community.html?type=surfing-buddies" class="category-card-light items-center gap-4 p-4 bg-white/95 backdrop-blur-md border border-slate-200 rounded-3xl shadow-sm text-left group">
+          <a href="community.html?type=surfing-buddies" class="category-card-light flex items-center gap-4 p-4 bg-white/95 backdrop-blur-md border border-slate-200 rounded-3xl shadow-sm text-left group no-underline">
             <div class="w-12 h-12 rounded-2xl bg-cyan-50 text-cyan-700 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform"><i data-lucide="compass" class="w-6 h-6"></i></div>
             <div>
               <div class="text-xs font-extrabold text-slate-900 group-hover:text-emerald-600 transition-colors">Surf Buddies</div>
