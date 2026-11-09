@@ -83,26 +83,35 @@
       </form>
     </div>
 
-    <!-- SECTION: LIST DATA SPOTS WITH CATEGORY FILTER -->
+    <!-- SECTION: LIST DATA SPOTS WITH CATEGORY FILTER & SEARCH -->
     <div class="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm space-y-4">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-slate-100">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-3 border-b border-slate-100">
         <div>
           <h2 class="font-bold text-lg text-slate-900">📁 Managed Places Directory</h2>
-          <p class="text-xs text-slate-500">Filter and edit database entries by category.</p>
+          <p class="text-xs text-slate-500">Filter and edit database entries by category or search term.</p>
         </div>
         
-        <!-- CATEGORY FILTER DROPDOWN -->
-        <div class="flex items-center gap-2">
-          <label for="directoryFilter" class="text-xs font-bold text-slate-600">Filter Category:</label>
-          <select id="directoryFilter" onchange="fetchAdminSpots()" class="text-xs border border-slate-300 rounded-xl px-3 py-2 bg-slate-50 font-bold text-slate-800 focus:outline-none focus:border-sky-500">
-            <option value="all">ALL Categories</option>
-            <option value="beachclub">Beach Clubs</option>
-            <option value="villas">Villas</option>
-            <option value="waterfall">Waterfall</option>
-            <option value="cafes">Cafes</option>
-            <option value="coworking">Coworking</option>
-            <option value="stays">Stays</option>
-          </select>
+        <!-- SEARCH & CATEGORY FILTER AREA -->
+        <div class="flex flex-wrap items-center gap-2">
+          <!-- Input Search -->
+          <div class="relative">
+            <input type="text" id="directorySearch" oninput="fetchAdminSpots()" placeholder="🔍 Search spot name..." class="text-xs border border-slate-300 rounded-xl pl-8 pr-3 py-2 bg-slate-50 text-slate-800 focus:outline-none focus:border-sky-500 focus:bg-white w-48 transition">
+            <span class="absolute left-2.5 top-2 text-xs text-slate-400 pointer-events-none">🔍</span>
+          </div>
+
+          <!-- Dropdown Filter Category -->
+          <div class="flex items-center gap-1.5">
+            <label for="directoryFilter" class="text-xs font-bold text-slate-600">Filter:</label>
+            <select id="directoryFilter" onchange="fetchAdminSpots()" class="text-xs border border-slate-300 rounded-xl px-3 py-2 bg-slate-50 font-bold text-slate-800 focus:outline-none focus:border-sky-500">
+              <option value="all">ALL Categories</option>
+              <option value="beachclub">Beach Clubs</option>
+              <option value="villas">Villas</option>
+              <option value="waterfall">Waterfall</option>
+              <option value="cafes">Cafes</option>
+              <option value="coworking">Coworking</option>
+              <option value="stays">Stays</option>
+            </select>
+          </div>
         </div>
       </div>
 
@@ -122,11 +131,18 @@
     async function fetchAdminSpots() {
       const container = document.getElementById('adminSpotsContainer');
       const selectedCategory = document.getElementById('directoryFilter').value;
+      const searchQuery = document.getElementById('directorySearch').value.trim();
 
       let query = clientSupabase.from('places').select('*').order('id', { ascending: false });
       
+      // Filter Kategori
       if (selectedCategory !== 'all') {
         query = query.eq('category', selectedCategory);
+      }
+
+      // Filter Search Nama (Case-insensitive)
+      if (searchQuery) {
+        query = query.ilike('name', `%${searchQuery}%`);
       }
 
       const { data, error } = await query;
@@ -137,7 +153,7 @@
       }
 
       if (!data || data.length === 0) {
-        container.innerHTML = `<p class="text-slate-400 text-xs italic text-center py-6">No places found in category "${selectedCategory}".</p>`;
+        container.innerHTML = `<p class="text-slate-400 text-xs italic text-center py-6">No places found matching your search/filter criteria.</p>`;
         return;
       }
 
@@ -187,8 +203,8 @@
         alert("Spot added successfully!");
       }
 
-      // Sync filter dropdown to show updated category
       document.getElementById('directoryFilter').value = categoryValue;
+      document.getElementById('directorySearch').value = '';
       resetForm();
       fetchAdminSpots();
     }
