@@ -126,12 +126,12 @@
 
           if (type.includes('hotel') || type.includes('resort')) {
             dbCategory = 'hotel';
-          } else if (type.includes('beach-club') || type.includes('beachclub')) {
+          } else if (type.includes('nightclub')) {
+            dbCategory = 'nightclub';
+          } else if (type.includes('beachclub') || type.includes('beach-club')) {
             dbCategory = 'beachclub';
           } else if (type.includes('beach') || type.includes('surf')) {
             dbCategory = 'beach';
-          } else if (type.includes('nightclub') || type.includes('club')) {
-            dbCategory = 'nightclub';
           } else if (type.includes('villa') || type.includes('house')) {
             dbCategory = 'villas';
           } else if (type.includes('waterfall')) {
