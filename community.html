@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -19,9 +19,9 @@
         <span class="font-bold text-xl tracking-tight text-slate-900">SpotTribe <span class="text-sky-600">Bali</span></span>
       </a>
       <div id="authStatusArea" class="flex items-center gap-3">
-        <!-- Status auth akan diinject oleh JS -->
+        <!-- Auth status injected via JS -->
         <a href="./login.html" id="navLoginBtn" class="bg-sky-600 hover:bg-sky-700 text-white font-medium text-sm px-4 py-2 rounded-xl transition">
-          Login Google
+          Google Login
         </a>
       </div>
     </div>
@@ -32,8 +32,8 @@
     
     <!-- HEADER TITLE -->
     <div class="text-center max-w-xl mx-auto mb-8">
-      <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Komunitas & Teman Nongkrong</h1>
-      <p class="text-slate-500 mt-2 text-sm">Temukan acara seru atau cari teman mengobrol kasual di sekitar Bali.</p>
+      <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Community & Social Hub</h1>
+      <p class="text-slate-500 mt-2 text-sm">Discover exciting meet-ups or find casual chat buddies around Bali.</p>
     </div>
 
     <!-- TAB SWITCHER -->
@@ -51,27 +51,27 @@
     <!-- SECTION 1: MEET-UPS TAB -->
     <section id="meetupSection" class="space-y-4">
       <div class="flex justify-between items-center mb-4">
-        <h2 class="text-lg font-bold text-slate-800">Jadwal Kumpul Terdekat</h2>
+        <h2 class="text-lg font-bold text-slate-800">Upcoming Meet-ups</h2>
         <button onclick="handleProtectedAction('create_meetup')" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-3 py-2 rounded-lg transition">
-          + Buat Meet-up
+          + Create Meet-up
         </button>
       </div>
 
-      <!-- Dummy List Meetups (Nanti di-fetch dari Supabase DB) -->
+      <!-- Dummy List Meetups -->
       <div class="grid md:grid-cols-2 gap-4">
         
         <!-- Card 1 -->
         <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition">
           <div class="flex justify-between items-start mb-3">
             <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-1 rounded-full">☕ Coffee & Code</span>
-            <span class="text-xs text-slate-400 font-medium">Besok, 15.00 WITA</span>
+            <span class="text-xs text-slate-400 font-medium">Tomorrow, 3:00 PM</span>
           </div>
-          <h3 class="font-bold text-slate-900 text-base mb-1">Nongkrong & Share Project Web</h3>
+          <h3 class="font-bold text-slate-900 text-base mb-1">Coworking & Web Project Sharing</h3>
           <p class="text-slate-500 text-xs mb-4">📍 Expat. Roasters, Canggu</p>
           <div class="flex items-center justify-between border-t border-slate-100 pt-3">
-            <span class="text-xs text-slate-500">Host: <strong class="text-slate-700">Putu</strong> (3/6 Slot)</span>
+            <span class="text-xs text-slate-500">Host: <strong class="text-slate-700">Putu</strong> (3/6 Slots)</span>
             <button onclick="handleProtectedAction('join_meetup_1')" class="bg-sky-50 hover:bg-sky-100 text-sky-700 text-xs font-bold px-3 py-1.5 rounded-lg transition">
-              Join Meetup
+              Join Meet-up
             </button>
           </div>
         </div>
@@ -80,14 +80,14 @@
         <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition">
           <div class="flex justify-between items-start mb-3">
             <span class="bg-rose-100 text-rose-800 text-xs font-bold px-2.5 py-1 rounded-full">🌅 Sunset Chill</span>
-            <span class="text-xs text-slate-400 font-medium">Jumat, 17.00 WITA</span>
+            <span class="text-xs text-slate-400 font-medium">Friday, 5:00 PM</span>
           </div>
-          <h3 class="font-bold text-slate-900 text-base mb-1">Santai Sore & Diskusi Startup</h3>
-          <p class="text-slate-500 text-xs mb-4">📍 Pantai Batu Bolong</p>
+          <h3 class="font-bold text-slate-900 text-base mb-1">Sunset Hangout & Startup Discussion</h3>
+          <p class="text-slate-500 text-xs mb-4">📍 Batu Bolong Beach</p>
           <div class="flex items-center justify-between border-t border-slate-100 pt-3">
-            <span class="text-xs text-slate-500">Host: <strong class="text-slate-700">Alex</strong> (5/10 Slot)</span>
+            <span class="text-xs text-slate-500">Host: <strong class="text-slate-700">Alex</strong> (5/10 Slots)</span>
             <button onclick="handleProtectedAction('join_meetup_2')" class="bg-sky-50 hover:bg-sky-100 text-sky-700 text-xs font-bold px-3 py-1.5 rounded-lg transition">
-              Join Meetup
+              Join Meet-up
             </button>
           </div>
         </div>
@@ -98,9 +98,9 @@
     <!-- SECTION 2: SURF BUDDIES / CHAT TAB (Hidden by Default) -->
     <section id="buddiesSection" class="space-y-4 hidden">
       <div class="flex justify-between items-center mb-4">
-        <h2 class="text-lg font-bold text-slate-800">Member yang Siap Ngobrol</h2>
+        <h2 class="text-lg font-bold text-slate-800">Members Available to Chat</h2>
         <button onclick="handleProtectedAction('post_buddy_status')" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-3 py-2 rounded-lg transition">
-          + Pasang Status Chat
+          + Post Chat Status
         </button>
       </div>
 
@@ -116,13 +116,13 @@
               </div>
               <div>
                 <h4 class="font-bold text-slate-900 text-sm">Tutde</h4>
-                <p class="text-xs text-emerald-600 font-medium">● Online di Denpasar</p>
+                <p class="text-xs text-emerald-600 font-medium">● Online in Denpasar</p>
               </div>
             </div>
-            <p class="text-slate-600 text-xs mb-3">"Lagi senggang nih, open chat santai seputar web dev, otomotif, atau kopi."</p>
+            <p class="text-slate-600 text-xs mb-3">"Free this afternoon. Down for casual chats about web dev, tech, or coffee."</p>
             <div class="flex flex-wrap gap-1 mb-4">
               <span class="bg-slate-100 text-slate-600 text-[10px] px-2 py-0.5 rounded font-medium">Web Dev</span>
-              <span class="bg-slate-100 text-slate-600 text-[10px] px-2 py-0.5 rounded font-medium">Kopi</span>
+              <span class="bg-slate-100 text-slate-600 text-[10px] px-2 py-0.5 rounded font-medium">Coffee</span>
             </div>
           </div>
           <button onclick="handleProtectedAction('chat_user_tutde')" class="w-full bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold py-2 rounded-xl transition">
@@ -142,7 +142,7 @@
                 <p class="text-xs text-slate-400 font-medium">Seminyak</p>
               </div>
             </div>
-            <p class="text-slate-600 text-xs mb-3">"Cari temen ngopi bareng sore ini daerah Seminyak/Kerobokan."</p>
+            <p class="text-slate-600 text-xs mb-3">"Looking for someone to grab coffee with around Seminyak/Kerobokan today."</p>
             <div class="flex flex-wrap gap-1 mb-4">
               <span class="bg-slate-100 text-slate-600 text-[10px] px-2 py-0.5 rounded font-medium">Nomad</span>
               <span class="bg-slate-100 text-slate-600 text-[10px] px-2 py-0.5 rounded font-medium">Cafe</span>
@@ -166,7 +166,7 @@
 
     let currentUserSession = null;
 
-    // 1. Inisialisasi & Cek Sesi Login User
+    // 1. Initialize & Check User Session
     async function initAuth() {
       const { data: { session } } = await supabaseClient.auth.getSession();
       currentUserSession = session;
@@ -188,21 +188,19 @@
       }
     }
 
-    // 2. Proteksi Tombol Interaksi (Gated Access)
+    // 2. Gated Action Protection
     async function handleProtectedAction(actionIntent) {
       if (!currentUserSession) {
-        // Simpan intent pengguna lalu lempar ke login.html
         localStorage.setItem('redirect_intent', actionIntent);
-        alert("Silakan login menggunakan Google terlebih dahulu untuk melanjutkan.");
+        alert("Please sign in with Google first to continue.");
         window.location.href = './login.html';
         return;
       }
 
-      // Jika sudah login, eksekusi aksinya
-      alert(`Aksi berhasil dipicu untuk member terverifikasi! (Intent: ${actionIntent})`);
+      alert(`Action triggered successfully for verified member! (Intent: ${actionIntent})`);
     }
 
-    // 3. Logout Handle
+    // 3. Logout Handler
     async function handleLogout() {
       await supabaseClient.auth.signOut();
       window.location.reload();
@@ -230,7 +228,6 @@
       }
     }
 
-    // Jalankan pengecekan saat halaman selesai dimuat
     initAuth();
   </script>
 </body>
