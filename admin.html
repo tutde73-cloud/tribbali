@@ -1,148 +1,206 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>SpotTribe Bali - Test Foursquare API</title>
-  
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <title>SpotTribe Bali — Admin Dashboard</title>
+
+  <!-- Tailwind CSS & Supabase -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-<body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col items-center p-4 pb-20">
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
 
-  <div class="max-w-xl w-full bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl mt-6">
+  <!-- HEADER NAVBAR -->
+  <header class="bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-50">
+    <div class="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <span class="text-2xl">⚡</span>
+        <h1 class="font-extrabold text-base tracking-tight">SpotTribe Admin Panel</h1>
+      </div>
+      <a href="./index.html" class="text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 px-4 py-2 rounded-xl transition">
+        ← Back to App
+      </a>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <main class="max-w-5xl mx-auto px-6 py-8 flex-grow w-full space-y-8">
     
-    <h1 class="font-bold text-lg text-slate-100 mb-1 text-center">Foursquare Live Test Dashboard</h1>
-    <p class="text-xs text-slate-400 mb-6 text-center">Uji coba langsung API Foursquare untuk membuktikan data Bali masuk</p>
+    <!-- SECTION: FORM TAMBAH / EDIT SPOT -->
+    <div class="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
+      <h2 id="formTitle" class="font-bold text-lg text-slate-900 mb-4">➕ Add New Curated Spot</h2>
+      
+      <form id="adminSpotForm" onsubmit="handleSaveSpot(event)" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <input type="hidden" id="spotId">
 
-    <!-- Tombol Aksi dengan pemanggilan fungsi langsung onclick -->
-    <div class="flex gap-2 mb-6">
-      <button onclick="runTestAPI()" id="testBtn" class="flex-1 py-3 px-4 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-2xl shadow-lg transition-all active:scale-95">
-        🔍 Tes Foursquare API
-      </button>
-      <button onclick="saveToSupabase()" id="syncBtn" class="flex-1 py-3 px-4 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-2xl shadow-lg transition-all opacity-50 cursor-not-allowed" disabled>
-        🚀 Simpan ke Supabase
-      </button>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Spot Name</label>
+          <input type="text" id="spotName" required placeholder="e.g. The Edge Bali" class="w-full text-sm border border-slate-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-sky-500">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Category</label>
+          <select id="spotCategory" required class="w-full text-sm border border-slate-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-sky-500 bg-white">
+            <option value="Villas">Villas</option>
+            <option value="Waterfall">Waterfall</option>
+            <option value="Beach Clubs">Beach Clubs</option>
+            <option value="Cafes">Cafes</option>
+            <option value="Coworking">Coworking</option>
+            <option value="Stays">Stays</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Area / Location</label>
+          <input type="text" id="spotArea" required placeholder="e.g. Uluwatu / Canggu / Ubud" class="w-full text-sm border border-slate-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-sky-500">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Rating</label>
+          <input type="text" id="spotRating" value="4.5" required class="w-full text-sm border border-slate-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-sky-500">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Price Label</label>
+          <input type="text" id="spotPrice" value="Contact for Rates" required class="w-full text-sm border border-slate-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-sky-500">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Image URL (Foto Utama)</label>
+          <input type="url" id="spotImage" placeholder="https://images.unsplash.com/..." class="w-full text-sm border border-slate-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-sky-500">
+        </div>
+
+        <div class="sm:col-span-2">
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Amenities / Facilities (Gunakan pemisah titik • atau koma)</label>
+          <input type="text" id="spotAmenity" placeholder="Cliffside Infinity Pool • Butler Service • 150Mbps Wifi" class="w-full text-sm border border-slate-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-sky-500">
+        </div>
+
+        <div class="sm:col-span-2 flex justify-end gap-2 pt-2">
+          <button type="button" id="cancelEditBtn" onclick="resetForm()" class="hidden px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition">Cancel Edit</button>
+          <button type="submit" class="px-6 py-2.5 text-xs font-bold text-white bg-sky-600 hover:bg-sky-700 rounded-xl transition shadow-md shadow-sky-600/20">Save Spot to Database</button>
+        </div>
+      </form>
     </div>
 
-    <!-- Status Log -->
-    <div id="statusLog" class="p-3 bg-slate-950 rounded-xl font-mono text-[11px] text-slate-300 mb-4 hidden">
-      Menunggu perintah...
+    <!-- SECTION: LIST DATA SPOTS -->
+    <div class="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
+      <h2 class="font-bold text-lg text-slate-900 mb-4">📋 Managed Places Directory</h2>
+      <div id="adminSpotsContainer" class="space-y-3">
+        <p class="text-slate-400 text-xs italic text-center py-6">Loading spots data...</p>
+      </div>
     </div>
 
-    <!-- Area Preview Hasil Data -->
-    <div id="previewContainer" class="space-y-3 hidden">
-      <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Hasil Preview Data Foursquare:</h3>
-      <div id="cardList" class="space-y-2 max-h-96 overflow-y-auto pr-1"></div>
-    </div>
+  </main>
 
-    <div class="mt-6 text-center">
-      <a href="index.html" class="text-xs text-slate-400 underline">Kembali ke Beranda</a>
-    </div>
-
-  </div>
-
+  <!-- SCRIPT ADMIN -->
   <script>
-    const SUPABASE_URL = 'https://riyupzmlltjrelqytwi.supabase.co';
+    const SUPABASE_URL = 'https://riyupzmllltjrelqytwi.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_df32CqJ5bqDNCHU4OKGRPQ_7LiJvWV0';
-    const FOURSQUARE_API_KEY = "RJGHDSELHYZRFN3SMIISKNQ4XZYBD55OR24MFEC0UPWIAAOL";
+    const clientSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    let fetchedPlaces = [];
+    async function fetchAdminSpots() {
+      const container = document.getElementById('adminSpotsContainer');
+      const { data, error } = await clientSupabase.from('places').select('*').order('id', { ascending: false });
 
-    async function runTestAPI() {
-      const statusLog = document.getElementById('statusLog');
-      const previewContainer = document.getElementById('previewContainer');
-      const cardList = document.getElementById('cardList');
-      const syncBtn = document.getElementById('syncBtn');
+      if (error) {
+        container.innerHTML = `<p class="text-rose-500 text-xs text-center">Failed to load places.</p>`;
+        return;
+      }
 
-      statusLog.classList.remove('hidden');
-      statusLog.innerText = "⏳ Tombol diklik! Menghubungkan ke Foursquare API...";
-      cardList.innerHTML = '';
+      if (!data || data.length === 0) {
+        container.innerHTML = `<p class="text-slate-400 text-xs italic text-center py-6">No places found in database.</p>`;
+        return;
+      }
 
-      const apiUrl = "https://api.foursquare.com/v3/places/search?ll=-8.6478,115.1385&radius=5000&categories=13000&limit=5&fields=fsq_id,name,location,rating,price,photos";
-
-      try {
-        const response = await fetch(apiUrl, {
-          headers: { 
-            'Accept': 'application/json', 
-            'Authorization': FOURSQUARE_API_KEY 
-          }
-        });
-
-        const data = await response.json();
-        
-        if (!data.results || data.results.length === 0) {
-          statusLog.innerText = "⚠️ Tidak ada data yang ditemukan dari Foursquare.";
-          return;
-        }
-
-        fetchedPlaces = data.results.map(venue => {
-          let imageUrl = null;
-          if (venue.photos && venue.photos.length > 0) {
-            const p = venue.photos[0];
-            imageUrl = `${p.prefix}400x300${p.suffix}`;
-          }
-
-          return {
-            category: 'cafe',
-            name: venue.name,
-            area: 'Canggu',
-            rating: venue.rating ? Number((venue.rating / 2).toFixed(1)) : 4.5,
-            price: (venue.price || 2) * 50000,
-            price_label: '$$ '.repeat(venue.price || 2),
-            image_url: imageUrl || 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=600&q=80',
-            amenity: `${venue.location?.address || 'Canggu'} • Verified Foursquare`
-          };
-        });
-
-        statusLog.innerText = `✅ BERHASIL! Foursquare merespon dengan ${fetchedPlaces.length} data asli. Lihat preview di bawah:`;
-        previewContainer.classList.remove('hidden');
-
-        cardList.innerHTML = fetchedPlaces.map(p => `
-          <div class="flex items-center gap-3 bg-slate-950 p-2.5 rounded-xl border border-slate-800">
-            <img src="${p.image_url}" class="w-12 h-12 object-cover rounded-lg shrink-0">
-            <div class="flex-1 min-w-0">
-              <h4 class="text-xs font-bold text-slate-100 truncate">${p.name}</h4>
-              <p class="text-[10px] text-slate-400">Rating: ★${p.rating} | ${p.amenity}</p>
+      container.innerHTML = data.map(spot => `
+        <div class="flex items-center justify-between p-4 rounded-2xl border border-slate-100 bg-slate-50/50 hover:bg-slate-50 transition gap-4">
+          <div class="flex items-center gap-3 min-w-0">
+            <img src="${spot.image_url || 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=150&q=80'}" class="w-12 h-12 rounded-xl object-cover flex-shrink-0 border border-slate-200" />
+            <div class="min-w-0">
+              <h4 class="font-bold text-slate-900 text-sm truncate">${escapeHtml(spot.name)}</h4>
+              <p class="text-[11px] text-slate-500 font-medium">📂 <strong class="text-slate-700">${escapeHtml(spot.category)}</strong> • 📍 ${escapeHtml(spot.area || 'Bali')}</p>
             </div>
           </div>
-        `).join('');
-
-        syncBtn.disabled = false;
-        syncBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-
-      } catch (err) {
-        console.error(err);
-        statusLog.innerText = "❌ ERROR: " + err.message;
-      }
+          <div class="flex items-center gap-2 flex-shrink-0">
+            <button onclick="editSpot(${spot.id}, '${escapeHtml(spot.name)}', '${escapeHtml(spot.category)}', '${escapeHtml(spot.area || '')}', '${spot.rating || 4.5}', '${escapeHtml(spot.price_label || spot.price || '')}', '${escapeHtml(spot.image_url || '')}', '${escapeHtml(spot.amenity || '')}')" class="bg-sky-50 hover:bg-sky-100 text-sky-700 text-xs font-bold px-3 py-1.5 rounded-xl transition">
+              Edit
+            </button>
+            <button onclick="deleteSpot(${spot.id})" class="bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold px-3 py-1.5 rounded-xl transition">
+              Delete
+            </button>
+          </div>
+        </div>
+      `).join('');
     }
 
-    async function saveToSupabase() {
-      const statusLog = document.getElementById('statusLog');
-      const syncBtn = document.getElementById('syncBtn');
+    async function handleSaveSpot(event) {
+      event.preventDefault();
+      const id = document.getElementById('spotId').value;
+      const payload = {
+        name: document.getElementById('spotName').value,
+        category: document.getElementById('spotCategory').value,
+        area: document.getElementById('spotArea').value,
+        rating: document.getElementById('spotRating').value,
+        price_label: document.getElementById('spotPrice').value,
+        image_url: document.getElementById('spotImage').value,
+        amenity: document.getElementById('spotAmenity').value
+      };
 
-      if (fetchedPlaces.length === 0) return;
-
-      statusLog.innerText = "📥 Mengirim data preview ke database Supabase...";
-      syncBtn.disabled = true;
-
-      try {
-        const { error } = await supabase
-          .from('places')
-          .upsert(fetchedPlaces, { onConflict: 'name,area' });
-
-        if (error) throw error;
-
-        statusLog.innerText = "🎉 SUKSES BESAR! Data preview Foursquare berhasil masuk permanen ke Supabase.";
-        syncBtn.disabled = false;
-        syncBtn.classList.add('opacity-50', 'cursor-not-allowed');
-
-      } catch (err) {
-        statusLog.innerText = "❌ Gagal Simpan ke Supabase: " + err.message;
-        syncBtn.disabled = false;
+      if (id) {
+        // Update existing
+        const { error } = await clientSupabase.from('places').update(payload).eq('id', id);
+        if (error) { alert("Error updating: " + error.message); return; }
+        alert("Spot updated successfully!");
+      } else {
+        // Insert new
+        const { error } = await clientSupabase.from('places').insert([payload]);
+        if (error) { alert("Error inserting: " + error.message); return; }
+        alert("Spot added successfully!");
       }
+
+      resetForm();
+      fetchAdminSpots();
     }
+
+    function editSpot(id, name, category, area, rating, price, imageUrl, amenity) {
+      document.getElementById('spotId').value = id;
+      document.getElementById('spotName').value = name;
+      document.getElementById('spotCategory').value = category;
+      document.getElementById('spotArea').value = area;
+      document.getElementById('spotRating').value = rating;
+      document.getElementById('spotPrice').value = price;
+      document.getElementById('spotImage').value = imageUrl;
+      document.getElementById('spotAmenity').value = amenity;
+
+      document.getElementById('formTitle').innerText = "✏️ Edit Spot ID: " + id;
+      document.getElementById('cancelEditBtn').classList.remove('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function resetForm() {
+      document.getElementById('adminSpotForm').reset();
+      document.getElementById('spotId').value = '';
+      document.getElementById('formTitle').innerText = "➕ Add New Curated Spot";
+      document.getElementById('cancelEditBtn').classList.add('hidden');
+    }
+
+    async function deleteSpot(id) {
+      if (!confirm("Are you sure you want to delete this spot?")) return;
+      const { error } = await clientSupabase.from('places').delete().eq('id', id);
+      if (error) { alert("Error deleting: " + error.message); return; }
+      fetchAdminSpots();
+    }
+
+    function escapeHtml(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    fetchAdminSpots();
   </script>
 </body>
 </html>
