@@ -3,29 +3,40 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>SpotTribe Bali - Admin Dashboard</title>
+  <title>SpotTribe Bali - Test Foursquare API</title>
   
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col items-center justify-center p-4">
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col items-center p-4 pb-20">
 
-  <div class="max-w-md w-full bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl text-center">
+  <div class="max-w-xl w-full bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl mt-6">
     
-    <h1 class="font-bold text-lg text-slate-100 mb-2">SpotTribe Admin</h1>
-    <p class="text-xs text-slate-400 mb-6">Panel Sinkronisasi Data Bali</p>
+    <h1 class="font-bold text-lg text-slate-100 mb-1 text-center">Foursquare Live Test Dashboard</h1>
+    <p class="text-xs text-slate-400 mb-6 text-center">Uji coba langsung API Foursquare untuk membuktikan data Bali masuk</p>
 
-    <!-- Tombol Utama -->
-    <button onclick="runSync()" id="actionBtn" class="w-full py-4 px-4 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-2xl shadow-lg transition-all">
-      🚀 Mulai Tarik Data Foursquare
-    </button>
+    <!-- Tombol Aksi -->
+    <div class="flex gap-2 mb-6">
+      <button onclick="testFoursquareAPI()" id="testBtn" class="flex-1 py-3 px-4 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-2xl shadow-lg transition-all">
+        🔍 Tes Foursquare API (Preview)
+      </button>
+      <button onclick="syncToSupabase()" id="syncBtn" class="flex-1 py-3 px-4 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-2xl shadow-lg transition-all opacity-50 cursor-not-allowed" disabled>
+        🚀 Simpan ke Supabase
+      </button>
+    </div>
 
-    <!-- Kotak Status -->
-    <div id="logBox" class="mt-4 p-3 bg-slate-950 rounded-xl text-left font-mono text-[11px] text-emerald-400 hidden">
+    <!-- Status Log -->
+    <div id="statusLog" class="p-3 bg-slate-950 rounded-xl font-mono text-[11px] text-slate-300 mb-4 hidden">
       Menunggu perintah...
     </div>
 
-    <div class="mt-6">
+    <!-- Area Preview Hasil Data -->
+    <div id="previewContainer" class="space-y-3 hidden">
+      <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Hasil Preview Data Foursquare:</h3>
+      <div id="cardList" class="space-y-2 max-h-96 overflow-y-auto pr-1"></div>
+    </div>
+
+    <div class="mt-6 text-center">
       <a href="index.html" class="text-xs text-slate-400 underline">Kembali ke Beranda</a>
     </div>
 
@@ -38,40 +49,102 @@
 
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    async function runSync() {
-      const logBox = document.getElementById('logBox');
-      const btn = document.getElementById('actionBtn');
-      
-      logBox.classList.remove('hidden');
-      logBox.innerText = "⏳ Memulai proses...";
-      btn.disabled = true;
-      btn.style.opacity = "0.5";
+    let fetchedPlaces = [];
+
+    async function testFoursquareAPI() {
+      const statusLog = document.getElementById('statusLog');
+      const previewContainer = document.getElementById('previewContainer');
+      const cardList = document.getElementById('cardList');
+      const syncBtn = document.getElementById('syncBtn');
+
+      statusLog.classList.remove('hidden');
+      statusLog.innerText = "⏳ Menghubungkan ke Foursquare API untuk area Canggu...";
+      cardList.innerHTML = '';
+
+      // Kita uji ambil sample dari area Canggu untuk kategori Cafe
+      const apiUrl = "https://api.foursquare.com/v3/places/search?ll=-8.6478,115.1385&radius=5000&categories=13000&limit=5&fields=fsq_id,name,location,rating,price,photos";
 
       try {
-        // Data sampel uji coba langsung ke Supabase agar instan masuk
-        const sampleData = [
-          { category: 'cafe', name: 'Revolver Seminyak', area: 'Seminyak', rating: 4.8, price: 50000, price_label: 'IDR 50k - 150k', image_url: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=600&q=80', amenity: 'Seminyak • Verified' },
-          { category: 'villas', name: 'Theanna Villa Canggu', area: 'Canggu', rating: 4.9, price: 1500000, price_label: 'IDR 1.5M / night', image_url: 'https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=600&q=80', amenity: 'Canggu • Verified' },
-          { category: 'nightclub', name: 'La Favela', area: 'Seminyak', rating: 4.7, price: 150000, price_label: 'IDR 150k / entry', image_url: 'https://images.unsplash.com/photo-1566737236500-c8ac43014a67?auto=format&fit=crop&w=600&q=80', amenity: 'Seminyak • Verified' },
-          { category: 'rental', name: 'Canggu Scooter Rental', area: 'Canggu', rating: 4.8, price: 70000, price_label: 'IDR 70k / day', image_url: 'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&w=600&q=80', amenity: 'Canggu • Verified' }
-        ];
+        const response = await fetch(apiUrl, {
+          headers: { 
+            'Accept': 'application/json', 
+            'Authorization': FOURSQUARE_API_KEY 
+          }
+        });
 
-        logBox.innerText = "📥 Menyimpan data ke Supabase...";
+        const data = await response.json();
+        
+        if (!data.results || data.results.length === 0) {
+          statusLog.innerText = "⚠️ Tidak ada data yang ditemukan dari Foursquare.";
+          return;
+        }
 
+        fetchedPlaces = data.results.map(venue => {
+          let imageUrl = null;
+          if (venue.photos && venue.photos.length > 0) {
+            const p = venue.photos[0];
+            imageUrl = `${p.prefix}400x300${p.suffix}`;
+          }
+
+          return {
+            category: 'cafe',
+            name: venue.name,
+            area: 'Canggu',
+            rating: venue.rating ? Number((venue.rating / 2).toFixed(1)) : 4.5,
+            price: (venue.price || 2) * 50000,
+            price_label: '$$ '.repeat(venue.price || 2),
+            image_url: imageUrl || 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=600&q=80',
+            amenity: `${venue.location?.address || 'Canggu'} • Verified Foursquare`
+          };
+        });
+
+        statusLog.innerText = `✅ BERHASIL! Foursquare merespon dengan ${fetchedPlaces.length} data asli. Lihat preview di bawah:`;
+        previewContainer.classList.remove('hidden');
+
+        // Tampilkan card preview di layar
+        cardList.innerHTML = fetchedPlaces.map(p => `
+          <div class="flex items-center gap-3 bg-slate-950 p-2.5 rounded-xl border border-slate-800">
+            <img src="${p.image_url}" class="w-12 h-12 object-cover rounded-lg shrink-0">
+            <div class="flex-1 min-w-0">
+              <h4 class="text-xs font-bold text-slate-100 truncate">${p.name}</h4>
+              <p class="text-[10px] text-slate-400">Rating: ★${p.rating} | ${p.amenity}</p>
+            </div>
+          </div>
+        `).join('');
+
+        // Aktifkan tombol simpan ke Supabase
+        syncBtn.disabled = false;
+        syncBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+
+      } catch (err) {
+        console.error(err);
+        statusLog.innerText = "❌ ERROR: " + err.message;
+      }
+    }
+
+    async function syncToSupabase() {
+      const statusLog = document.getElementById('statusLog');
+      const syncBtn = document.getElementById('syncBtn');
+
+      if (fetchedPlaces.length === 0) return;
+
+      statusLog.innerText = "📥 Mengirim data preview ke database Supabase...";
+      syncBtn.disabled = true;
+
+      try {
         const { error } = await supabase
           .from('places')
-          .upsert(sampleData, { onConflict: 'name,area' });
+          .upsert(fetchedPlaces, { onConflict: 'name,area' });
 
         if (error) throw error;
 
-        logBox.innerText = "✅ SUKSES! Data berhasil masuk ke database.";
-        btn.disabled = false;
-        btn.style.opacity = "1";
+        statusLog.innerText = "🎉 SUKSES BESAR! Data preview Foursquare di atas telah berhasil masuk permanen ke tabel Supabase.";
+        syncBtn.disabled = false;
+        syncBtn.classList.add('opacity-50', 'cursor-not-allowed');
 
       } catch (err) {
-        logBox.innerText = "❌ ERROR: " + err.message;
-        btn.disabled = false;
-        btn.style.opacity = "1";
+        statusLog.innerText = "❌ Gagal Simpan ke Supabase: " + err.message;
+        syncBtn.disabled = false;
       }
     }
   </script>
