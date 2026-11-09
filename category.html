@@ -173,6 +173,7 @@
           renderPlaces(currentPlaces);
           spotsListEl.classList.remove('hidden');
         } else {
+          emptyStateEl.classList.add('hidden'); // Fix toggle
           emptyStateEl.classList.remove('hidden');
         }
 
@@ -210,7 +211,7 @@
       renderPlaces(currentPlaces);
     }
 
-    // RENDER KARTU TEMPAT
+    // RENDER KARTU TEMPAT DENGAN AMENITY
     function renderPlaces(places) {
       const spotsListEl = document.getElementById('spotsList');
       const countEl = document.getElementById('spotCount');
@@ -246,9 +247,12 @@
                   ${escapeHtml(spot.area || 'Bali')}
                 </p>
                 
-                <p class="text-[11px] text-slate-600 font-medium mt-2 bg-slate-50 px-2 py-1 rounded-lg border border-slate-200 inline-block">
-                  🌴 Explore Bali • Verified Location
-                </p>
+                <!-- TAMPILKAN AMENITY DISINI -->
+                ${spot.amenity ? `
+                  <p class="text-[11px] text-slate-600 font-medium mt-2 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-200 inline-block">
+                    ${escapeHtml(spot.amenity)}
+                  </p>
+                ` : ''}
               </div>
             </div>
 
