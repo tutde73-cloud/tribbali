@@ -36,24 +36,24 @@
 
         <div>
           <label class="block text-xs font-semibold text-slate-600 mb-1">Spot Name</label>
-          <input type="text" id="spotName" required placeholder="e.g. The Edge Bali" class="w-full text-sm border border-slate-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-sky-500">
+          <input type="text" id="spotName" required placeholder="e.g. Flamingo Black Sand Dayclub" class="w-full text-sm border border-slate-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-sky-500">
         </div>
 
         <div>
           <label class="block text-xs font-semibold text-slate-600 mb-1">Category</label>
-          <select id="spotCategory" required class="w-full text-sm border border-slate-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-sky-500 bg-white">
-            <option value="Villas">Villas</option>
-            <option value="Waterfall">Waterfall</option>
-            <option value="Beach Clubs">Beach Clubs</option>
-            <option value="Cafes">Cafes</option>
-            <option value="Coworking">Coworking</option>
-            <option value="Stays">Stays</option>
+          <select id="spotCategory" required class="w-full text-sm border border-slate-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-sky-500 bg-white font-medium">
+            <option value="beachclub">Beach Clubs (beachclub)</option>
+            <option value="villas">Villas (villas)</option>
+            <option value="waterfall">Waterfall (waterfall)</option>
+            <option value="cafes">Cafes (cafes)</option>
+            <option value="coworking">Coworking (coworking)</option>
+            <option value="stays">Stays (stays)</option>
           </select>
         </div>
 
         <div>
           <label class="block text-xs font-semibold text-slate-600 mb-1">Area / Location</label>
-          <input type="text" id="spotArea" required placeholder="e.g. Uluwatu / Canggu / Ubud" class="w-full text-sm border border-slate-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-sky-500">
+          <input type="text" id="spotArea" required placeholder="e.g. Gianyar / Canggu / Uluwatu" class="w-full text-sm border border-slate-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-sky-500">
         </div>
 
         <div>
@@ -73,7 +73,7 @@
 
         <div class="sm:col-span-2">
           <label class="block text-xs font-semibold text-slate-600 mb-1">Amenities / Facilities (Gunakan pemisah titik • atau koma)</label>
-          <input type="text" id="spotAmenity" placeholder="Cliffside Infinity Pool • Butler Service • 150Mbps Wifi" class="w-full text-sm border border-slate-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-sky-500">
+          <input type="text" id="spotAmenity" placeholder="Infinity Pool • Ocean View • Daybed Reservation" class="w-full text-sm border border-slate-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-sky-500">
         </div>
 
         <div class="sm:col-span-2 flex justify-end gap-2 pt-2">
@@ -83,9 +83,29 @@
       </form>
     </div>
 
-    <!-- SECTION: LIST DATA SPOTS -->
-    <div class="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
-      <h2 class="font-bold text-lg text-slate-900 mb-4">📋 Managed Places Directory</h2>
+    <!-- SECTION: LIST DATA SPOTS WITH CATEGORY FILTER -->
+    <div class="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-slate-100">
+        <div>
+          <h2 class="font-bold text-lg text-slate-900">📁 Managed Places Directory</h2>
+          <p class="text-xs text-slate-500">Filter and edit database entries by category.</p>
+        </div>
+        
+        <!-- CATEGORY FILTER DROPDOWN -->
+        <div class="flex items-center gap-2">
+          <label for="directoryFilter" class="text-xs font-bold text-slate-600">Filter Category:</label>
+          <select id="directoryFilter" onchange="fetchAdminSpots()" class="text-xs border border-slate-300 rounded-xl px-3 py-2 bg-slate-50 font-bold text-slate-800 focus:outline-none focus:border-sky-500">
+            <option value="all">ALL Categories</option>
+            <option value="beachclub">Beach Clubs</option>
+            <option value="villas">Villas</option>
+            <option value="waterfall">Waterfall</option>
+            <option value="cafes">Cafes</option>
+            <option value="coworking">Coworking</option>
+            <option value="stays">Stays</option>
+          </select>
+        </div>
+      </div>
+
       <div id="adminSpotsContainer" class="space-y-3">
         <p class="text-slate-400 text-xs italic text-center py-6">Loading spots data...</p>
       </div>
@@ -101,7 +121,15 @@
 
     async function fetchAdminSpots() {
       const container = document.getElementById('adminSpotsContainer');
-      const { data, error } = await clientSupabase.from('places').select('*').order('id', { ascending: false });
+      const selectedCategory = document.getElementById('directoryFilter').value;
+
+      let query = clientSupabase.from('places').select('*').order('id', { ascending: false });
+      
+      if (selectedCategory !== 'all') {
+        query = query.eq('category', selectedCategory);
+      }
+
+      const { data, error } = await query;
 
       if (error) {
         container.innerHTML = `<p class="text-rose-500 text-xs text-center">Failed to load places.</p>`;
@@ -109,7 +137,7 @@
       }
 
       if (!data || data.length === 0) {
-        container.innerHTML = `<p class="text-slate-400 text-xs italic text-center py-6">No places found in database.</p>`;
+        container.innerHTML = `<p class="text-slate-400 text-xs italic text-center py-6">No places found in category "${selectedCategory}".</p>`;
         return;
       }
 
@@ -119,11 +147,11 @@
             <img src="${spot.image_url || 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=150&q=80'}" class="w-12 h-12 rounded-xl object-cover flex-shrink-0 border border-slate-200" />
             <div class="min-w-0">
               <h4 class="font-bold text-slate-900 text-sm truncate">${escapeHtml(spot.name)}</h4>
-              <p class="text-[11px] text-slate-500 font-medium">📂 <strong class="text-slate-700">${escapeHtml(spot.category)}</strong> • 📍 ${escapeHtml(spot.area || 'Bali')}</p>
+              <p class="text-[11px] text-slate-500 font-medium">📂 <strong class="text-slate-700">${escapeHtml(spot.category)}</strong> • 📍 ${escapeHtml(spot.area || spot.regency || 'Bali')}</p>
             </div>
           </div>
           <div class="flex items-center gap-2 flex-shrink-0">
-            <button onclick="editSpot(${spot.id}, '${escapeHtml(spot.name)}', '${escapeHtml(spot.category)}', '${escapeHtml(spot.area || '')}', '${spot.rating || 4.5}', '${escapeHtml(spot.price_label || spot.price || '')}', '${escapeHtml(spot.image_url || '')}', '${escapeHtml(spot.amenity || '')}')" class="bg-sky-50 hover:bg-sky-100 text-sky-700 text-xs font-bold px-3 py-1.5 rounded-xl transition">
+            <button onclick="editSpot(${spot.id}, '${escapeHtml(spot.name)}', '${escapeHtml(spot.category)}', '${escapeHtml(spot.area || spot.regency || '')}', '${spot.rating || 4.5}', '${escapeHtml(spot.price_label || spot.price || '')}', '${escapeHtml(spot.image_url || '')}', '${escapeHtml(spot.amenity || '')}')" class="bg-sky-50 hover:bg-sky-100 text-sky-700 text-xs font-bold px-3 py-1.5 rounded-xl transition">
               Edit
             </button>
             <button onclick="deleteSpot(${spot.id})" class="bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold px-3 py-1.5 rounded-xl transition">
@@ -137,9 +165,11 @@
     async function handleSaveSpot(event) {
       event.preventDefault();
       const id = document.getElementById('spotId').value;
+      const categoryValue = document.getElementById('spotCategory').value;
+      
       const payload = {
         name: document.getElementById('spotName').value,
-        category: document.getElementById('spotCategory').value,
+        category: categoryValue,
         area: document.getElementById('spotArea').value,
         rating: document.getElementById('spotRating').value,
         price_label: document.getElementById('spotPrice').value,
@@ -148,17 +178,17 @@
       };
 
       if (id) {
-        // Update existing
         const { error } = await clientSupabase.from('places').update(payload).eq('id', id);
         if (error) { alert("Error updating: " + error.message); return; }
         alert("Spot updated successfully!");
       } else {
-        // Insert new
         const { error } = await clientSupabase.from('places').insert([payload]);
         if (error) { alert("Error inserting: " + error.message); return; }
         alert("Spot added successfully!");
       }
 
+      // Sync filter dropdown to show updated category
+      document.getElementById('directoryFilter').value = categoryValue;
       resetForm();
       fetchAdminSpots();
     }
