@@ -1,146 +1,237 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>SpotTribe Bali - Community Hub</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SpotTribe Bali - Community & Buddies</title>
+  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Supabase JS Client SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-<body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col pb-24">
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
 
-  <!-- TOP HEADER BAR -->
-  <header class="h-16 bg-slate-900/90 backdrop-blur border-b border-slate-800 px-4 flex items-center justify-between sticky top-0 z-30">
-    <div class="flex items-center gap-3">
-      <button onclick="window.location.href='index.html'" class="w-9 h-9 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 hover:text-white transition-colors">
-        <i data-lucide="arrow-left" class="w-5 h-5"></i>
-      </button>
-      <div>
-        <h1 id="communityTitle" class="font-bold text-base text-slate-100 capitalize leading-tight">Tribe Community</h1>
-        <p class="text-[11px] text-emerald-400 font-medium">Live Social & Networking</p>
+  <!-- NAVBAR -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-50">
+    <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+      <a href="./index.html" class="flex items-center gap-2">
+        <span class="text-2xl">🌴</span>
+        <span class="font-bold text-xl tracking-tight text-slate-900">SpotTribe <span class="text-sky-600">Bali</span></span>
+      </a>
+      <div id="authStatusArea" class="flex items-center gap-3">
+        <!-- Status auth akan diinject oleh JS -->
+        <a href="./login.html" id="navLoginBtn" class="bg-sky-600 hover:bg-sky-700 text-white font-medium text-sm px-4 py-2 rounded-xl transition">
+          Login Google
+        </a>
       </div>
     </div>
   </header>
 
-  <!-- MODAL LOGIN POPUP (Jika belum login) -->
-  <div id="loginModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-sm w-full shadow-2xl text-center">
-      <div class="w-14 h-14 rounded-2xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center mx-auto mb-4 border border-emerald-500/20">
-        <i data-lucide="lock" class="w-7 h-7"></i>
+  <!-- MAIN CONTAINER -->
+  <main class="max-w-5xl mx-auto px-4 py-8 flex-grow w-full">
+    
+    <!-- HEADER TITLE -->
+    <div class="text-center max-w-xl mx-auto mb-8">
+      <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Komunitas & Teman Nongkrong</h1>
+      <p class="text-slate-500 mt-2 text-sm">Temukan acara seru atau cari teman mengobrol kasual di sekitar Bali.</p>
+    </div>
+
+    <!-- TAB SWITCHER -->
+    <div class="flex justify-center mb-8">
+      <div class="bg-slate-200/70 p-1 rounded-2xl flex gap-1 w-full max-w-md">
+        <button id="tabMeetupBtn" onclick="switchTab('meetup')" class="flex-1 py-2.5 px-4 rounded-xl text-sm font-semibold transition bg-white text-slate-900 shadow-sm">
+          📅 Meet-ups
+        </button>
+        <button id="tabBuddiesBtn" onclick="switchTab('buddies')" class="flex-1 py-2.5 px-4 rounded-xl text-sm font-semibold transition text-slate-600 hover:text-slate-900">
+          💬 Surf Buddies / Chat
+        </button>
       </div>
-      <h2 class="text-lg font-bold text-slate-100 mb-1">Please Login to Join the Tribe</h2>
-      <p class="text-xs text-slate-400 mb-6">Sign in to access community chats, meet other nomads, and RSVP to events in Bali.</p>
-      <button onclick="simulateLogin()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl text-xs font-bold transition-all shadow-lg shadow-emerald-600/20 mb-2">
-        Simulate Login Now
-      </button>
-      <button onclick="window.location.href='index.html'" class="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-2xl text-xs font-semibold transition-colors">
-        Back to Map
-      </button>
     </div>
-  </div>
 
-  <!-- MAIN CONTENT CONTAINER -->
-  <main class="flex-1 p-4 max-w-xl mx-auto w-full">
-    <div id="communityFeed" class="flex flex-col gap-4">
-      <!-- Feed sosial akan dirender di sini -->
-    </div>
-  </main>
+    <!-- SECTION 1: MEET-UPS TAB -->
+    <section id="meetupSection" class="space-y-4">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-lg font-bold text-slate-800">Jadwal Kumpul Terdekat</h2>
+        <button onclick="handleProtectedAction('create_meetup')" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-3 py-2 rounded-lg transition">
+          + Buat Meet-up
+        </button>
+      </div>
 
-  <!-- BOTTOM NAVIGATION BAR -->
-  <nav class="fixed bottom-0 left-0 right-0 h-16 bg-slate-900/95 backdrop-blur border-t border-slate-800 flex items-center justify-around px-4 z-30">
-    <a href="index.html" class="flex flex-col items-center gap-1 text-emerald-400">
-      <i data-lucide="map" class="w-5 h-5"></i>
-      <span class="text-[10px] font-medium">Explore</span>
-    </a>
-    <a href="messages.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 transition-colors">
-      <i data-lucide="message-square" class="w-5 h-5"></i>
-      <span class="text-[10px] font-medium">Chats</span>
-    </a>
-    <a href="profile.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 transition-colors">
-      <i data-lucide="user" class="w-5 h-5"></i>
-      <span class="text-[10px] font-medium">Profile</span>
-    </a>
-  </nav>
-
-  <script>
-    const urlParams = new URLSearchParams(window.location.search);
-    const commType = urlParams.get('type') || 'meetups';
-
-    // Simulasi Cek Status Login (Default: false / belum login)
-    let isLoggedIn = localStorage.getItem('spotTribeLoggedIn') === 'true';
-
-    const communityData = {
-      'meetups': [
-        { title: "Canggu Nomad Sunset Gathering", location: "Echo Beach, Canggu", time: "Today, 17:30 WITA", attendees: "45 Nomads Going", image: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=600&q=80", room: "canggu-sunset" },
-        { title: "Ubud Startup Founders Circle", location: "Monkey Forest, Ubud", time: "Tomorrow, 10:00 WITA", attendees: "28 Founders Going", image: "https://images.unsplash.com/photo-1528605248644-14dd04022da1?auto=format&fit=crop&w=600&q=80", room: "ubud-startup" }
-      ],
-      'surfing-buddies': [
-        { title: "Uluwatu Morning Surf Crew", location: "Padang Padang, Uluwatu", time: "Tomorrow, 06:00 WITA", attendees: "12 Surfers Ready", image: "https://images.unsplash.com/photo-1502680390469-be75c86b636f?auto=format&fit=crop&w=600&q=80", room: "uluwatu-surf" },
-        { title: "Batu Bolong Sunset Longboarders", location: "Canggu, Bali", time: "Today, 16:00 WITA", attendees: "20 Surfers Ready", image: "https://images.unsplash.com/photo-1531722569936-825d3dd91b15?auto=format&fit=crop&w=600&q=80", room: "canggu-longboard" }
-      ]
-    };
-
-    function initCommunity() {
-      document.getElementById('communityTitle').innerText = commType === 'meetups' ? 'Community Meetups' : 'Surfing Buddies Hub';
-
-      if (!isLoggedIn) {
-        // Tampilkan modal pop-up login premium
-        document.getElementById('loginModal').classList.remove('hidden');
-        return;
-      }
-
-      renderFeed();
-    }
-
-    function simulateLogin() {
-      localStorage.setItem('spotTribeLoggedIn', 'true');
-      isLoggedIn = true;
-      document.getElementById('loginModal').classList.add('hidden');
-      renderFeed();
-    }
-
-    function renderFeed() {
-      const feedEl = document.getElementById('communityFeed');
-      const items = communityData[commType] || communityData['meetups'];
-
-      feedEl.innerHTML = items.map(item => `
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-lg flex flex-col">
-          <div class="h-40 relative">
-            <img src="${item.image}" alt="${item.title}" class="w-full h-full object-cover">
-            <div class="absolute top-3 right-3 bg-emerald-500 text-slate-950 text-[10px] font-bold px-2.5 py-1 rounded-full shadow-md">
-              ${item.attendees}
-            </div>
+      <!-- Dummy List Meetups (Nanti di-fetch dari Supabase DB) -->
+      <div class="grid md:grid-cols-2 gap-4">
+        
+        <!-- Card 1 -->
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition">
+          <div class="flex justify-between items-start mb-3">
+            <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-1 rounded-full">☕ Coffee & Code</span>
+            <span class="text-xs text-slate-400 font-medium">Besok, 15.00 WITA</span>
           </div>
-          <div class="p-4 flex flex-col gap-3">
-            <div>
-              <h3 class="font-bold text-sm text-slate-100">${escapeHtml(item.title)}</h3>
-              <p class="text-xs text-slate-400 mt-0.5 flex items-center gap-1">
-                <i data-lucide="map-pin" class="w-3.5 h-3.5 text-emerald-400"></i> ${escapeHtml(item.location)}
-              </p>
-              <p class="text-xs text-emerald-400 font-mono mt-1 flex items-center gap-1">
-                <i data-lucide="clock" class="w-3.5 h-3.5"></i> ${escapeHtml(item.time)}
-              </p>
-            </div>
-            <button onclick="openChatRoom('${item.room}')" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold transition-colors flex items-center justify-center gap-2 shadow-md">
-              <i data-lucide="message-square" class="w-4 h-4"></i> Open Chat Room & RSVP
+          <h3 class="font-bold text-slate-900 text-base mb-1">Nongkrong & Share Project Web</h3>
+          <p class="text-slate-500 text-xs mb-4">📍 Expat. Roasters, Canggu</p>
+          <div class="flex items-center justify-between border-t border-slate-100 pt-3">
+            <span class="text-xs text-slate-500">Host: <strong class="text-slate-700">Putu</strong> (3/6 Slot)</span>
+            <button onclick="handleProtectedAction('join_meetup_1')" class="bg-sky-50 hover:bg-sky-100 text-sky-700 text-xs font-bold px-3 py-1.5 rounded-lg transition">
+              Join Meetup
             </button>
           </div>
         </div>
-      `).join('');
 
-      lucide.createIcons();
+        <!-- Card 2 -->
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition">
+          <div class="flex justify-between items-start mb-3">
+            <span class="bg-rose-100 text-rose-800 text-xs font-bold px-2.5 py-1 rounded-full">🌅 Sunset Chill</span>
+            <span class="text-xs text-slate-400 font-medium">Jumat, 17.00 WITA</span>
+          </div>
+          <h3 class="font-bold text-slate-900 text-base mb-1">Santai Sore & Diskusi Startup</h3>
+          <p class="text-slate-500 text-xs mb-4">📍 Pantai Batu Bolong</p>
+          <div class="flex items-center justify-between border-t border-slate-100 pt-3">
+            <span class="text-xs text-slate-500">Host: <strong class="text-slate-700">Alex</strong> (5/10 Slot)</span>
+            <button onclick="handleProtectedAction('join_meetup_2')" class="bg-sky-50 hover:bg-sky-100 text-sky-700 text-xs font-bold px-3 py-1.5 rounded-lg transition">
+              Join Meetup
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SECTION 2: SURF BUDDIES / CHAT TAB (Hidden by Default) -->
+    <section id="buddiesSection" class="space-y-4 hidden">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-lg font-bold text-slate-800">Member yang Siap Ngobrol</h2>
+        <button onclick="handleProtectedAction('post_buddy_status')" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-3 py-2 rounded-lg transition">
+          + Pasang Status Chat
+        </button>
+      </div>
+
+      <!-- Dummy List Buddies -->
+      <div class="grid md:grid-cols-3 gap-4">
+
+        <!-- User Card 1 -->
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col justify-between">
+          <div>
+            <div class="flex items-center gap-3 mb-3">
+              <div class="w-10 h-10 rounded-full bg-sky-100 text-sky-700 font-bold flex items-center justify-center text-sm">
+                TA
+              </div>
+              <div>
+                <h4 class="font-bold text-slate-900 text-sm">Tutde</h4>
+                <p class="text-xs text-emerald-600 font-medium">● Online di Denpasar</p>
+              </div>
+            </div>
+            <p class="text-slate-600 text-xs mb-3">"Lagi senggang nih, open chat santai seputar web dev, otomotif, atau kopi."</p>
+            <div class="flex flex-wrap gap-1 mb-4">
+              <span class="bg-slate-100 text-slate-600 text-[10px] px-2 py-0.5 rounded font-medium">Web Dev</span>
+              <span class="bg-slate-100 text-slate-600 text-[10px] px-2 py-0.5 rounded font-medium">Kopi</span>
+            </div>
+          </div>
+          <button onclick="handleProtectedAction('chat_user_tutde')" class="w-full bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold py-2 rounded-xl transition">
+            💬 Start Chat
+          </button>
+        </div>
+
+        <!-- User Card 2 -->
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col justify-between">
+          <div>
+            <div class="flex items-center gap-3 mb-3">
+              <div class="w-10 h-10 rounded-full bg-amber-100 text-amber-700 font-bold flex items-center justify-center text-sm">
+                SR
+              </div>
+              <div>
+                <h4 class="font-bold text-slate-900 text-sm">Sarah</h4>
+                <p class="text-xs text-slate-400 font-medium">Seminyak</p>
+              </div>
+            </div>
+            <p class="text-slate-600 text-xs mb-3">"Cari temen ngopi bareng sore ini daerah Seminyak/Kerobokan."</p>
+            <div class="flex flex-wrap gap-1 mb-4">
+              <span class="bg-slate-100 text-slate-600 text-[10px] px-2 py-0.5 rounded font-medium">Nomad</span>
+              <span class="bg-slate-100 text-slate-600 text-[10px] px-2 py-0.5 rounded font-medium">Cafe</span>
+            </div>
+          </div>
+          <button onclick="handleProtectedAction('chat_user_sarah')" class="w-full bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold py-2 rounded-xl transition">
+            💬 Start Chat
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- SUPABASE & PAGE LOGIC -->
+  <script>
+    const SUPABASE_URL = 'https://riyupzmllltjrelqytwi.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_df32CqJ5bqDNCHU4OKGRPQ_7LiJvWV0';
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let currentUserSession = null;
+
+    // 1. Inisialisasi & Cek Sesi Login User
+    async function initAuth() {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      currentUserSession = session;
+
+      const authStatusArea = document.getElementById('authStatusArea');
+
+      if (session) {
+        const user = session.user;
+        const avatarUrl = user.user_metadata.avatar_url || '';
+        const name = user.user_metadata.full_name || user.email;
+
+        authStatusArea.innerHTML = `
+          <div class="flex items-center gap-2">
+            <img src="${avatarUrl}" class="w-8 h-8 rounded-full border border-slate-300" alt="Avatar" />
+            <span class="text-xs font-semibold text-slate-700 hidden sm:inline">${name}</span>
+            <button onclick="handleLogout()" class="text-xs text-rose-600 hover:text-rose-700 font-medium ml-2">Logout</button>
+          </div>
+        `;
+      }
     }
 
-    function openChatRoom(roomName) {
-      window.location.href = `messages.html?room=${roomName}`;
+    // 2. Proteksi Tombol Interaksi (Gated Access)
+    async function handleProtectedAction(actionIntent) {
+      if (!currentUserSession) {
+        // Simpan intent pengguna lalu lempar ke login.html
+        localStorage.setItem('redirect_intent', actionIntent);
+        alert("Silakan login menggunakan Google terlebih dahulu untuk melanjutkan.");
+        window.location.href = './login.html';
+        return;
+      }
+
+      // Jika sudah login, eksekusi aksinya
+      alert(`Aksi berhasil dipicu untuk member terverifikasi! (Intent: ${actionIntent})`);
     }
 
-    function escapeHtml(text) {
-      return text.replace(/"/g, '&quot;');
+    // 3. Logout Handle
+    async function handleLogout() {
+      await supabaseClient.auth.signOut();
+      window.location.reload();
     }
 
-    initCommunity();
-    lucide.createIcons();
+    // 4. Tab Switcher Logic
+    function switchTab(tabName) {
+      const meetupBtn = document.getElementById('tabMeetupBtn');
+      const buddiesBtn = document.getElementById('tabBuddiesBtn');
+      const meetupSec = document.getElementById('meetupSection');
+      const buddiesSec = document.getElementById('buddiesSection');
+
+      if (tabName === 'meetup') {
+        meetupSec.classList.remove('hidden');
+        buddiesSec.classList.add('hidden');
+
+        meetupBtn.className = "flex-1 py-2.5 px-4 rounded-xl text-sm font-semibold transition bg-white text-slate-900 shadow-sm";
+        buddiesBtn.className = "flex-1 py-2.5 px-4 rounded-xl text-sm font-semibold transition text-slate-600 hover:text-slate-900";
+      } else {
+        buddiesSec.classList.remove('hidden');
+        meetupSec.classList.add('hidden');
+
+        buddiesBtn.className = "flex-1 py-2.5 px-4 rounded-xl text-sm font-semibold transition bg-white text-slate-900 shadow-sm";
+        meetupBtn.className = "flex-1 py-2.5 px-4 rounded-xl text-sm font-semibold transition text-slate-600 hover:text-slate-900";
+      }
+    }
+
+    // Jalankan pengecekan saat halaman selesai dimuat
+    initAuth();
   </script>
 </body>
 </html>
