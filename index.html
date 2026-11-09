@@ -26,54 +26,54 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
-    html, body { height: 100vh; margin: 0; overflow: hidden; background-color: #030712; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    body { background-color: #f8fafc; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding-bottom: 70px; }
     
-    /* Layout Dimensions */
-    .app-header { height: 72px; width: 100%; }
-    .map-hero-container { height: 44vh; width: 100%; position: relative; z-index: 10; }
-    .content-scroll-area { height: calc(56vh - 72px - 68px); width: 100%; overflow-y: auto; scroll-behavior: smooth; position: relative; z-index: 2; }
-
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-    /* Ambient Floating Mesh Gradients Background Animation */
-    .ambient-bg {
-      position: absolute;
-      inset: 0;
+    /* Ambient Floating Mesh Gradients Background (Hanya di area konten bawah) */
+    .ambient-content-bg {
+      position: relative;
+      background: linear-gradient(to bottom, #f1f5f9, #f8fafc);
       overflow: hidden;
+    }
+    .ambient-content-bg::before, .ambient-content-bg::after {
+      content: '';
+      position: absolute;
+      filter: blur(90px);
+      opacity: 0.4;
       pointer-events: none;
       z-index: 0;
+      animation: floatBlob 12s infinite alternate ease-in-out;
     }
-    .blob {
-      position: absolute;
-      filter: blur(80px);
-      opacity: 0.35;
-      animation: floatBlob 14s infinite alternate ease-in-out;
+    .ambient-content-bg::before {
+      top: 5%; left: -10%; width: 50vw; height: 50vw; background: rgba(16, 185, 129, 0.2); border-radius: 50%;
     }
-    .blob-1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: rgba(16, 185, 129, 0.25); border-radius: 50%; }
-    .blob-2 { bottom: -10%; right: -10%; width: 55vw; height: 55vw; background: rgba(20, 184, 166, 0.22); border-radius: 50%; animation-delay: -4s; }
-    .blob-3 { top: 30%; right: 20%; width: 40vw; height: 40vw; background: rgba(99, 102, 241, 0.18); border-radius: 50%; animation-delay: -8s; }
+    .ambient-content-bg::after {
+      bottom: 5%; right: -10%; width: 55vw; height: 55vw; background: rgba(20, 184, 166, 0.18); border-radius: 50%; animation-delay: -5s;
+    }
 
     @keyframes floatBlob {
       0% { transform: translate(0px, 0px) scale(1); }
-      50% { transform: translate(30px, -40px) scale(1.1); }
-      100% { transform: translate(-20px, 30px) scale(0.95); }
+      50% { transform: translate(35px, -45px) scale(1.1); }
+      100% { transform: translate(-25px, 35px) scale(0.95); }
     }
 
-    /* Glassmorphism & UI Accents */
-    .glass-nav { background: rgba(3, 7, 18, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
-    .glass-chip { background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(10px); }
+    /* Light Theme Glass & Cards */
+    .glass-nav-light { background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+    .glass-chip-light { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px); color: #334155; border: 1px solid rgba(226, 232, 240, 0.8); }
 
-    /* Micro-Interactions for Cards */
-    .category-card {
+    .category-card-light {
       transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+      z-index: 1;
     }
-    .category-card:hover {
-      transform: translateY(-6px);
-      box-shadow: 0 20px 35px -10px rgba(16, 185, 129, 0.22);
-      border-color: rgba(16, 185, 129, 0.5);
+    .category-card-light:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 18px 32px -8px rgba(16, 185, 129, 0.18);
+      border-color: rgba(16, 185, 129, 0.4);
     }
-    .category-card:active {
+    .category-card-light:active {
       transform: scale(0.97);
     }
 
@@ -84,45 +84,38 @@
     .pulse-live { animation: pulseGlow 2.2s infinite ease-in-out; }
   </style>
 </head>
-<body class="flex flex-col text-slate-100 relative">
+<body class="flex flex-col text-slate-800">
 
-  <!-- AMBIENT FLOATING GRADIENTS BACKGROUND -->
-  <div class="ambient-bg">
-    <div class="blob blob-1"></div>
-    <div class="blob blob-2"></div>
-    <div class="blob blob-3"></div>
-  </div>
-
-  <!-- SEMANTIC HEADER -->
-  <header class="app-header glass-nav border-b border-slate-800/70 px-6 flex items-center justify-between shrink-0 z-40 shadow-2xl">
+  <!-- SEMANTIC HEADER (LIGHT THEME) -->
+  <header class="glass-nav-light border-b border-slate-200 px-6 h-[72px] flex items-center justify-between sticky top-0 z-50 shadow-sm">
     <div class="flex items-center gap-3.5">
-      <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-emerald-500 via-teal-400 to-cyan-400 flex items-center justify-center font-black text-slate-950 text-xl shadow-lg shadow-emerald-500/30 tracking-tighter">S</div>
+      <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-emerald-500 via-teal-400 to-cyan-400 flex items-center justify-center font-black text-white text-xl shadow-md shadow-emerald-500/20 tracking-tighter">S</div>
       <div>
-        <h1 class="font-extrabold text-sm tracking-tight text-white flex items-center gap-2">
-          SpotTribe <span class="bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent text-[11px] font-mono uppercase px-2 py-0.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 font-bold">BALI</span>
+        <h1 class="font-extrabold text-sm tracking-tight text-slate-900 flex items-center gap-2">
+          SpotTribe <span class="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent text-[11px] font-mono uppercase px-2 py-0.5 rounded-xl bg-emerald-50 border border-emerald-200 font-bold">BALI</span>
         </h1>
-        <p class="text-[10px] text-slate-400 font-medium tracking-wide">Elite Island Guide & Nomad Sanctuary</p>
+        <p class="text-[10px] text-slate-500 font-medium tracking-wide">Elite Island Guide & Nomad Sanctuary</p>
       </div>
     </div>
     
     <div class="flex items-center">
-      <span class="inline-flex items-center px-3.5 py-1.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/35 shadow-inner">
-        <span class="w-2 h-2 rounded-full bg-emerald-400 pulse-live mr-2"></span> 
+      <span class="inline-flex items-center px-3.5 py-1.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-inner">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 pulse-live mr-2"></span> 
         <span id="mapCount" class="font-mono text-xs font-black">0</span> <span class="ml-1 tracking-wider uppercase font-semibold">Live Spots</span>
       </span>
     </div>
   </header>
 
-  <!-- MAP HERO CONTAINER WITH EXACT UNTOUCHED SEARCH & SCROLLABLE CHIPS -->
-  <section class="map-hero-container relative">
+  <!-- MAP HERO CONTAINER (DIAM, TIDAK IKUT SCROLL) -->
+  <section class="relative w-full h-[45vh] min-h-[320px] z-20 shadow-md">
     <div id="map" class="w-full h-full"></div>
     
-    <!-- Floating Integrated Search Bar & Scrollable Filter Chips (POSISI & FUNGSI UTUH SEMPURNA) -->
+    <!-- Floating Integrated Search Bar & Scrollable Filter Chips -->
     <div class="absolute bottom-4 left-0 right-0 z-[400] px-4">
       <div class="max-w-2xl mx-auto space-y-2.5">
         
         <!-- Search Bar -->
-        <div class="relative bg-white/90 backdrop-blur-md rounded-2xl p-1.5 border border-white/60 shadow-2xl flex items-center">
+        <div class="relative bg-white/95 backdrop-blur-md rounded-2xl p-1.5 border border-slate-200 shadow-xl flex items-center">
           <span class="pl-3.5 text-emerald-600 flex items-center pointer-events-none">
             <i data-lucide="search" class="w-4 h-4"></i>
           </span>
@@ -136,25 +129,25 @@
 
         <!-- Scrollable Filter Chips -->
         <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
-          <button onclick="filterMapCategory('all')" id="chip-all" class="px-4 py-1.5 rounded-full text-[11px] font-bold bg-emerald-600 text-white shadow-lg shadow-emerald-950/40 shrink-0 transition-all duration-300 border border-emerald-500 hover:scale-105">
+          <button onclick="filterMapCategory('all')" id="chip-all" class="px-4 py-1.5 rounded-full text-[11px] font-bold bg-emerald-600 text-white shadow-md shadow-emerald-600/20 shrink-0 transition-all duration-300 border border-emerald-500 hover:scale-105">
             🌐 All Spots
           </button>
-          <button onclick="filterMapCategory('villas')" id="chip-villas" class="px-4 py-1.5 rounded-full text-[11px] font-semibold glass-chip text-slate-800 shadow-md shrink-0 hover:bg-white transition-all duration-300 border border-slate-200/80 hover:scale-105">
+          <button onclick="filterMapCategory('villas')" id="chip-villas" class="px-4 py-1.5 rounded-full text-[11px] font-semibold glass-chip-light shadow-sm shrink-0 hover:bg-slate-50 transition-all duration-300 hover:scale-105">
             🏡 Villas
           </button>
-          <button onclick="filterMapCategory('cafe')" id="chip-cafe" class="px-4 py-1.5 rounded-full text-[11px] font-semibold glass-chip text-slate-800 shadow-md shrink-0 hover:bg-white transition-all duration-300 border border-slate-200/80 hover:scale-105">
+          <button onclick="filterMapCategory('cafe')" id="chip-cafe" class="px-4 py-1.5 rounded-full text-[11px] font-semibold glass-chip-light shadow-sm shrink-0 hover:bg-slate-50 transition-all duration-300 hover:scale-105">
             ☕ Cafés
           </button>
-          <button onclick="filterMapCategory('coliving')" id="chip-coliving" class="px-4 py-1.5 rounded-full text-[11px] font-semibold glass-chip text-slate-800 shadow-md shrink-0 hover:bg-white transition-all duration-300 border border-slate-200/80 hover:scale-105">
+          <button onclick="filterMapCategory('coliving')" id="chip-coliving" class="px-4 py-1.5 rounded-full text-[11px] font-semibold glass-chip-light shadow-sm shrink-0 hover:bg-slate-50 transition-all duration-300 hover:scale-105">
             🏢 Coliving
           </button>
-          <button onclick="filterMapCategory('coworking')" id="chip-coworking" class="px-4 py-1.5 rounded-full text-[11px] font-semibold glass-chip text-slate-800 shadow-md shrink-0 hover:bg-white transition-all duration-300 border border-slate-200/80 hover:scale-105">
+          <button onclick="filterMapCategory('coworking')" id="chip-coworking" class="px-4 py-1.5 rounded-full text-[11px] font-semibold glass-chip-light shadow-sm shrink-0 hover:bg-slate-50 transition-all duration-300 hover:scale-105">
             💻 Coworking
           </button>
-          <button onclick="filterMapCategory('beach')" id="chip-beach" class="px-4 py-1.5 rounded-full text-[11px] font-semibold glass-chip text-slate-800 shadow-md shrink-0 hover:bg-white transition-all duration-300 border border-slate-200/80 hover:scale-105">
+          <button onclick="filterMapCategory('beach')" id="chip-beach" class="px-4 py-1.5 rounded-full text-[11px] font-semibold glass-chip-light shadow-sm shrink-0 hover:bg-slate-50 transition-all duration-300 hover:scale-105">
             🏖️ Beaches
           </button>
-          <button onclick="filterMapCategory('waterfall')" id="chip-waterfall" class="px-4 py-1.5 rounded-full text-[11px] font-semibold glass-chip text-slate-800 shadow-md shrink-0 hover:bg-white transition-all duration-300 border border-slate-200/80 hover:scale-105">
+          <button onclick="filterMapCategory('waterfall')" id="chip-waterfall" class="px-4 py-1.5 rounded-full text-[11px] font-semibold glass-chip-light shadow-sm shrink-0 hover:bg-slate-50 transition-all duration-300 hover:scale-105">
             🌊 Waterfalls
           </button>
         </div>
@@ -163,35 +156,35 @@
     </div>
   </section>
 
-  <!-- SCROLLABLE CONTENT AREA WITH BENTO CATEGORY CARDS -->
-  <main class="content-scroll-area px-6 pt-6 pb-16">
-    <div class="max-w-2xl mx-auto space-y-8">
+  <!-- SCROLLABLE CONTENT AREA DENGAN AMBIENT ANIMASI SAMPAI KE BAWAH -->
+  <main class="ambient-content-bg px-6 pt-8 pb-16">
+    <div class="max-w-2xl mx-auto space-y-8 relative z-10">
 
       <!-- GROUP 1: Accommodation & Living -->
       <section>
-        <h2 class="text-xs font-black uppercase tracking-widest text-slate-300 mb-3 px-1 flex items-center gap-2">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Accommodation & Living
+        <h2 class="text-xs font-black uppercase tracking-widest text-slate-500 mb-3 px-1 flex items-center gap-2">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Accommodation & Living
         </h2>
         <div class="grid grid-cols-2 sm:grid-cols-3 gap-3.5">
-          <button onclick="goToCategory('villas')" class="category-card flex items-center gap-4 p-4 bg-slate-900/80 backdrop-blur-md border border-slate-800 rounded-3xl shadow-lg text-left group">
-            <div class="w-12 h-12 rounded-2xl bg-violet-500/10 text-violet-400 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform"><i data-lucide="home" class="w-6 h-6"></i></div>
+          <button onclick="goToCategory('villas')" class="category-card-light flex items-center gap-4 p-4 bg-white/90 backdrop-blur-md border border-slate-200/90 rounded-3xl shadow-sm text-left group">
+            <div class="w-12 h-12 rounded-2xl bg-violet-50 text-violet-600 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform"><i data-lucide="home" class="w-6 h-6"></i></div>
             <div>
-              <div class="text-xs font-extrabold text-slate-100 group-hover:text-emerald-400 transition-colors">Villas & Houses</div>
-              <div class="text-[10px] text-slate-400 font-medium mt-0.5">Long-term Stay</div>
+              <div class="text-xs font-extrabold text-slate-900 group-hover:text-emerald-600 transition-colors">Villas & Houses</div>
+              <div class="text-[10px] text-slate-500 font-medium mt-0.5">Long-term Stay</div>
             </div>
           </button>
-          <button onclick="goToCategory('coliving')" class="category-card flex items-center gap-4 p-4 bg-slate-900/80 backdrop-blur-md border border-slate-800 rounded-3xl shadow-lg text-left group">
-            <div class="w-12 h-12 rounded-2xl bg-teal-500/10 text-teal-400 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform"><i data-lucide="building-2" class="w-6 h-6"></i></div>
+          <button onclick="goToCategory('coliving')" class="category-card-light flex items-center gap-4 p-4 bg-white/90 backdrop-blur-md border border-slate-200/90 rounded-3xl shadow-sm text-left group">
+            <div class="w-12 h-12 rounded-2xl bg-teal-50 text-teal-600 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform"><i data-lucide="building-2" class="w-6 h-6"></i></div>
             <div>
-              <div class="text-xs font-extrabold text-slate-100 group-hover:text-emerald-400 transition-colors">Coliving Hubs</div>
-              <div class="text-[10px] text-slate-400 font-medium mt-0.5">Nomad Living</div>
+              <div class="text-xs font-extrabold text-slate-900 group-hover:text-emerald-600 transition-colors">Coliving Hubs</div>
+              <div class="text-[10px] text-slate-500 font-medium mt-0.5">Nomad Living</div>
             </div>
           </button>
-          <button onclick="goToCategory('hotel')" class="category-card col-span-2 sm:col-span-1 flex items-center gap-4 p-4 bg-slate-900/80 backdrop-blur-md border border-slate-800 rounded-3xl shadow-lg text-left group">
-            <div class="w-12 h-12 rounded-2xl bg-sky-500/10 text-sky-400 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform"><i data-lucide="bed" class="w-6 h-6"></i></div>
+          <button onclick="goToCategory('hotel')" class="category-card-light col-span-2 sm:col-span-1 flex items-center gap-4 p-4 bg-white/90 backdrop-blur-md border border-slate-200/90 rounded-3xl shadow-sm text-left group">
+            <div class="w-12 h-12 rounded-2xl bg-sky-50 text-sky-600 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform"><i data-lucide="bed" class="w-6 h-6"></i></div>
             <div>
-              <div class="text-xs font-extrabold text-slate-100 group-hover:text-emerald-400 transition-colors">Hotels & Resorts</div>
-              <div class="text-[10px] text-slate-400 font-medium mt-0.5">Short Stay</div>
+              <div class="text-xs font-extrabold text-slate-900 group-hover:text-emerald-600 transition-colors">Hotels & Resorts</div>
+              <div class="text-[10px] text-slate-500 font-medium mt-0.5">Short Stay</div>
             </div>
           </button>
         </div>
@@ -199,36 +192,36 @@
 
       <!-- GROUP 2: Nature & Adventure -->
       <section>
-        <h2 class="text-xs font-black uppercase tracking-widest text-slate-300 mb-3 px-1 flex items-center gap-2">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Nature & Adventure
+        <h2 class="text-xs font-black uppercase tracking-widest text-slate-500 mb-3 px-1 flex items-center gap-2">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Nature & Adventure
         </h2>
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
-          <button onclick="goToCategory('waterfall')" class="category-card flex flex-col justify-between gap-3 p-4 bg-slate-900/80 backdrop-blur-md border border-slate-800 rounded-3xl shadow-lg text-left group">
-            <div class="w-12 h-12 rounded-2xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center group-hover:scale-110 transition-transform"><i data-lucide="waves" class="w-6 h-6"></i></div>
+          <button onclick="goToCategory('waterfall')" class="category-card-light flex flex-col justify-between gap-3 p-4 bg-white/90 backdrop-blur-md border border-slate-200/90 rounded-3xl shadow-sm text-left group">
+            <div class="w-12 h-12 rounded-2xl bg-cyan-50 text-cyan-600 flex items-center justify-center group-hover:scale-110 transition-transform"><i data-lucide="waves" class="w-6 h-6"></i></div>
             <div>
-              <div class="text-xs font-extrabold text-slate-100 group-hover:text-emerald-400 transition-colors">Waterfall</div>
-              <div class="text-[10px] text-slate-400 font-medium mt-0.5">Nature Spot</div>
+              <div class="text-xs font-extrabold text-slate-900 group-hover:text-emerald-600 transition-colors">Waterfall</div>
+              <div class="text-[10px] text-slate-500 font-medium mt-0.5">Nature Spot</div>
             </div>
           </button>
-          <button onclick="goToCategory('beach')" class="category-card flex flex-col justify-between gap-3 p-4 bg-slate-900/80 backdrop-blur-md border border-slate-800 rounded-3xl shadow-lg text-left group">
-            <div class="w-12 h-12 rounded-2xl bg-sky-500/10 text-sky-400 flex items-center justify-center group-hover:scale-110 transition-transform"><i data-lucide="sun" class="w-6 h-6"></i></div>
+          <button onclick="goToCategory('beach')" class="category-card-light flex flex-col justify-between gap-3 p-4 bg-white/90 backdrop-blur-md border border-slate-200/90 rounded-3xl shadow-sm text-left group">
+            <div class="w-12 h-12 rounded-2xl bg-sky-50 text-sky-600 flex items-center justify-center group-hover:scale-110 transition-transform"><i data-lucide="sun" class="w-6 h-6"></i></div>
             <div>
-              <div class="text-xs font-extrabold text-slate-100 group-hover:text-emerald-400 transition-colors">Beach & Surf</div>
-              <div class="text-[10px] text-slate-400 font-medium mt-0.5">Coastal Area</div>
+              <div class="text-xs font-extrabold text-slate-900 group-hover:text-emerald-600 transition-colors">Beach & Surf</div>
+              <div class="text-[10px] text-slate-500 font-medium mt-0.5">Coastal Area</div>
             </div>
           </button>
-          <button onclick="goToCategory('volcano')" class="category-card flex flex-col justify-between gap-3 p-4 bg-slate-900/80 backdrop-blur-md border border-slate-800 rounded-3xl shadow-lg text-left group">
-            <div class="w-12 h-12 rounded-2xl bg-orange-500/10 text-orange-400 flex items-center justify-center group-hover:scale-110 transition-transform"><i data-lucide="mountain" class="w-6 h-6"></i></div>
+          <button onclick="goToCategory('volcano')" class="category-card-light flex flex-col justify-between gap-3 p-4 bg-white/90 backdrop-blur-md border border-slate-200/90 rounded-3xl shadow-sm text-left group">
+            <div class="w-12 h-12 rounded-2xl bg-orange-50 text-orange-600 flex items-center justify-center group-hover:scale-110 transition-transform"><i data-lucide="mountain" class="w-6 h-6"></i></div>
             <div>
-              <div class="text-xs font-extrabold text-slate-100 group-hover:text-emerald-400 transition-colors">Volcano Trek</div>
-              <div class="text-[10px] text-slate-400 font-medium mt-0.5">Hiking Spot</div>
+              <div class="text-xs font-extrabold text-slate-900 group-hover:text-emerald-600 transition-colors">Volcano Trek</div>
+              <div class="text-[10px] text-slate-500 font-medium mt-0.5">Hiking Spot</div>
             </div>
           </button>
-          <button onclick="goToCategory('wildlife')" class="category-card flex flex-col justify-between gap-3 p-4 bg-slate-900/80 backdrop-blur-md border border-slate-800 rounded-3xl shadow-lg text-left group">
-            <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center group-hover:scale-110 transition-transform"><i data-lucide="trees" class="w-6 h-6"></i></div>
+          <button onclick="goToCategory('wildlife')" class="category-card-light flex flex-col justify-between gap-3 p-4 bg-white/90 backdrop-blur-md border border-slate-200/90 rounded-3xl shadow-sm text-left group">
+            <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:scale-110 transition-transform"><i data-lucide="trees" class="w-6 h-6"></i></div>
             <div>
-              <div class="text-xs font-extrabold text-slate-100 group-hover:text-emerald-400 transition-colors">Wildlife</div>
-              <div class="text-[10px] text-slate-400 font-medium mt-0.5">Forest & Fauna</div>
+              <div class="text-xs font-extrabold text-slate-900 group-hover:text-emerald-600 transition-colors">Wildlife</div>
+              <div class="text-[10px] text-slate-500 font-medium mt-0.5">Forest & Fauna</div>
             </div>
           </button>
         </div>
@@ -236,43 +229,43 @@
 
       <!-- GROUP 3: Essentials & Work -->
       <section>
-        <h2 class="text-xs font-black uppercase tracking-widest text-slate-300 mb-3 px-1 flex items-center gap-2">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Essentials & Work
+        <h2 class="text-xs font-black uppercase tracking-widest text-slate-500 mb-3 px-1 flex items-center gap-2">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Essentials & Work
         </h2>
         <div class="grid grid-cols-2 sm:grid-cols-3 gap-3.5">
-          <button onclick="goToCategory('vehicle')" class="category-card flex items-center gap-4 p-4 bg-slate-900/80 backdrop-blur-md border border-slate-800 rounded-3xl shadow-lg text-left group">
-            <div class="w-12 h-12 rounded-2xl bg-blue-500/10 text-blue-400 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform"><i data-lucide="bike" class="w-6 h-6"></i></div>
+          <button onclick="goToCategory('vehicle')" class="category-card-light flex items-center gap-4 p-4 bg-white/90 backdrop-blur-md border border-slate-200/90 rounded-3xl shadow-sm text-left group">
+            <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform"><i data-lucide="bike" class="w-6 h-6"></i></div>
             <div>
-              <div class="text-xs font-extrabold text-slate-100 group-hover:text-emerald-400 transition-colors">Rent Vehicle</div>
-              <div class="text-[10px] text-slate-400 font-medium mt-0.5">Bike & Car</div>
+              <div class="text-xs font-extrabold text-slate-900 group-hover:text-emerald-600 transition-colors">Rent Vehicle</div>
+              <div class="text-[10px] text-slate-500 font-medium mt-0.5">Bike & Car</div>
             </div>
           </button>
-          <button onclick="goToCategory('cafe')" class="category-card flex items-center gap-4 p-4 bg-slate-900/80 backdrop-blur-md border border-slate-800 rounded-3xl shadow-lg text-left group">
-            <div class="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-400 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform"><i data-lucide="coffee" class="w-6 h-6"></i></div>
+          <button onclick="goToCategory('cafe')" class="category-card-light flex items-center gap-4 p-4 bg-white/90 backdrop-blur-md border border-slate-200/90 rounded-3xl shadow-sm text-left group">
+            <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform"><i data-lucide="coffee" class="w-6 h-6"></i></div>
             <div>
-              <div class="text-xs font-extrabold text-slate-100 group-hover:text-emerald-400 transition-colors">Cafés & Brunch</div>
-              <div class="text-[10px] text-slate-400 font-medium mt-0.5">Coffee Spots</div>
+              <div class="text-xs font-extrabold text-slate-900 group-hover:text-emerald-600 transition-colors">Cafés & Brunch</div>
+              <div class="text-[10px] text-slate-500 font-medium mt-0.5">Coffee Spots</div>
             </div>
           </button>
-          <button onclick="goToCategory('coworking')" class="category-card flex items-center gap-4 p-4 bg-slate-900/80 backdrop-blur-md border border-slate-800 rounded-3xl shadow-lg text-left group">
-            <div class="w-12 h-12 rounded-2xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform"><i data-lucide="laptop" class="w-6 h-6"></i></div>
+          <button onclick="goToCategory('coworking')" class="category-card-light flex items-center gap-4 p-4 bg-white/90 backdrop-blur-md border border-slate-200/90 rounded-3xl shadow-sm text-left group">
+            <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform"><i data-lucide="laptop" class="w-6 h-6"></i></div>
             <div>
-              <div class="text-xs font-extrabold text-slate-100 group-hover:text-emerald-400 transition-colors">Coworking</div>
-              <div class="text-[10px] text-slate-400 font-medium mt-0.5">Workspaces</div>
+              <div class="text-xs font-extrabold text-slate-900 group-hover:text-emerald-600 transition-colors">Coworking</div>
+              <div class="text-[10px] text-slate-500 font-medium mt-0.5">Workspaces</div>
             </div>
           </button>
-          <button onclick="goToCategory('visa')" class="category-card flex items-center gap-4 p-4 bg-slate-900/80 backdrop-blur-md border border-slate-800 rounded-3xl shadow-lg text-left group">
-            <div class="w-12 h-12 rounded-2xl bg-purple-500/10 text-purple-400 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform"><i data-lucide="file-text" class="w-6 h-6"></i></div>
+          <button onclick="goToCategory('visa')" class="category-card-light flex items-center gap-4 p-4 bg-white/90 backdrop-blur-md border border-slate-200/90 rounded-3xl shadow-sm text-left group">
+            <div class="w-12 h-12 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform"><i data-lucide="file-text" class="w-6 h-6"></i></div>
             <div>
-              <div class="text-xs font-extrabold text-slate-100 group-hover:text-emerald-400 transition-colors">Visa Agency</div>
-              <div class="text-[10px] text-slate-400 font-medium mt-0.5">Legal & Docs</div>
+              <div class="text-xs font-extrabold text-slate-900 group-hover:text-emerald-600 transition-colors">Visa Agency</div>
+              <div class="text-[10px] text-slate-500 font-medium mt-0.5">Legal & Docs</div>
             </div>
           </button>
-          <button onclick="goToCategory('medical')" class="category-card col-span-2 sm:col-span-2 flex items-center gap-4 p-4 bg-slate-900/80 backdrop-blur-md border border-slate-800 rounded-3xl shadow-lg text-left group">
-            <div class="w-12 h-12 rounded-2xl bg-rose-500/10 text-rose-400 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform"><i data-lucide="plus-circle" class="w-6 h-6"></i></div>
+          <button onclick="goToCategory('medical')" class="category-card-light col-span-2 sm:col-span-2 flex items-center gap-4 p-4 bg-white/90 backdrop-blur-md border border-slate-200/90 rounded-3xl shadow-sm text-left group">
+            <div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform"><i data-lucide="plus-circle" class="w-6 h-6"></i></div>
             <div>
-              <div class="text-xs font-extrabold text-slate-100 group-hover:text-emerald-400 transition-colors">Medical / Clinic</div>
-              <div class="text-[10px] text-slate-400 font-medium mt-0.5">Health Care & Pharmacy</div>
+              <div class="text-xs font-extrabold text-slate-900 group-hover:text-emerald-600 transition-colors">Medical / Clinic</div>
+              <div class="text-[10px] text-slate-500 font-medium mt-0.5">Health Care & Pharmacy</div>
             </div>
           </button>
         </div>
@@ -280,36 +273,36 @@
 
       <!-- GROUP 4: Lifestyle & Culture -->
       <section>
-        <h2 class="text-xs font-black uppercase tracking-widest text-slate-300 mb-3 px-1 flex items-center gap-2">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Lifestyle & Culture
+        <h2 class="text-xs font-black uppercase tracking-widest text-slate-500 mb-3 px-1 flex items-center gap-2">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Lifestyle & Culture
         </h2>
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
-          <button onclick="goToCategory('nightclub')" class="category-card flex flex-col justify-between gap-3 p-4 bg-slate-900/80 backdrop-blur-md border border-slate-800 rounded-3xl shadow-lg text-left group">
-            <div class="w-12 h-12 rounded-2xl bg-fuchsia-500/10 text-fuchsia-400 flex items-center justify-center group-hover:scale-110 transition-transform"><i data-lucide="party-popper" class="w-6 h-6"></i></div>
+          <button onclick="goToCategory('nightclub')" class="category-card-light flex flex-col justify-between gap-3 p-4 bg-white/90 backdrop-blur-md border border-slate-200/90 rounded-3xl shadow-sm text-left group">
+            <div class="w-12 h-12 rounded-2xl bg-fuchsia-50 text-fuchsia-600 flex items-center justify-center group-hover:scale-110 transition-transform"><i data-lucide="party-popper" class="w-6 h-6"></i></div>
             <div>
-              <div class="text-xs font-extrabold text-slate-100 group-hover:text-emerald-400 transition-colors">Nightclub</div>
-              <div class="text-[10px] text-slate-400 font-medium mt-0.5">Nightlife</div>
+              <div class="text-xs font-extrabold text-slate-900 group-hover:text-emerald-600 transition-colors">Nightclub</div>
+              <div class="text-[10px] text-slate-500 font-medium mt-0.5">Nightlife</div>
             </div>
           </button>
-          <button onclick="goToCategory('beachclub')" class="category-card flex flex-col justify-between gap-3 p-4 bg-slate-900/80 backdrop-blur-md border border-slate-800 rounded-3xl shadow-lg text-left group">
-            <div class="w-12 h-12 rounded-2xl bg-teal-500/10 text-teal-400 flex items-center justify-center group-hover:scale-110 transition-transform"><i data-lucide="glass-water" class="w-6 h-6"></i></div>
+          <button onclick="goToCategory('beachclub')" class="category-card-light flex flex-col justify-between gap-3 p-4 bg-white/90 backdrop-blur-md border border-slate-200/90 rounded-3xl shadow-sm text-left group">
+            <div class="w-12 h-12 rounded-2xl bg-teal-50 text-teal-600 flex items-center justify-center group-hover:scale-110 transition-transform"><i data-lucide="glass-water" class="w-6 h-6"></i></div>
             <div>
-              <div class="text-xs font-extrabold text-slate-100 group-hover:text-emerald-400 transition-colors">Beach Clubs</div>
-              <div class="text-[10px] text-slate-400 font-medium mt-0.5">Sunset Lounge</div>
+              <div class="text-xs font-extrabold text-slate-900 group-hover:text-emerald-600 transition-colors">Beach Clubs</div>
+              <div class="text-[10px] text-slate-500 font-medium mt-0.5">Sunset Lounge</div>
             </div>
           </button>
-          <button onclick="goToCategory('temple')" class="category-card flex flex-col justify-between gap-3 p-4 bg-slate-900/80 backdrop-blur-md border border-slate-800 rounded-3xl shadow-lg text-left group">
-            <div class="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-400 flex items-center justify-center group-hover:scale-110 transition-transform"><i data-lucide="landmark" class="w-6 h-6"></i></div>
+          <button onclick="goToCategory('temple')" class="category-card-light flex flex-col justify-between gap-3 p-4 bg-white/90 backdrop-blur-md border border-slate-200/90 rounded-3xl shadow-sm text-left group">
+            <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-700 flex items-center justify-center group-hover:scale-110 transition-transform"><i data-lucide="landmark" class="w-6 h-6"></i></div>
             <div>
-              <div class="text-xs font-extrabold text-slate-100 group-hover:text-emerald-400 transition-colors">Temples</div>
-              <div class="text-[10px] text-slate-400 font-medium mt-0.5">Culture & Heritage</div>
+              <div class="text-xs font-extrabold text-slate-900 group-hover:text-emerald-600 transition-colors">Temples</div>
+              <div class="text-[10px] text-slate-500 font-medium mt-0.5">Culture & Heritage</div>
             </div>
           </button>
-          <button onclick="goToCategory('wellness')" class="category-card flex flex-col justify-between gap-3 p-4 bg-slate-900/80 backdrop-blur-md border border-slate-800 rounded-3xl shadow-lg text-left group">
-            <div class="w-12 h-12 rounded-2xl bg-lime-500/10 text-lime-400 flex items-center justify-center group-hover:scale-110 transition-transform"><i data-lucide="heart-pulse" class="w-6 h-6"></i></div>
+          <button onclick="goToCategory('wellness')" class="category-card-light flex flex-col justify-between gap-3 p-4 bg-white/90 backdrop-blur-md border border-slate-200/90 rounded-3xl shadow-sm text-left group">
+            <div class="w-12 h-12 rounded-2xl bg-lime-50 text-lime-700 flex items-center justify-center group-hover:scale-110 transition-transform"><i data-lucide="heart-pulse" class="w-6 h-6"></i></div>
             <div>
-              <div class="text-xs font-extrabold text-slate-100 group-hover:text-emerald-400 transition-colors">Yoga & Spa</div>
-              <div class="text-[10px] text-slate-400 font-medium mt-0.5">Wellness</div>
+              <div class="text-xs font-extrabold text-slate-900 group-hover:text-emerald-600 transition-colors">Yoga & Spa</div>
+              <div class="text-[10px] text-slate-500 font-medium mt-0.5">Wellness</div>
             </div>
           </button>
         </div>
@@ -317,22 +310,22 @@
 
       <!-- GROUP 5: Community Focus (Social) -->
       <section>
-        <h2 class="text-xs font-black uppercase tracking-widest text-slate-300 mb-3 px-1 flex items-center gap-2">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Community Focus
+        <h2 class="text-xs font-black uppercase tracking-widest text-slate-500 mb-3 px-1 flex items-center gap-2">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Community Focus
         </h2>
         <div class="grid grid-cols-2 sm:grid-cols-2 gap-3.5">
-          <button onclick="goToCategory('meetups')" class="category-card flex items-center gap-4 p-4 bg-slate-900/80 backdrop-blur-md border border-slate-800 rounded-3xl shadow-lg text-left group">
-            <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform"><i data-lucide="users" class="w-6 h-6"></i></div>
+          <button onclick="goToCategory('meetups')" class="category-card-light flex items-center gap-4 p-4 bg-white/90 backdrop-blur-md border border-slate-200/90 rounded-3xl shadow-sm text-left group">
+            <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform"><i data-lucide="users" class="w-6 h-6"></i></div>
             <div>
-              <div class="text-xs font-extrabold text-slate-100 group-hover:text-emerald-400 transition-colors">Meetups</div>
-              <div class="text-[10px] text-slate-400 font-medium mt-0.5">Social Events & Networking</div>
+              <div class="text-xs font-extrabold text-slate-900 group-hover:text-emerald-600 transition-colors">Meetups</div>
+              <div class="text-[10px] text-slate-500 font-medium mt-0.5">Social Events & Networking</div>
             </div>
           </button>
-          <button onclick="goToCategory('surfing-buddies')" class="category-card flex items-center gap-4 p-4 bg-slate-900/80 backdrop-blur-md border border-slate-800 rounded-3xl shadow-lg text-left group">
-            <div class="w-12 h-12 rounded-2xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform"><i data-lucide="compass" class="w-6 h-6"></i></div>
+          <button onclick="goToCategory('surfing-buddies')" class="category-card-light flex items-center gap-4 p-4 bg-white/90 backdrop-blur-md border border-slate-200/90 rounded-3xl shadow-sm text-left group">
+            <div class="w-12 h-12 rounded-2xl bg-cyan-50 text-cyan-700 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform"><i data-lucide="compass" class="w-6 h-6"></i></div>
             <div>
-              <div class="text-xs font-extrabold text-slate-100 group-hover:text-emerald-400 transition-colors">Surf Buddies</div>
-              <div class="text-[10px] text-slate-400 font-medium mt-0.5">Find Partners & Waves</div>
+              <div class="text-xs font-extrabold text-slate-900 group-hover:text-emerald-600 transition-colors">Surf Buddies</div>
+              <div class="text-[10px] text-slate-500 font-medium mt-0.5">Find Partners & Waves</div>
             </div>
           </button>
         </div>
@@ -341,13 +334,13 @@
     </div>
 
     <!-- PROFESSIONAL 4-COLUMN FOOTER (FULL ENGLISH & SEO OPTIMIZED) -->
-    <footer class="mt-16 bg-slate-950 text-slate-400 py-12 px-6 border-t border-slate-900 rounded-t-3xl">
+    <footer class="mt-16 bg-slate-900 text-slate-300 py-12 px-6 border-t border-slate-200 rounded-t-3xl relative z-10 shadow-2xl">
       <div class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
         
         <!-- Column 1: About Us -->
         <div>
           <div class="flex items-center gap-2 mb-3">
-            <div class="w-7 h-7 rounded-xl bg-emerald-500 flex items-center justify-center font-black text-slate-950 text-xs">S</div>
+            <div class="w-7 h-7 rounded-xl bg-emerald-500 flex items-center justify-center font-black text-white text-xs">S</div>
             <span class="font-extrabold text-white text-sm">SpotTribe BALI</span>
           </div>
           <p class="text-xs leading-relaxed text-slate-400">
@@ -382,33 +375,33 @@
           <h3 class="text-xs font-bold uppercase tracking-wider text-white mb-3">Connect</h3>
           <p class="text-xs text-slate-400 mb-3">Join our global network of island creators and remote workers.</p>
           <div class="flex items-center gap-3">
-            <a href="#" class="w-8 h-8 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-300 hover:text-emerald-400 hover:border-emerald-500/50 transition-all"><i data-lucide="globe" class="w-4 h-4"></i></a>
-            <a href="#" class="w-8 h-8 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-300 hover:text-emerald-400 hover:border-emerald-500/50 transition-all"><i data-lucide="message-circle" class="w-4 h-4"></i></a>
-            <a href="#" class="w-8 h-8 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-300 hover:text-emerald-400 hover:border-emerald-500/50 transition-all"><i data-lucide="mail" class="w-4 h-4"></i></a>
+            <a href="#" class="w-8 h-8 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 hover:text-emerald-400 hover:border-emerald-500 transition-all"><i data-lucide="globe" class="w-4 h-4"></i></a>
+            <a href="#" class="w-8 h-8 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 hover:text-emerald-400 hover:border-emerald-500 transition-all"><i data-lucide="message-circle" class="w-4 h-4"></i></a>
+            <a href="#" class="w-8 h-8 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 hover:text-emerald-400 hover:border-emerald-500 transition-all"><i data-lucide="mail" class="w-4 h-4"></i></a>
           </div>
         </div>
 
       </div>
 
       <!-- Bottom Copyright Bar -->
-      <div class="max-w-4xl mx-auto pt-6 border-t border-slate-900/80 flex flex-col sm:flex-row items-center justify-between text-[11px] text-slate-500">
+      <div class="max-w-4xl mx-auto pt-6 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between text-[11px] text-slate-400">
         <p>Copyright © 2026 SpotTribe BALI. All rights reserved.</p>
         <p class="mt-2 sm:mt-0">Designed for Global Nomads & Expats in Bali</p>
       </div>
     </footer>
   </main>
 
-  <!-- BOTTOM NAVIGATION BAR -->
-  <nav class="absolute bottom-0 left-0 right-0 h-16 glass-nav border-t border-slate-800/80 flex items-center justify-around px-6 z-40 shadow-2xl">
-    <a href="index.html" class="flex flex-col items-center gap-1 text-emerald-400 transition-colors">
+  <!-- BOTTOM NAVIGATION BAR (LIGHT THEME) -->
+  <nav class="glass-nav-light border-t border-slate-200 h-16 flex items-center justify-around px-6 fixed bottom-0 left-0 right-0 z-50 shadow-lg">
+    <a href="index.html" class="flex flex-col items-center gap-1 text-emerald-600 transition-colors">
       <i data-lucide="map" class="w-5 h-5"></i>
       <span class="text-[10px] font-extrabold">Explore</span>
     </a>
-    <a href="messages.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 transition-colors">
+    <a href="messages.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 transition-colors">
       <i data-lucide="message-square" class="w-5 h-5"></i>
       <span class="text-[10px] font-medium">Chats</span>
     </a>
-    <a href="profile.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 transition-colors">
+    <a href="profile.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 transition-colors">
       <i data-lucide="user" class="w-5 h-5"></i>
       <span class="text-[10px] font-medium">Profile</span>
     </a>
@@ -473,9 +466,9 @@
         const btn = document.getElementById(`chip-${c}`);
         if (btn) {
           if (c === cat) {
-            btn.className = "px-4 py-1.5 rounded-full text-[11px] font-bold bg-emerald-600 text-white shadow-lg shadow-emerald-950/40 shrink-0 transition-all duration-300 border border-emerald-500 scale-105";
+            btn.className = "px-4 py-1.5 rounded-full text-[11px] font-bold bg-emerald-600 text-white shadow-md shadow-emerald-600/20 shrink-0 transition-all duration-300 border border-emerald-500 scale-105";
           } else {
-            btn.className = "px-4 py-1.5 rounded-full text-[11px] font-semibold glass-chip text-slate-800 shadow-md shrink-0 hover:bg-white transition-all duration-300 border border-slate-200/80 hover:scale-105";
+            btn.className = "px-4 py-1.5 rounded-full text-[11px] font-semibold glass-chip-light shadow-sm shrink-0 hover:bg-slate-50 transition-all duration-300 hover:scale-105";
           }
         }
       });
@@ -511,6 +504,6 @@
   </script>
 
   <!-- Staff Admin Quick Link -->
-  <a href="admin.html" aria-label="Staff Administration" style="position: fixed; bottom: 74px; right: 16px; z-index: 9999; color: #cbd5e1; font-size: 11px; font-weight: 600; text-decoration: none; background: rgba(3,7,18,0.85); backdrop-filter: blur(8px); padding: 6px 12px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3);">⚙️ Staff</a>
+  <a href="admin.html" aria-label="Staff Administration" style="position: fixed; bottom: 74px; right: 16px; z-index: 9999; color: #475569; font-size: 11px; font-weight: 600; text-decoration: none; background: rgba(255,255,255,0.9); backdrop-filter: blur(8px); padding: 6px 12px; border-radius: 14px; border: 1px solid rgba(226,232,240,0.8); box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);">⚙️ Staff</a>
 </body>
 </html>
