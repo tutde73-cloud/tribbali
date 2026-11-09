@@ -77,11 +77,11 @@
       </div>
     </section>
 
-    <!-- SECTION 3: GLOBAL CHAT TAB (Bold Shadow & Compressed Image Upload) -->
+    <!-- SECTION 3: GLOBAL CHAT TAB (Bold Shadow & Auto-Censor) -->
     <section id="chatSection" class="space-y-4 hidden flex-grow flex flex-col">
       <div class="flex justify-between items-center mb-1">
         <h2 class="text-lg font-bold text-slate-900 tracking-tight">Tribali Global Chat</h2>
-        <span class="text-[11px] bg-sky-50 text-sky-700 font-medium px-3 py-1 rounded-full border border-sky-100 shadow-2xs">Auto-clear every 3 days</span>
+        <span class="text-[11px] bg-sky-50 text-sky-700 font-medium px-3 py-1 rounded-full border border-sky-100 shadow-2xs">Auto-clear every 3 days & Filtered</span>
       </div>
 
       <!-- Bold Shadow Elegant Chat Box Wrapper -->
@@ -213,6 +213,23 @@
     let currentUserProfile = null;
     let globalMessagesCache = [];
     let selectedImageFile = null;
+
+    // Daftar Kata Kasar yang Otomatis Disensor (Bisa ditambah sesuai kebutuhan)
+    const profanityList = [
+      'fuck', 'shit', 'bitch', 'asshole', 'bastard', 'dick', 'cunt', 'piss', 'cock', 'slut', 'whore', 'bloody', 'damn', 'crap'
+    ];
+
+    function censorProfanity(text) {
+      if (!text) return '';
+      let cleanedText = text;
+      profanityList.forEach(word => {
+        // Regex untuk mendeteksi kata kasar secara case-insensitive (abaikan huruf besar/kecil)
+        const regex = new RegExp(`\\b${word}\\b`, 'gi');
+        const masked = '*'.repeat(word.length);
+        cleanedText = cleanedText.replace(regex, masked);
+      });
+      return cleanedText;
+    }
 
     async function initAuth() {
       const { data: { session } } = await supabaseClient.auth.getSession();
@@ -353,6 +370,7 @@
       container.innerHTML = data.map(item => {
         const initials = item.user_name ? item.user_name.substring(0, 2).toUpperCase() : 'ST';
         const tagsHtml = item.tags ? item.tags.map(t => `<span class="bg-slate-100 text-slate-600 text-[10px] px-2 py-0.5 rounded font-medium">${escapeHtml(t.trim())}</span>`).join('') : '';
+        const censoredStatus = censorProfanity(item.status_text);
 
         return `
           <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col justify-between">
@@ -364,7 +382,7 @@
                   <p class="text-xs text-slate-400 font-medium">${escapeHtml(item.location)}</p>
                 </div>
               </div>
-              <p class="text-slate-600 text-xs mb-3">"${escapeHtml(item.status_text)}"</p>
+              <p class="text-slate-600 text-xs mb-3">"${escapeHtml(censoredStatus)}"</p>
               <div class="flex flex-wrap gap-1 mb-4">
                 ${tagsHtml}
               </div>
@@ -409,7 +427,9 @@
 
         let textHtml = '';
         if (msg.message_text) {
-          textHtml = `<div>${escapeHtml(msg.message_text)}</div>`;
+          // Sensor kata kasar otomatis sebelum ditampilkan
+          const cleanText = censorProfanity(msg.message_text);
+          textHtml = `<div>${escapeHtml(cleanText)}</div>`;
         }
 
         return `
@@ -502,7 +522,6 @@
 
       let uploadedImageUrl = null;
 
-      // Jika ada foto, kompres dulu lalu upload ke bucket Supabase 'chat-images'
       if (selectedImageFile) {
         try {
           const compressedBlob = await compressImage(selectedImageFile);
@@ -643,7 +662,7 @@
       const buddiesBtn = document.getElementById('tabBuddiesBtn');
       const chatBtn = document.getElementById('tabChatBtn');
       
-      const meetupSec = document.getElementById('meetupSection');
+      const meetupSec = document.getElementById('meetupSession');
       const buddiesSec = document.getElementById('buddiesSection');
       const chatSec = document.getElementById('chatSection');
 
