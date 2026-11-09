@@ -5,19 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>SpotTribe Bali - Admin Dashboard</title>
   
-  <!-- Tailwind CSS & Lucide Icons -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
-  
-  <!-- Supabase JS SDK -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col items-center justify-center p-4">
 
-  <!-- ADMIN CONTAINER -->
   <div class="max-w-md w-full bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl">
     
-    <!-- Header -->
     <div class="flex items-center gap-3 mb-6">
       <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
         <i data-lucide="shield-check" class="w-6 h-6"></i>
@@ -28,26 +22,21 @@
       </div>
     </div>
 
-    <div class="space-y-4 mb-6">
-      <div class="p-3.5 bg-slate-950/60 border border-slate-800/80 rounded-2xl">
-        <p class="text-xs text-slate-300 leading-relaxed">
-          Panel kontrol ini terhubung langsung ke database Supabase Anda. Gunakan tombol di bawah untuk menarik data tempat asli dan foto dari Foursquare secara otomatis.
-        </p>
-      </div>
+    <div class="p-3.5 bg-slate-950/60 border border-slate-800/80 rounded-2xl mb-6">
+      <p class="text-xs text-slate-300 leading-relaxed">
+        Klik tombol di bawah untuk menjalankan Edge Function dan menyinkronkan data Foursquare ke Supabase secara otomatis.
+      </p>
     </div>
 
-    <!-- Tombol Aksi Utama -->
-    <button onclick="syncFoursquareToSupabase()" id="syncBtn" class="w-full py-4 px-4 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold rounded-2xl shadow-lg shadow-emerald-950/50 transition-all flex items-center justify-center gap-2 mb-4">
+    <button onclick="triggerSyncFunction()" id="syncBtn" class="w-full py-4 px-4 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 mb-4">
       <i data-lucide="database" class="w-4 h-4"></i>
-      <span>🚀 Sync Ratusan Data Asli Foursquare ke Supabase</span>
+      <span>🚀 Sync Data Foursquare via Edge Function</span>
     </button>
 
-    <!-- Indikator Status / Log -->
     <div id="statusBox" class="hidden p-3.5 bg-slate-950 border border-slate-800 rounded-2xl">
       <p id="syncStatus" class="text-xs font-mono text-emerald-400 leading-relaxed">Menunggu perintah...</p>
     </div>
 
-    <!-- Tombol Kembali -->
     <div class="mt-6 text-center">
       <a href="index.html" class="text-xs text-slate-400 hover:text-slate-200 transition-colors inline-flex items-center gap-1.5">
         <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i> Kembali ke Beranda Utama
@@ -56,32 +45,8 @@
 
   </div>
 
-  <!-- SCRIPT LOGIKA ADMINISTRASI & KREDENSIAL -->
   <script>
-    // 1. Kredensial Supabase & Foursquare API Key
-    const SUPABASE_URL = 'https://riyupzmlltjrelqytwi.supabase.co';
-    const SUPABASE_ANON_KEY = 'sb_publishable_df32CqJ5bqDNCHU4OKGRPQ_7LiJvWV0';
-    const FOURSQUARE_API_KEY = "RJGHDSELHYZRFN3SMIISKNQ4XZYBD55OR24MFEC0UPWIAAOL";
-
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-    // 2. Parameter Area & Kategori Bali
-    const BALI_AREAS = [
-      { name: 'Canggu', ll: '-8.6478,115.1385' },
-      { name: 'Seminyak', ll: '-8.6916,115.1534' },
-      { name: 'Ubud', ll: '-8.5069,115.2625' },
-      { name: 'Uluwatu', ll: '-8.8291,115.0849' }
-    ];
-
-    const CATEGORY_MAPPINGS = [
-      { fsqCatId: '13000', appCategory: 'cafe', queryText: 'cafe coffee' },
-      { fsqCatId: '19014', appCategory: 'villas', queryText: 'hotel villa' },
-      { fsqCatId: '10032', appCategory: 'nightclub', queryText: 'bar club' },
-      { fsqCatId: null, appCategory: 'rental', queryText: 'scooter rental' }
-    ];
-
-    // 3. Fungsi Utama Sinkronisasi Foursquare ke Supabase
-    async function syncFoursquareToSupabase() {
+    async function triggerSyncFunction() {
       const statusBox = document.getElementById('statusBox');
       const statusEl = document.getElementById('syncStatus');
       const btnEl = document.getElementById('syncBtn');
@@ -89,77 +54,40 @@
       statusBox.classList.remove('hidden');
       btnEl.disabled = true;
       btnEl.style.opacity = "0.5";
-      statusEl.innerText = "⏳ Memulai koneksi ke Foursquare API...";
+      statusEl.innerText = "⏳ Memanggil Edge Function di Supabase...";
 
-      let allPlacesToSave = [];
+      // URL Endpoint Edge Function Anda
+      const FUNCTION_URL = 'https://riyupzmlltjrelqytwi.supabase.co/functions/v1/swift-action';
+      const SUPABASE_ANON_KEY = 'sb_publishable_df32CqJ5bqDNCHU4OKGRPQ_7LiJvWV0';
 
       try {
-        for (const area of BALI_AREAS) {
-          for (const cat of CATEGORY_MAPPINGS) {
-            statusEl.innerText = `🔍 Mengambil data ${cat.appCategory} di area ${area.name}...`;
-            
-            let apiUrl = `https://api.foursquare.com/v3/places/search?ll=${area.ll}&radius=5000&limit=15&fields=fsq_id,name,location,rating,price,photos,categories`;
-            
-            if (cat.fsqCatId) {
-              apiUrl += `&categories=${cat.fsqCatId}`;
-            } else {
-              apiUrl += `&query=${encodeURIComponent(cat.queryText)}`;
-            }
+        const response = await fetch(FUNCTION_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+          },
+          body: JSON.stringify({ name: "AdminSync" })
+        });
 
-            const response = await fetch(apiUrl, {
-              headers: { 
-                'Accept': 'application/json', 
-                'Authorization': FOURSQUARE_API_KEY 
-              }
-            });
+        const result = await response.json();
 
-            const data = await response.json();
-            if (!data.results) continue;
-
-            for (const venue of data.results) {
-              // Penarikan Foto Asli Foursquare: prefix + '400x300' + suffix
-              let imageUrl = null;
-              if (venue.photos && venue.photos.length > 0) {
-                const p = venue.photos[0];
-                imageUrl = `${p.prefix}400x300${p.suffix}`;
-              }
-
-              allPlacesToSave.push({
-                category: cat.appCategory,
-                name: venue.name || 'Unknown Place',
-                area: area.name,
-                rating: venue.rating ? Number((venue.rating / 2).toFixed(1)) : 4.5,
-                price: (venue.price || 2) * 50000,
-                price_label: '$$ '.repeat(venue.price || 2),
-                image_url: imageUrl,
-                amenity: `${venue.location?.address || area.name} • Verified Foursquare`
-              });
-            }
-          }
+        if (!response.ok) {
+          throw new Error(result.error || 'Gagal menjalankan fungsi.');
         }
 
-        statusEl.innerText = `📥 Berhasil mengumpulkan ${allPlacesToSave.length} data. Menyimpan ke Supabase (UPSERT)...`;
-
-        // Operasi UPSERT ke Supabase berdasarkan unique index (name, area)
-        const { error } = await supabase
-          .from('places')
-          .upsert(allPlacesToSave, { onConflict: 'name,area' });
-
-        if (error) throw error;
-
-        statusEl.innerText = `✅ SUKSES! ${allPlacesToSave.length} tempat asli di Bali beserta foto Foursquare berhasil disinkronkan ke Supabase.`;
+        statusEl.innerText = `✅ SUKSES! ${result.message || 'Data berhasil disinkronkan.'}`;
         btnEl.disabled = false;
         btnEl.style.opacity = "1";
 
       } catch (err) {
-        console.error('Sync Error:', err);
-        statusEl.innerText = `❌ ERROR: ${err.message || 'Gagal melakukan sinkronisasi data.'}`;
+        console.error('Error:', err);
+        statusEl.innerText = `❌ ERROR: ${err.message}`;
         btnEl.disabled = false;
         btnEl.style.opacity = "1";
       }
     }
 
-    // Render ikon Lucide
     lucide.createIcons();
   </script>
 </body>
