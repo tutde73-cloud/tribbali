@@ -96,7 +96,7 @@
     let currentPlaces = [];
     let activeSort = null;
 
-    async function loadPlacesFromSupabase(type) {
+    async function loadPlacesFromSupabase(rawType) {
       const titleEl = document.getElementById('categoryTitle');
       const countEl = document.getElementById('spotCount');
       const loadingEl = document.getElementById('loading');
@@ -112,7 +112,7 @@
       if (searchQuery) {
         titleEl.innerText = `Search: "${searchQuery}"`;
       } else {
-        titleEl.innerText = (typeof categoryNames !== 'undefined' && categoryNames[type]) ? categoryNames[type] : 'Bali Spots';
+        titleEl.innerText = (typeof categoryNames !== 'undefined' && categoryNames[rawType]) ? categoryNames[rawType] : 'Bali Spots';
       }
 
       try {
@@ -121,33 +121,36 @@
         if (searchQuery) {
           query = query.ilike('name', `%${searchQuery}%`);
         } else {
-          // AUTO-MAPPING ULTIMATE: Menangani semua variasi URL parameter ke kategori database
+          // Normalisasi total: ubah ke lowercase dan hapus spasi/simbol agar aman dari format URL apa pun
+          const type = rawType.toLowerCase().replace(/[^a-z0-9]/g, '');
           let dbCategory = type;
-          if (['hotel', 'hotels', 'resort', 'resorts'].includes(type)) {
+
+          if (type.includes('hotel') || type.includes('resort')) {
             dbCategory = 'hotel';
-          } else if (['beach', 'beaches', 'surf', 'beachclub', 'beach-clubs', 'beachclubs'].includes(type)) {
+          } else if (type.includes('beach') || type.includes('surf') || type.includes('club')) {
             dbCategory = 'beach';
-          } else if (['villa', 'villas', 'house', 'houses'].includes(type)) {
+          } else if (type.includes('villa') || type.includes('house')) {
             dbCategory = 'villas';
-          } else if (['waterfall', 'waterfalls'].includes(type)) {
+          } else if (type.includes('waterfall')) {
             dbCategory = 'waterfall';
-          } else if (['coliving', 'colivings'].includes(type)) {
+          } else if (type.includes('coliving')) {
             dbCategory = 'coliving';
-          } else if (['coworking', 'workspace'].includes(type)) {
+          } else if (type.includes('coworking') || type.includes('work')) {
             dbCategory = 'coworking';
-          } else if (['cafe', 'cafes', 'brunch'].includes(type)) {
+          } else if (type.includes('cafe') || type.includes('brunch')) {
             dbCategory = 'cafe';
-          } else if (['vehicle', 'rent', 'bike', 'car'].includes(type)) {
+          } else if (type.includes('vehicle') || type.includes('rent') || type.includes('bike') || type.includes('car')) {
             dbCategory = 'vehicle';
-          } else if (['volcano', 'trek', 'hiking'].includes(type)) {
+          } else if (type.includes('volcano') || type.includes('trek') || type.includes('hiking')) {
             dbCategory = 'volcano';
-          } else if (['wildlife', 'animal', 'forest'].includes(type)) {
+          } else if (type.includes('wildlife') || type.includes('animal') || type.includes('forest')) {
             dbCategory = 'wildlife';
-          } else if (['medical', 'clinic', 'hospital'].includes(type)) {
+          } else if (type.includes('medical') || type.includes('clinic') || type.includes('hospital')) {
             dbCategory = 'medical';
-          } else if (['visa', 'agency', 'legal'].includes(type)) {
+          } else if (type.includes('visa') || type.includes('agency') || type.includes('legal')) {
             dbCategory = 'visa';
           }
+
           query = query.eq('category', dbCategory);
         }
 
