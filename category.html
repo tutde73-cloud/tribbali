@@ -8,7 +8,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   
-  <!-- 1. CDN Supabase SDK -->
+  <!-- 1. CDN Supabase SDK v2 -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col pb-24">
@@ -84,17 +84,16 @@
 
   <!-- SUPABASE & SORTING LOGIC -->
   <script>
-    // 1. Inisialisasi Supabase Client dengan Kredensial Resmi Anda
-    const SUPABASE_URL = 'https://riyupzmlltjrelqytwi.supabase.co';
+    // 1. Inisialisasi Supabase Client dengan Benar
+    const SUPABASE_URL = 'https://riyupzmllltjrelqytwi.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_df32CqJ5bqDNCHU4OKGRPQ_7LiJvWV0';
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    
+    // Pastikan menggunakan window.supabase.createClient secara aman
+    const clientSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     const urlParams = new URLSearchParams(window.location.search);
     const categoryType = urlParams.get('type') || 'cafe';
     const searchQuery = urlParams.get('q') || urlParams.get('search');
-
-    const socialCategories = ['meetups', 'surfing-buddies'];
-    const isSocialCategory = socialCategories.includes(categoryType);
 
     let currentPlaces = [];
     let activeSort = null;
@@ -120,8 +119,7 @@
       }
 
       try {
-        // Query ke tabel 'places' di Supabase dengan filter kategori
-        let query = supabase.from('places').select('*');
+        let query = clientSupabase.from('places').select('*');
 
         if (searchQuery) {
           query = query.ilike('name', `%${searchQuery}%`);
@@ -150,11 +148,11 @@
       } catch (err) {
         console.error('Connection or Query Failed:', err);
         loadingEl.classList.add('hidden');
-        emptyStateEl.classList.remove('hidden');
+        emptyStateEl.classList.add('hidden');
       }
     }
 
-    // 3. Fungsi Sortir Berdasarkan Rating & Harga dari Data Supabase
+    // 3. Fungsi Sortir Berdasarkan Rating & Harga
     function sortPlaces(criteria) {
       const ratingBtn = document.getElementById('sortRatingBtn');
       const priceBtn = document.getElementById('sortPriceBtn');
@@ -218,7 +216,7 @@
             <!-- Harga -->
             <div class="flex items-center justify-between pt-2.5 border-t border-slate-800/80">
               <span class="text-xs text-slate-400 font-medium">Starting from</span>
-              <span class="text-xs font-bold text-emerald-400 font-mono">${escapeHtml(spot.price_label || '$100 / mo')}</span>
+              <span class="text-xs font-bold text-emerald-400 font-mono">${escapeHtml(spot.price_label || 'IDR 1.500.000')}</span>
             </div>
           </div>
 
