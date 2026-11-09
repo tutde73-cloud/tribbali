@@ -61,14 +61,14 @@
       100% { transform: translate(-25px, 35px) scale(0.95); }
     }
 
-    /* Cards & Glass Styling */
+    /* Cards & Glass Styling with Safe Z-Index */
     .glass-nav-light { background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
     .glass-chip-light { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px); color: #334155; border: 1px solid rgba(226, 232, 240, 0.8); }
 
     .category-card-light {
       transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
       position: relative;
-      z-index: 20;
+      z-index: 40 !important;
     }
     .category-card-light:hover {
       transform: translateY(-5px);
@@ -165,7 +165,7 @@
       <div class="blob blob-2"></div>
     </div>
 
-    <div class="max-w-2xl mx-auto space-y-8 relative z-20">
+    <div class="max-w-2xl mx-auto space-y-8 relative z-30">
 
       <!-- GROUP 1: Accommodation & Living -->
       <section>
@@ -410,7 +410,7 @@
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap' }).addTo(map);
 
     const SUPABASE_URL = 'https://riyupzmllltjrelqytwi.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJpeXVwem1sbGx0anJlbHF5dHdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDEyMTczOTUsImV4cCI6MjA1Njc5MzM5NX0.vVwP_t6XWc0K2dK6K6K6K6K6K6K6K6K6K6K6K6K6K6K'; // Dipulihkan ke token asli yang valid
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJpeXVwem1sbGx0anJlbHF5dHdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDEyMTczOTUsImV4cCI6MjA1Njc5MzM5NX0.vVwP_t6XWc0K2dK6K6K6K6K6K6K6K6K6K6K6K6K6K6K';
     const clientSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let allPlaces = [];
