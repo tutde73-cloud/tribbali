@@ -52,111 +52,87 @@
     <section id="meetupSection" class="space-y-4">
       <div class="flex justify-between items-center mb-4">
         <h2 class="text-lg font-bold text-slate-800">Upcoming Meet-ups</h2>
-        <button onclick="handleProtectedAction('create_meetup')" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-3 py-2 rounded-lg transition">
+        <button onclick="openModal('meetupModal')" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-3 py-2 rounded-lg transition">
           + Create Meet-up
         </button>
       </div>
 
-      <!-- Dummy List Meetups -->
-      <div class="grid md:grid-cols-2 gap-4">
-        
-        <!-- Card 1 -->
-        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition">
-          <div class="flex justify-between items-start mb-3">
-            <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-1 rounded-full">☕ Coffee & Code</span>
-            <span class="text-xs text-slate-400 font-medium">Tomorrow, 3:00 PM</span>
-          </div>
-          <h3 class="font-bold text-slate-900 text-base mb-1">Coworking & Web Project Sharing</h3>
-          <p class="text-slate-500 text-xs mb-4">📍 Expat. Roasters, Canggu</p>
-          <div class="flex items-center justify-between border-t border-slate-100 pt-3">
-            <span class="text-xs text-slate-500">Host: <strong class="text-slate-700">Putu</strong> (3/6 Slots)</span>
-            <button onclick="handleProtectedAction('join_meetup_1')" class="bg-sky-50 hover:bg-sky-100 text-sky-700 text-xs font-bold px-3 py-1.5 rounded-lg transition">
-              Join Meet-up
-            </button>
-          </div>
-        </div>
-
-        <!-- Card 2 -->
-        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition">
-          <div class="flex justify-between items-start mb-3">
-            <span class="bg-rose-100 text-rose-800 text-xs font-bold px-2.5 py-1 rounded-full">🌅 Sunset Chill</span>
-            <span class="text-xs text-slate-400 font-medium">Friday, 5:00 PM</span>
-          </div>
-          <h3 class="font-bold text-slate-900 text-base mb-1">Sunset Hangout & Startup Discussion</h3>
-          <p class="text-slate-500 text-xs mb-4">📍 Batu Bolong Beach</p>
-          <div class="flex items-center justify-between border-t border-slate-100 pt-3">
-            <span class="text-xs text-slate-500">Host: <strong class="text-slate-700">Alex</strong> (5/10 Slots)</span>
-            <button onclick="handleProtectedAction('join_meetup_2')" class="bg-sky-50 hover:bg-sky-100 text-sky-700 text-xs font-bold px-3 py-1.5 rounded-lg transition">
-              Join Meet-up
-            </button>
-          </div>
-        </div>
-
+      <!-- Dynamic Meetups List Container -->
+      <div id="meetupsListContainer" class="grid md:grid-cols-2 gap-4">
+        <p class="text-slate-400 text-sm italic col-span-2 text-center py-6">Loading meet-ups...</p>
       </div>
     </section>
 
-    <!-- SECTION 2: SURF BUDDIES / CHAT TAB (Hidden by Default) -->
+    <!-- SECTION 2: BUDDIES / CHAT TAB (Hidden by Default) -->
     <section id="buddiesSection" class="space-y-4 hidden">
       <div class="flex justify-between items-center mb-4">
         <h2 class="text-lg font-bold text-slate-800">Members Available to Chat</h2>
-        <button onclick="handleProtectedAction('post_buddy_status')" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-3 py-2 rounded-lg transition">
+        <button onclick="openModal('buddyModal')" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-3 py-2 rounded-lg transition">
           + Post Chat Status
         </button>
       </div>
 
-      <!-- Dummy List Buddies -->
-      <div class="grid md:grid-cols-3 gap-4">
-
-        <!-- User Card 1 -->
-        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col justify-between">
-          <div>
-            <div class="flex items-center gap-3 mb-3">
-              <div class="w-10 h-10 rounded-full bg-sky-100 text-sky-700 font-bold flex items-center justify-center text-sm">
-                TA
-              </div>
-              <div>
-                <h4 class="font-bold text-slate-900 text-sm">Tutde</h4>
-                <p class="text-xs text-emerald-600 font-medium">● Online in Denpasar</p>
-              </div>
-            </div>
-            <p class="text-slate-600 text-xs mb-3">"Free this afternoon. Down for casual chats about web dev, tech, or coffee."</p>
-            <div class="flex flex-wrap gap-1 mb-4">
-              <span class="bg-slate-100 text-slate-600 text-[10px] px-2 py-0.5 rounded font-medium">Web Dev</span>
-              <span class="bg-slate-100 text-slate-600 text-[10px] px-2 py-0.5 rounded font-medium">Coffee</span>
-            </div>
-          </div>
-          <button onclick="handleProtectedAction('chat_user_tutde')" class="w-full bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold py-2 rounded-xl transition">
-            💬 Start Chat
-          </button>
-        </div>
-
-        <!-- User Card 2 -->
-        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col justify-between">
-          <div>
-            <div class="flex items-center gap-3 mb-3">
-              <div class="w-10 h-10 rounded-full bg-amber-100 text-amber-700 font-bold flex items-center justify-center text-sm">
-                SR
-              </div>
-              <div>
-                <h4 class="font-bold text-slate-900 text-sm">Sarah</h4>
-                <p class="text-xs text-slate-400 font-medium">Seminyak</p>
-              </div>
-            </div>
-            <p class="text-slate-600 text-xs mb-3">"Looking for someone to grab coffee with around Seminyak/Kerobokan today."</p>
-            <div class="flex flex-wrap gap-1 mb-4">
-              <span class="bg-slate-100 text-slate-600 text-[10px] px-2 py-0.5 rounded font-medium">Nomad</span>
-              <span class="bg-slate-100 text-slate-600 text-[10px] px-2 py-0.5 rounded font-medium">Cafe</span>
-            </div>
-          </div>
-          <button onclick="handleProtectedAction('chat_user_sarah')" class="w-full bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold py-2 rounded-xl transition">
-            💬 Start Chat
-          </button>
-        </div>
-
+      <!-- Dynamic Buddies List Container -->
+      <div id="buddiesListContainer" class="grid md:grid-cols-3 gap-4">
+        <p class="text-slate-400 text-sm italic col-span-3 text-center py-6">Loading active members...</p>
       </div>
     </section>
 
   </main>
+
+  <!-- MODAL: CREATE MEET-UP -->
+  <div id="meetupModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 px-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl relative">
+      <h3 class="font-bold text-lg text-slate-900 mb-4">Create New Meet-up</h3>
+      <form id="meetupForm" onsubmit="handleCreateMeetup(event)" class="space-y-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Category / Tag</label>
+          <input type="text" id="meetupCategory" required placeholder="e.g. ☕ Coffee & Code" class="w-full text-sm border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:border-sky-500">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Meet-up Title</label>
+          <input type="text" id="meetupTitle" required placeholder="e.g. Coworking & Web Project Sharing" class="w-full text-sm border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:border-sky-500">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Location / Venue</label>
+          <input type="text" id="meetupLocation" required placeholder="e.g. Expat. Roasters, Canggu" class="w-full text-sm border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:border-sky-500">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Event Time</label>
+          <input type="text" id="meetupTime" required placeholder="e.g. Tomorrow, 3:00 PM" class="w-full text-sm border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:border-sky-500">
+        </div>
+        <div class="flex justify-end gap-2 pt-3">
+          <button type="button" onclick="closeModal('meetupModal')" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition">Cancel</button>
+          <button type="submit" class="px-4 py-2 text-xs font-semibold text-white bg-sky-600 hover:bg-sky-700 rounded-xl transition">Publish Meet-up</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: POST CHAT STATUS -->
+  <div id="buddyModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 px-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl relative">
+      <h3 class="font-bold text-lg text-slate-900 mb-4">Post Your Chat Status</h3>
+      <form id="buddyForm" onsubmit="handleCreateBuddy(event)" class="space-y-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Location / Area in Bali</label>
+          <input type="text" id="buddyLocation" required placeholder="e.g. Canggu / Denpasar" class="w-full text-sm border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:border-sky-500">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Status Message</label>
+          <textarea id="buddyStatusText" required rows="3" placeholder="e.g. Free this afternoon. Down for casual chats about web dev or coffee." class="w-full text-sm border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:border-sky-500"></textarea>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Tags (Comma separated)</label>
+          <input type="text" id="buddyTags" required placeholder="e.g. Web Dev, Coffee, Nomad" class="w-full text-sm border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:border-sky-500">
+        </div>
+        <div class="flex justify-end gap-2 pt-3">
+          <button type="button" onclick="closeModal('buddyModal')" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition">Cancel</button>
+          <button type="submit" class="px-4 py-2 text-xs font-semibold text-white bg-sky-600 hover:bg-sky-700 rounded-xl transition">Post Status</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
   <!-- SUPABASE & PAGE LOGIC -->
   <script>
@@ -188,25 +164,190 @@
       }
     }
 
-    // 2. Gated Action Protection
-    async function handleProtectedAction(actionIntent) {
-      if (!currentUserSession) {
-        localStorage.setItem('redirect_intent', actionIntent);
-        alert("Please sign in with Google first to continue.");
-        window.location.href = './login.html';
+    // 2. Fetch Data from Supabase
+    async function fetchMeetups() {
+      const container = document.getElementById('meetupsListContainer');
+      const { data, error } = await supabaseClient
+        .from('meetups')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        container.innerHTML = `<p class="text-rose-500 text-xs col-span-2 text-center">Failed to load meet-ups.</p>`;
         return;
       }
 
-      alert(`Action triggered successfully for verified member! (Intent: ${actionIntent})`);
+      if (!data || data.length === 0) {
+        container.innerHTML = `<p class="text-slate-400 text-xs italic col-span-2 text-center py-6">No meet-ups available yet. Be the first to create one!</p>`;
+        return;
+      }
+
+      container.innerHTML = data.map(item => `
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition">
+          <div class="flex justify-between items-start mb-3">
+            <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-1 rounded-full">${escapeHtml(item.category)}</span>
+            <span class="text-xs text-slate-400 font-medium">${escapeHtml(item.event_time)}</span>
+          </div>
+          <h3 class="font-bold text-slate-900 text-base mb-1">${escapeHtml(item.title)}</h3>
+          <p class="text-slate-500 text-xs mb-4">📍 ${escapeHtml(item.location)}</p>
+          <div class="flex items-center justify-between border-t border-slate-100 pt-3">
+            <span class="text-xs text-slate-500">Host: <strong class="text-slate-700">${escapeHtml(item.host_name)}</strong></span>
+            <button onclick="handleJoinAction('${escapeHtml(item.title)}')" class="bg-sky-50 hover:bg-sky-100 text-sky-700 text-xs font-bold px-3 py-1.5 rounded-lg transition">
+              Join Meet-up
+            </button>
+          </div>
+        </div>
+      `).join('');
     }
 
-    // 3. Logout Handler
+    async function fetchBuddies() {
+      const container = document.getElementById('buddiesListContainer');
+      const { data, error } = await supabaseClient
+        .from('buddies')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        container.innerHTML = `<p class="text-rose-500 text-xs col-span-3 text-center">Failed to load active members.</p>`;
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        container.innerHTML = `<p class="text-slate-400 text-xs italic col-span-3 text-center py-6">No active chat status posted yet.</p>`;
+        return;
+      }
+
+      container.innerHTML = data.map(item => {
+        const initials = item.user_name ? item.user_name.substring(0, 2).toUpperCase() : 'ST';
+        const tagsHtml = item.tags ? item.tags.map(t => `<span class="bg-slate-100 text-slate-600 text-[10px] px-2 py-0.5 rounded font-medium">${escapeHtml(t.trim())}</span>`).join('') : '';
+
+        return `
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col justify-between">
+            <div>
+              <div class="flex items-center gap-3 mb-3">
+                ${item.avatar_url ? `<img src="${item.avatar_url}" class="w-10 h-10 rounded-full border border-slate-200" />` : `<div class="w-10 h-10 rounded-full bg-sky-100 text-sky-700 font-bold flex items-center justify-center text-sm">${initials}</div>`}
+                <div>
+                  <h4 class="font-bold text-slate-900 text-sm">${escapeHtml(item.user_name)}</h4>
+                  <p class="text-xs text-slate-400 font-medium">${escapeHtml(item.location)}</p>
+                </div>
+              </div>
+              <p class="text-slate-600 text-xs mb-3">"${escapeHtml(item.status_text)}"</p>
+              <div class="flex flex-wrap gap-1 mb-4">
+                ${tagsHtml}
+              </div>
+            </div>
+            <button onclick="handleChatAction('${escapeHtml(item.user_name)}')" class="w-full bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold py-2 rounded-xl transition">
+              💬 Start Chat
+            </button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // 3. Modal Controls
+    function openModal(modalId) {
+      if (!currentUserSession) {
+        alert("Please sign in with Google first to perform this action.");
+        window.location.href = './login.html';
+        return;
+      }
+      document.getElementById(modalId).classList.remove('hidden');
+      document.getElementById(modalId).classList.add('flex');
+    }
+
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.remove('flex');
+      document.getElementById(modalId).classList.add('hidden');
+    }
+
+    // 4. Handle Insert Meetup
+    async function handleCreateMeetup(event) {
+      event.preventDefault();
+      if (!currentUserSession) return;
+
+      const user = currentUserSession.user;
+      const hostName = user.user_metadata.full_name || user.email.split('@')[0];
+
+      const newMeetup = {
+        user_id: user.id,
+        host_name: hostName,
+        category: document.getElementById('meetupCategory').value,
+        title: document.getElementById('meetupTitle').value,
+        location: document.getElementById('meetupLocation').value,
+        event_time: document.getElementById('meetupTime').value,
+        slots_info: '1/6 Slots'
+      };
+
+      const { error } = await supabaseClient.from('meetups').insert([newMeetup]);
+
+      if (error) {
+        alert("Error creating meet-up: " + error.message);
+        return;
+      }
+
+      document.getElementById('meetupForm').reset();
+      closeModal('meetupModal');
+      fetchMeetups();
+    }
+
+    // 5. Handle Insert Buddy Status
+    async function handleCreateBuddy(event) {
+      event.preventDefault();
+      if (!currentUserSession) return;
+
+      const user = currentUserSession.user;
+      const userName = user.user_metadata.full_name || user.email.split('@')[0];
+      const avatarUrl = user.user_metadata.avatar_url || null;
+      const tagsRaw = document.getElementById('buddyTags').value;
+      const tagsArray = tagsRaw.split(',').map(t => t.trim());
+
+      const newBuddy = {
+        user_id: user.id,
+        user_name: userName,
+        avatar_url: avatarUrl,
+        location: document.getElementById('buddyLocation').value,
+        status_text: document.getElementById('buddyStatusText').value,
+        tags: tagsArray
+      };
+
+      const { error } = await supabaseClient.from('buddies').insert([newBuddy]);
+
+      if (error) {
+        alert("Error posting status: " + error.message);
+        return;
+      }
+
+      document.getElementById('buddyForm').reset();
+      closeModal('buddyModal');
+      fetchBuddies();
+    }
+
+    // 6. Interaction Actions for Authenticated Users
+    function handleJoinAction(meetupTitle) {
+      if (!currentUserSession) {
+        alert("Please sign in with Google first.");
+        window.location.href = './login.html';
+        return;
+      }
+      alert(`You have successfully requested to join: "${meetupTitle}"! The host will get in touch.`);
+    }
+
+    function handleChatAction(userName) {
+      if (!currentUserSession) {
+        alert("Please sign in with Google first.");
+        window.location.href = './login.html';
+        return;
+      }
+      alert(`Opening secure chat room with ${userName}... (Chat feature ready)`);
+    }
+
+    // 7. Logout Handler
     async function handleLogout() {
       await supabaseClient.auth.signOut();
       window.location.reload();
     }
 
-    // 4. Tab Switcher Logic
+    // 8. Tab Switcher Logic
     function switchTab(tabName) {
       const meetupBtn = document.getElementById('tabMeetupBtn');
       const buddiesBtn = document.getElementById('tabBuddiesBtn');
@@ -228,7 +369,19 @@
       }
     }
 
+    // Utility XSS Escaping
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    // Initial Load
     initAuth();
+    fetchMeetups();
+    fetchBuddies();
   </script>
 </body>
 </html>
