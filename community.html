@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SpotTribe Bali - Community & Global Chat</title>
+  <title>SpotTribe Bali - Community Hub</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Supabase JS Client SDK -->
@@ -33,17 +33,20 @@
     <!-- HEADER TITLE -->
     <div class="text-center max-w-xl mx-auto mb-8">
       <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Community & Social Hub</h1>
-      <p class="text-slate-500 mt-2 text-sm">Discover Bali meet-ups or chat live with fellow travelers & nomads worldwide.</p>
+      <p class="text-slate-500 mt-2 text-sm">Discover Bali meet-ups, find surf buddies, or chat live with the tribe.</p>
     </div>
 
-    <!-- TAB SWITCHER -->
+    <!-- TAB SWITCHER (3 TABS) -->
     <div class="flex justify-center mb-8">
-      <div class="bg-slate-200/70 p-1 rounded-2xl flex gap-1 w-full max-w-md">
-        <button id="tabMeetupBtn" onclick="switchTab('meetup')" class="flex-1 py-2.5 px-4 rounded-xl text-sm font-semibold transition bg-white text-slate-900 shadow-sm">
+      <div class="bg-slate-200/70 p-1 rounded-2xl flex gap-1 w-full max-w-lg">
+        <button id="tabMeetupBtn" onclick="switchTab('meetup')" class="flex-1 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold transition bg-white text-slate-900 shadow-sm">
           📅 Meet-ups
         </button>
-        <button id="tabChatBtn" onclick="switchTab('chat')" class="flex-1 py-2.5 px-4 rounded-xl text-sm font-semibold transition text-slate-600 hover:text-slate-900">
-          💬 Global Live Chat
+        <button id="tabBuddiesBtn" onclick="switchTab('buddies')" class="flex-1 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold transition text-slate-600 hover:text-slate-900">
+          🏄 Surf Buddies
+        </button>
+        <button id="tabChatBtn" onclick="switchTab('chat')" class="flex-1 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold transition text-slate-600 hover:text-slate-900">
+          💬 Global Chat
         </button>
       </div>
     </div>
@@ -56,29 +59,35 @@
           + Create Meet-up
         </button>
       </div>
-
-      <!-- Dynamic Meetups List Container -->
       <div id="meetupsListContainer" class="grid md:grid-cols-2 gap-4">
         <p class="text-slate-400 text-sm italic col-span-2 text-center py-6">Loading meet-ups...</p>
       </div>
     </section>
 
-    <!-- SECTION 2: GLOBAL CHAT TAB (Hidden by Default) -->
+    <!-- SECTION 2: SURF BUDDIES / STATUS TAB (Hidden by Default) -->
+    <section id="buddiesSection" class="space-y-4 hidden">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-lg font-bold text-slate-800">Members Available to Hangout</h2>
+        <button onclick="openModal('buddyModal')" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-3 py-2 rounded-lg transition">
+          + Post Status
+        </button>
+      </div>
+      <div id="buddiesListContainer" class="grid md:grid-cols-3 gap-4">
+        <p class="text-slate-400 text-sm italic col-span-3 text-center py-6">Loading active members...</p>
+      </div>
+    </section>
+
+    <!-- SECTION 3: GLOBAL CHAT TAB (Hidden by Default) -->
     <section id="chatSection" class="space-y-4 hidden flex-grow flex flex-col">
       <div class="flex justify-between items-center mb-2">
         <h2 class="text-lg font-bold text-slate-800">Bali Nomad Global Chat</h2>
-        <span class="text-[11px] bg-sky-100 text-sky-800 font-semibold px-2.5 py-1 rounded-full">Messages auto-clear every 3 days</span>
+        <span class="text-[11px] bg-sky-100 text-sky-800 font-semibold px-2.5 py-1 rounded-full">Auto-clear every 3 days</span>
       </div>
 
-      <!-- Chat Box Wrapper -->
       <div class="bg-white border border-slate-200 rounded-2xl shadow-sm flex flex-col h-[500px] overflow-hidden">
-        
-        <!-- Messages Scroll Area -->
         <div id="chatMessagesContainer" class="flex-grow p-4 overflow-y-auto space-y-4 bg-slate-50/50">
           <p class="text-slate-400 text-xs italic text-center py-10">Loading live conversation...</p>
         </div>
-
-        <!-- Chat Input Form -->
         <form id="chatForm" onsubmit="handleSendMessage(event)" class="p-3 bg-white border-t border-slate-200 flex gap-2">
           <input type="text" id="chatInputMessage" required placeholder="Say something to the tribe..." class="flex-grow text-sm border border-slate-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-sky-500">
           <button type="submit" class="bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition">
@@ -144,6 +153,31 @@
     </div>
   </div>
 
+  <!-- MODAL: POST SURF BUDDY STATUS -->
+  <div id="buddyModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 px-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl relative">
+      <h3 class="font-bold text-lg text-slate-900 mb-4">Post Your Hangout Status</h3>
+      <form id="buddyForm" onsubmit="handleCreateBuddy(event)" class="space-y-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Location / Area in Bali</label>
+          <input type="text" id="buddyLocation" required placeholder="e.g. Canggu / Denpasar" class="w-full text-sm border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:border-sky-500">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Status Message</label>
+          <textarea id="buddyStatusText" required rows="3" placeholder="e.g. Free this afternoon. Down for surf or coffee." class="w-full text-sm border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:border-sky-500"></textarea>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Tags (Comma separated)</label>
+          <input type="text" id="buddyTags" required placeholder="e.g. Surfing, Coffee, Nomad" class="w-full text-sm border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:border-sky-500">
+        </div>
+        <div class="flex justify-end gap-2 pt-3">
+          <button type="button" onclick="closeModal('buddyModal')" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition">Cancel</button>
+          <button type="submit" class="px-4 py-2 text-xs font-semibold text-white bg-sky-600 hover:bg-sky-700 rounded-xl transition">Post Status</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- SUPABASE & PAGE LOGIC -->
   <script>
     const SUPABASE_URL = 'https://riyupzmllltjrelqytwi.supabase.co';
@@ -153,11 +187,9 @@
     let currentUserSession = null;
     let currentUserProfile = null;
 
-    // 1. Initialize & Check User Session
     async function initAuth() {
       const { data: { session } } = await supabaseClient.auth.getSession();
       currentUserSession = session;
-
       const authStatusArea = document.getElementById('authStatusArea');
 
       if (session) {
@@ -179,7 +211,6 @@
       }
     }
 
-    // 2. Load Profile Data from Supabase
     async function loadUserProfile(user) {
       const { data, error } = await supabaseClient
         .from('profiles')
@@ -235,9 +266,10 @@
       alert("Profile updated successfully!");
       closeModal('profileModal');
       initAuth();
+      fetchBuddies();
     }
 
-    // 3. Fetch Data from Supabase (Meetups)
+    // 1. Fetch Meetups
     async function fetchMeetups() {
       const container = document.getElementById('meetupsListContainer');
       const { data, error } = await supabaseClient
@@ -273,7 +305,52 @@
       `).join('');
     }
 
-    // 4. Global Chat Logic & Realtime Subscription
+    // 2. Fetch Surf Buddies
+    async function fetchBuddies() {
+      const container = document.getElementById('buddiesListContainer');
+      const { data, error } = await supabaseClient
+        .from('buddies')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        container.innerHTML = `<p class="text-rose-500 text-xs col-span-3 text-center">Failed to load active members.</p>`;
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        container.innerHTML = `<p class="text-slate-400 text-xs italic col-span-3 text-center py-6">No active status posted yet.</p>`;
+        return;
+      }
+
+      container.innerHTML = data.map(item => {
+        const initials = item.user_name ? item.user_name.substring(0, 2).toUpperCase() : 'ST';
+        const tagsHtml = item.tags ? item.tags.map(t => `<span class="bg-slate-100 text-slate-600 text-[10px] px-2 py-0.5 rounded font-medium">${escapeHtml(t.trim())}</span>`).join('') : '';
+
+        return `
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col justify-between">
+            <div>
+              <div class="flex items-center gap-3 mb-3">
+                ${item.avatar_url ? `<img src="${item.avatar_url}" class="w-10 h-10 rounded-full border border-slate-200" />` : `<div class="w-10 h-10 rounded-full bg-sky-100 text-sky-700 font-bold flex items-center justify-center text-sm">${initials}</div>`}
+                <div>
+                  <h4 class="font-bold text-slate-900 text-sm">${escapeHtml(item.user_name)}</h4>
+                  <p class="text-xs text-slate-400 font-medium">${escapeHtml(item.location)}</p>
+                </div>
+              </div>
+              <p class="text-slate-600 text-xs mb-3">"${escapeHtml(item.status_text)}"</p>
+              <div class="flex flex-wrap gap-1 mb-4">
+                ${tagsHtml}
+              </div>
+            </div>
+            <button onclick="handleChatAction('${escapeHtml(item.user_name)}')" class="w-full bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold py-2 rounded-xl transition">
+              💬 Direct Message
+            </button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // 3. Fetch Global Chat Messages
     async function fetchMessages() {
       const container = document.getElementById('chatMessagesContainer');
       const { data, error } = await supabaseClient
@@ -323,7 +400,7 @@
     async function handleSendMessage(event) {
       event.preventDefault();
       if (!currentUserSession) {
-        alert("Please sign in with Google first to send messages.");
+        alert("Please sign in with Google first.");
         window.location.href = './login.html';
         return;
       }
@@ -350,21 +427,19 @@
       input.value = '';
     }
 
-    // Setup Supabase Realtime Listener
     function setupRealtimeChat() {
       supabaseClient
         .channel('public:messages')
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
-          // Fetch all or append new message smoothly
           fetchMessages();
         })
         .subscribe();
     }
 
-    // 5. Modal Controls
+    // Modal Controls
     function openModal(modalId) {
       if (!currentUserSession && modalId !== 'profileModal') {
-        alert("Please sign in with Google first to perform this action.");
+        alert("Please sign in with Google first.");
         window.location.href = './login.html';
         return;
       }
@@ -377,13 +452,10 @@
       document.getElementById(modalId).classList.add('hidden');
     }
 
-    // 6. Handle Insert Meetup
     async function handleCreateMeetup(event) {
       event.preventDefault();
       if (!currentUserSession) return;
-
       const hostName = currentUserProfile?.full_name || currentUserSession.user.user_metadata.full_name || 'Member';
-
       const newMeetup = {
         user_id: currentUserSession.user.id,
         host_name: hostName,
@@ -393,61 +465,86 @@
         event_time: document.getElementById('meetupTime').value,
         slots_info: '1/6 Slots'
       };
-
       const { error } = await supabaseClient.from('meetups').insert([newMeetup]);
-
-      if (error) {
-        alert("Error creating meet-up: " + error.message);
-        return;
-      }
-
+      if (error) { alert("Error: " + error.message); return; }
       document.getElementById('meetupForm').reset();
       closeModal('meetupModal');
       fetchMeetups();
     }
 
-    function handleJoinAction(meetupTitle) {
-      if (!currentUserSession) {
-        alert("Please sign in with Google first.");
-        window.location.href = './login.html';
-        return;
-      }
-      alert(`You have successfully requested to join: "${meetupTitle}"! The host will get in touch.`);
+    async function handleCreateBuddy(event) {
+      event.preventDefault();
+      if (!currentUserSession) return;
+      const userName = currentUserProfile?.full_name || currentUserSession.user.user_metadata.full_name || 'Member';
+      const avatarUrl = currentUserProfile?.avatar_url || currentUserSession.user.user_metadata.avatar_url || null;
+      const tagsRaw = document.getElementById('buddyTags').value;
+      const tagsArray = tagsRaw.split(',').map(t => t.trim());
+      const newBuddy = {
+        user_id: currentUserSession.user.id,
+        user_name: userName,
+        avatar_url: avatarUrl,
+        location: document.getElementById('buddyLocation').value,
+        status_text: document.getElementById('buddyStatusText').value,
+        tags: tagsArray
+      };
+      const { error } = await supabaseClient.from('buddies').insert([newBuddy]);
+      if (error) { alert("Error: " + error.message); return; }
+      document.getElementById('buddyForm').reset();
+      closeModal('buddyModal');
+      fetchBuddies();
     }
 
-    // 7. Logout Handler
+    function handleJoinAction(title) {
+      if (!currentUserSession) { alert("Please sign in first."); window.location.href = './login.html'; return; }
+      alert(`Joined meet-up: "${title}"!`);
+    }
+
+    function handleChatAction(userName) {
+      if (!currentUserSession) { alert("Please sign in first."); window.location.href = './login.html'; return; }
+      alert(`Opening direct message room with ${userName}...`);
+    }
+
     async function handleLogout() {
       await supabaseClient.auth.signOut();
       window.location.reload();
     }
 
-    // 8. Tab Switcher Logic
+    // 3-Tab Switcher Logic
     function switchTab(tabName) {
       const meetupBtn = document.getElementById('tabMeetupBtn');
+      const buddiesBtn = document.getElementById('tabBuddiesBtn');
       const chatBtn = document.getElementById('tabChatBtn');
+      
       const meetupSec = document.getElementById('meetupSection');
+      const buddiesSec = document.getElementById('buddiesSection');
       const chatSec = document.getElementById('chatSection');
+
+      // Reset styles
+      const activeClass = "flex-1 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold transition bg-white text-slate-900 shadow-sm";
+      const inactiveClass = "flex-1 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold transition text-slate-600 hover:text-slate-900";
+
+      meetupSec.classList.add('hidden');
+      buddiesSec.classList.add('hidden');
+      chatSec.classList.add('hidden');
+
+      meetupBtn.className = inactiveClass;
+      buddiesBtn.className = inactiveClass;
+      chatBtn.className = inactiveClass;
 
       if (tabName === 'meetup') {
         meetupSec.classList.remove('hidden');
-        chatSec.classList.add('hidden');
-
-        meetupBtn.className = "flex-1 py-2.5 px-4 rounded-xl text-sm font-semibold transition bg-white text-slate-900 shadow-sm";
-        chatBtn.className = "flex-1 py-2.5 px-4 rounded-xl text-sm font-semibold transition text-slate-600 hover:text-slate-900";
-      } else {
+        meetupBtn.className = activeClass;
+      } else if (tabName === 'buddies') {
+        buddiesSec.classList.remove('hidden');
+        buddiesBtn.className = activeClass;
+      } else if (tabName === 'chat') {
         chatSec.classList.remove('hidden');
-        meetupSec.classList.add('hidden');
-
-        chatBtn.className = "flex-1 py-2.5 px-4 rounded-xl text-sm font-semibold transition bg-white text-slate-900 shadow-sm";
-        meetupBtn.className = "flex-1 py-2.5 px-4 rounded-xl text-sm font-semibold transition text-slate-600 hover:text-slate-900";
-        
-        // Scroll to bottom of chat when switched
+        chatBtn.className = activeClass;
         const container = document.getElementById('chatMessagesContainer');
         container.scrollTop = container.scrollHeight;
       }
     }
 
-    // Utility XSS Escaping
     function escapeHtml(str) {
       return String(str || '')
         .replace(/&/g, '&amp;')
@@ -456,9 +553,10 @@
         .replace(/"/g, '&quot;');
     }
 
-    // Initial Load
+    // Initial Loads
     initAuth();
     fetchMeetups();
+    fetchBuddies();
     fetchMessages();
     setupRealtimeChat();
   </script>
