@@ -3,9 +3,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Spot Detail — SpotTribe Bali</title>
+  
+  <!-- SEO & Open Graph Meta Tags (Dinamis) -->
+  <title id="metaTitle">Spot Detail — SpotTribe Bali</title>
+  <meta id="metaDesc" name="description" content="Explore curated luxury villas, cozy cafés, and hidden gems across Bali with SpotTribe Bali.">
+  <link id="canonicalLink" rel="canonical" href="https://www.spottribebali.com/spot-detail.html">
 
-  <!-- Tailwind CSS & Supabase -->
+  <meta property="og:type" content="website">
+  <meta id="ogUrl" property="og:url" content="https://www.spottribebali.com/spot-detail.html">
+  <meta id="ogTitle" property="og:title" content="Spot Detail — SpotTribe Bali">
+  <meta id="ogDesc" property="og:description" content="Explore verified island spots, luxury living, and hidden gems across Bali.">
+  <meta id="ogImage" property="og:image" content="https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=1200&q=80">
+
+  <!-- Tailwind CSS, Lucide Icons & Supabase -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -41,7 +51,7 @@
   <!-- ARTICLE CONTENT & DETAILS -->
   <main class="max-w-2xl mx-auto px-4 py-6 space-y-8">
     
-    <!-- INFO CARDS (Rating dihitung otomatis dari database reviews & Price) -->
+    <!-- INFO CARDS (Rating real dari database reviews & Price) -->
     <div class="grid grid-cols-2 gap-3">
       <div class="bg-white p-3 rounded-2xl border border-slate-200 text-center shadow-sm">
         <span class="text-[10px] text-slate-400 uppercase font-bold block">Rating</span>
@@ -165,6 +175,15 @@
     const placeId = urlParams.get('id');
     let currentUser = null;
 
+    // Helper Slugify untuk URL & Canonical
+    function slugify(v) {
+      return String(v || "").normalize("NFKD").toLowerCase().trim()
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "")
+        .slice(0, 180);
+    }
+
     // CEK STATUS AUTHENTICATION USER GOOGLE
     async function checkAuthUser() {
       const { data: { user } } = await clientSupabase.auth.getUser();
@@ -219,13 +238,31 @@
         return;
       }
 
+      // Update DOM Text & Media
       document.getElementById('spotCover').src = spot.image_url || 'https://images.unsplash.com/photo-1537996194471-e657df975ab4';
       document.getElementById('spotTitle').innerText = spot.name;
       document.getElementById('spotCategoryBadge').innerText = spot.category;
       document.getElementById('spotLocation').innerText = '📍 ' + (spot.area || spot.regency || 'Bali');
       document.getElementById('spotPrice').innerText = spot.price_label || spot.price || 'Contact for rates';
       
-      // Support HTML format untuk artikel panjang (description) atau fallback ke amenity
+      // Update SEO & Open Graph Tags Dinamis
+      const spotTitleText = `${spot.name} — SpotTribe Bali`;
+      const cleanDesc = (spot.description || spot.amenity || `Explore ${spot.name} in ${spot.area || 'Bali'}.`).replace(/<[^>]*>?/gm, '').substring(0, 130) + '...';
+      const canonicalPath = `./spot-detail.html?id=${spot.id}`;
+
+      document.title = spotTitleText;
+      document.getElementById('metaTitle').innerText = spotTitleText;
+      document.getElementById('metaDesc').setAttribute('content', cleanDesc);
+      document.getElementById('ogTitle').setAttribute('content', spotTitleText);
+      document.getElementById('ogDesc').setAttribute('content', cleanDesc);
+      document.getElementById('canonicalLink').setAttribute('href', canonicalPath);
+      document.getElementById('ogUrl').setAttribute('content', window.location.href);
+
+      if (spot.image_url) {
+        document.getElementById('ogImage').setAttribute('content', spot.image_url);
+      }
+
+      // Support HTML format untuk artikel panjang (description)
       const rawDescription = spot.description || spot.amenity || 'Enjoy authentic island vibes at ' + spot.name + '.';
       document.getElementById('spotDescription').innerHTML = rawDescription;
       
