@@ -40,14 +40,24 @@
         </div>
 
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Category</label>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Category (Sinkron dengan Index)</label>
           <select id="spotCategory" required class="w-full text-sm border border-slate-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-sky-500 bg-white font-medium">
-            <option value="beachclub">Beach Clubs (beachclub)</option>
-            <option value="villas">Villas (villas)</option>
+            <option value="villas">Villas & Houses (villas)</option>
+            <option value="coliving">Coliving Hubs (coliving)</option>
+            <option value="hotel">Hotels & Resorts (hotel)</option>
             <option value="waterfall">Waterfall (waterfall)</option>
-            <option value="cafes">Cafes (cafes)</option>
+            <option value="beach">Beach & Surf (beach)</option>
+            <option value="volcano">Volcano Trek (volcano)</option>
+            <option value="wildlife">Wildlife (wildlife)</option>
+            <option value="vehicle">Rent Vehicle (vehicle)</option>
+            <option value="cafe">Cafés & Brunch (cafe)</option>
             <option value="coworking">Coworking (coworking)</option>
-            <option value="stays">Stays (stays)</option>
+            <option value="visa">Visa Agency (visa)</option>
+            <option value="medical">Medical / Clinic (medical)</option>
+            <option value="nightclub">Nightclub (nightclub)</option>
+            <option value="beachclub">Beach Clubs (beachclub)</option>
+            <option value="temple">Temples (temple)</option>
+            <option value="wellness">Yoga & Spa (wellness)</option>
           </select>
         </div>
 
@@ -66,8 +76,15 @@
           <input type="text" id="spotPrice" value="Contact for Rates" required class="w-full text-sm border border-slate-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-sky-500">
         </div>
 
-        <!-- UPLOAD FILE + AUTO COMPRESS -->
+        <!-- GOOGLE MAPS URL -->
         <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Google Maps URL / Share Link / Embed</label>
+          <input type="text" id="spotMapUrl" placeholder="https://maps.app.goo.gl/... atau URL Embed" class="w-full text-sm border border-slate-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-sky-500">
+          <p class="text-[10px] text-slate-400 mt-1 italic">Bisa diisi link pendek Google Maps (maps.app.goo.gl) atau link embed.</p>
+        </div>
+
+        <!-- UPLOAD FILE + AUTO COMPRESS -->
+        <div class="sm:col-span-2">
           <label class="block text-xs font-semibold text-slate-600 mb-1">Upload Foto Utama (Auto-Compress)</label>
           <input type="file" id="spotImageFile" accept="image/*" class="w-full text-sm border border-slate-200 rounded-xl px-2 py-1.5 bg-slate-50 file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-sky-50 file:text-sky-700 hover:file:bg-sky-100 cursor-pointer">
           <input type="hidden" id="existingImageUrl">
@@ -105,12 +122,22 @@
             <label for="directoryFilter" class="text-xs font-bold text-slate-600">Filter:</label>
             <select id="directoryFilter" onchange="fetchAdminSpots()" class="text-xs border border-slate-300 rounded-xl px-3 py-2 bg-slate-50 font-bold text-slate-800 focus:outline-none focus:border-sky-500">
               <option value="all">ALL Categories</option>
-              <option value="beachclub">Beach Clubs</option>
-              <option value="villas">Villas</option>
+              <option value="villas">Villas & Houses</option>
+              <option value="coliving">Coliving Hubs</option>
+              <option value="hotel">Hotels & Resorts</option>
               <option value="waterfall">Waterfall</option>
-              <option value="cafes">Cafes</option>
+              <option value="beach">Beach & Surf</option>
+              <option value="volcano">Volcano Trek</option>
+              <option value="wildlife">Wildlife</option>
+              <option value="vehicle">Rent Vehicle</option>
+              <option value="cafe">Cafés & Brunch</option>
               <option value="coworking">Coworking</option>
-              <option value="stays">Stays</option>
+              <option value="visa">Visa Agency</option>
+              <option value="medical">Medical / Clinic</option>
+              <option value="nightclub">Nightclub</option>
+              <option value="beachclub">Beach Clubs</option>
+              <option value="temple">Temples</option>
+              <option value="wellness">Yoga & Spa</option>
             </select>
           </div>
         </div>
@@ -166,7 +193,7 @@
             </div>
           </div>
           <div class="flex items-center gap-2 flex-shrink-0">
-            <button onclick="editSpot(${spot.id}, '${escapeHtml(spot.name)}', '${escapeHtml(spot.category)}', '${escapeHtml(spot.area || spot.regency || '')}', '${spot.rating || 4.5}', '${escapeHtml(spot.price_label || spot.price || '')}', '${escapeHtml(spot.image_url || '')}', '${escapeHtml(spot.amenity || '')}')" class="bg-sky-50 hover:bg-sky-100 text-sky-700 text-xs font-bold px-3 py-1.5 rounded-xl transition">
+            <button onclick="editSpot(${spot.id}, '${escapeHtml(spot.name)}', '${escapeHtml(spot.category)}', '${escapeHtml(spot.area || spot.regency || '')}', '${spot.rating || 4.5}', '${escapeHtml(spot.price_label || spot.price || '')}', '${escapeHtml(spot.image_url || '')}', '${escapeHtml(spot.amenity || '')}', '${escapeHtml(spot.map_url || '')}')" class="bg-sky-50 hover:bg-sky-100 text-sky-700 text-xs font-bold px-3 py-1.5 rounded-xl transition">
               Edit
             </button>
             <button onclick="deleteSpot(${spot.id})" class="bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold px-3 py-1.5 rounded-xl transition">
@@ -227,6 +254,14 @@
       const saveBtn = document.getElementById('saveBtn');
       
       let imageUrl = document.getElementById('existingImageUrl').value;
+      let rawMapUrl = document.getElementById('spotMapUrl').value.trim();
+
+      if (rawMapUrl.includes('<iframe')) {
+        const match = rawMapUrl.match(/src="([^"]+)"/);
+        if (match && match[1]) {
+          rawMapUrl = match[1];
+        }
+      }
 
       try {
         if (fileInput.files && fileInput.files[0]) {
@@ -270,7 +305,8 @@
         rating: document.getElementById('spotRating').value,
         price_label: document.getElementById('spotPrice').value,
         image_url: imageUrl,
-        amenity: document.getElementById('spotAmenity').value
+        amenity: document.getElementById('spotAmenity').value,
+        map_url: rawMapUrl
       };
 
       if (id) {
@@ -291,7 +327,7 @@
       fetchAdminSpots();
     }
 
-    function editSpot(id, name, category, area, rating, price, imageUrl, amenity) {
+    function editSpot(id, name, category, area, rating, price, imageUrl, amenity, mapUrl) {
       document.getElementById('spotId').value = id;
       document.getElementById('spotName').value = name;
       document.getElementById('spotCategory').value = category;
@@ -300,6 +336,7 @@
       document.getElementById('spotPrice').value = price;
       document.getElementById('existingImageUrl').value = imageUrl || '';
       document.getElementById('spotAmenity').value = amenity;
+      document.getElementById('spotMapUrl').value = mapUrl || '';
 
       document.getElementById('formTitle').innerText = "✏️ Edit Spot ID: " + id;
       document.getElementById('cancelEditBtn').classList.remove('hidden');
@@ -310,6 +347,7 @@
       document.getElementById('adminSpotForm').reset();
       document.getElementById('spotId').value = '';
       document.getElementById('existingImageUrl').value = '';
+      document.getElementById('spotMapUrl').value = '';
       document.getElementById('formTitle').innerText = "➕ Add New Curated Spot";
       document.getElementById('cancelEditBtn').classList.add('hidden');
     }
