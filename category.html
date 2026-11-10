@@ -4,7 +4,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   
-  <title>SpotTribe Bali — Category Directory</title>
+  <!-- SEO & Open Graph Meta Tags Dinamis -->
+  <title id="metaTitle">SpotTribe Bali — Category Directory</title>
+  <meta id="metaDesc" name="description" content="Explore curated spots, cafes, and hidden gems across Bali with SpotTribe Bali.">
+  <link id="canonicalLink" rel="canonical" href="https://www.spottribebali.com/category.html">
+
+  <meta property="og:type" content="website">
+  <meta id="ogUrl" property="og:url" content="https://www.spottribebali.com/category.html">
+  <meta id="ogTitle" property="og:title" content="SpotTribe Bali — Category Directory">
+  <meta id="ogDesc" property="og:description" content="Explore verified island spots and hidden gems across Bali.">
+  <meta id="ogImage" property="og:image" content="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=1200&q=80">
 
   <!-- Tailwind CSS & Lucide Icons -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -176,11 +185,26 @@
       const titleEl = document.getElementById('categoryTitle');
       const loadingEl = document.getElementById('loadingState');
 
+      let pageHeading = "Category Directory";
       if (categoryType) {
-        titleEl.innerText = `${categoryType} Spots`;
+        pageHeading = `${categoryType} Spots`;
       } else if (searchQuery) {
-        titleEl.innerText = `Search: "${searchQuery}"`;
+        pageHeading = `Search: "${searchQuery}"`;
       }
+      
+      titleEl.innerText = pageHeading;
+
+      // UPDATE SEO & OPEN GRAPH SECARA DINAMIS
+      const seoTitle = `${pageHeading} — SpotTribe Bali`;
+      const seoDesc = `Explore the best curated ${categoryType || 'Bali'} spots, cafes, and hidden gems for digital nomads and expats.`;
+      
+      document.title = seoTitle;
+      document.getElementById('metaTitle').innerText = seoTitle;
+      document.getElementById('metaDesc').setAttribute('content', seoDesc);
+      document.getElementById('ogTitle').setAttribute('content', seoTitle);
+      document.getElementById('ogDesc').setAttribute('content', seoDesc);
+      document.getElementById('canonicalLink').setAttribute('href', window.location.href);
+      document.getElementById('ogUrl').setAttribute('content', window.location.href);
 
       try {
         let queryBuilder = clientSupabase.from('places').select('*');
