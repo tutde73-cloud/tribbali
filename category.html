@@ -37,7 +37,7 @@
       Loading curated spots...
     </div>
 
-    <!-- Grid Kartu Vertikal dengan Google Maps Iframe -->
+    <!-- Grid Kartu dengan Foto Utama -->
     <div id="spotsContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-6">
       <!-- Hasil query Supabase akan dirender di sini secara dinamis -->
     </div>
@@ -66,7 +66,6 @@
         `;
       }
 
-      // Pecah berdasarkan pemisah titik (•) atau koma (,)
       const items = amenityString.split(/[•,]/).map(i => i.trim()).filter(Boolean);
 
       return items.map(item => `
@@ -114,34 +113,29 @@
         }
 
         container.innerHTML = places.map(spot => {
-          // Prioritaskan map_url dari database, jika kosong gunakan fallback pencarian nama otomatis
-          let mapEmbedUrl = spot.map_url;
-          if (!mapEmbedUrl) {
-            const locationQuery = encodeURIComponent(`${spot.name}, ${spot.area || spot.regency || 'Bali'}`);
-            mapEmbedUrl = `https://maps.google.com/maps?q=${locationQuery}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
-          }
+          const spotImage = spot.image_url || 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=600&q=80';
+          const mapsButtonLink = spot.map_url || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spot.name + ', ' + (spot.area || 'Bali'))}`;
 
           return `
             <div class="bg-white rounded-3xl border border-slate-200/90 overflow-hidden shadow-sm hover:shadow-md transition flex flex-col justify-between">
               
-              <!-- GOOGLE MAPS IFRAME (Menggantikan Foto Utama) -->
-              <div class="relative w-full h-44 bg-slate-100">
-                <iframe 
-                  src="${mapEmbedUrl}" 
-                  width="100%" 
-                  height="100%" 
-                  style="border:0;" 
-                  allowfullscreen="" 
-                  loading="lazy" 
-                  referrerpolicy="no-referrer-when-downgrade"
-                  class="w-full h-full object-cover">
-                </iframe>
+              <!-- FOTO UTAMA DI BAGIAN ATAS -->
+              <div class="relative w-full h-48 bg-slate-100 overflow-hidden">
+                <img src="${spotImage}" class="w-full h-full object-cover" alt="${escapeHtml(spot.name)}" />
+
+                <!-- TOMBOL MAPS DI POJOK KIRI ATAS -->
+                <a href="${mapsButtonLink}" target="_blank" class="absolute top-3 left-3 bg-white/90 hover:bg-white backdrop-blur-md px-3 py-1 rounded-xl text-xs font-bold text-slate-700 shadow-xs flex items-center gap-1 transition">
+                  <span>Maps</span>
+                  <i data-lucide="external-link" class="w-3 h-3"></i>
+                </a>
+
+                <!-- BADGE RATING BINTANG DI POJOK KANAN ATAS -->
                 <div class="absolute top-3 right-3 bg-white/90 backdrop-blur-md px-2.5 py-1 rounded-full text-xs font-black text-emerald-600 shadow-xs pointer-events-none">
                   ★ ${spot.rating || '4.5'}
                 </div>
               </div>
 
-              <!-- KONTEN -->
+              <!-- KONTEN INFORMASI -->
               <div class="p-5 flex flex-col gap-3 flex-grow justify-between">
                 <div>
                   <h3 class="font-extrabold text-slate-900 text-base leading-snug">${escapeHtml(spot.name)}</h3>
@@ -168,6 +162,8 @@
           `;
         }).join('');
 
+        lucide.createIcons();
+
       } catch (err) {
         console.error('Error loading category spots:', err);
         loadingEl.innerText = 'Failed to load data. Please check your connection.';
@@ -183,7 +179,6 @@
     }
 
     loadCategorySpots();
-    lucide.createIcons();
   </script>
 </body>
 </html>
