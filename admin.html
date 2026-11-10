@@ -66,15 +66,8 @@
           <input type="text" id="spotPrice" value="Contact for Rates" required class="w-full text-sm border border-slate-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-sky-500">
         </div>
 
-        <!-- GOOGLE MAPS URL (Mendukung Link Pendek, URL Embed, atau Kode Iframe) -->
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Google Maps URL / Share Link / Embed</label>
-          <input type="text" id="spotMapUrl" placeholder="https://maps.app.goo.gl/... atau URL Embed" class="w-full text-sm border border-slate-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-sky-500">
-          <p class="text-[10px] text-slate-400 mt-1 italic">Bisa diisi link pendek Google Maps (maps.app.goo.gl) atau link embed.</p>
-        </div>
-
         <!-- UPLOAD FILE + AUTO COMPRESS -->
-        <div class="sm:col-span-2">
+        <div>
           <label class="block text-xs font-semibold text-slate-600 mb-1">Upload Foto Utama (Auto-Compress)</label>
           <input type="file" id="spotImageFile" accept="image/*" class="w-full text-sm border border-slate-200 rounded-xl px-2 py-1.5 bg-slate-50 file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-sky-50 file:text-sky-700 hover:file:bg-sky-100 cursor-pointer">
           <input type="hidden" id="existingImageUrl">
@@ -173,7 +166,7 @@
             </div>
           </div>
           <div class="flex items-center gap-2 flex-shrink-0">
-            <button onclick="editSpot(${spot.id}, '${escapeHtml(spot.name)}', '${escapeHtml(spot.category)}', '${escapeHtml(spot.area || spot.regency || '')}', '${spot.rating || 4.5}', '${escapeHtml(spot.price_label || spot.price || '')}', '${escapeHtml(spot.image_url || '')}', '${escapeHtml(spot.amenity || '')}', '${escapeHtml(spot.map_url || '')}')" class="bg-sky-50 hover:bg-sky-100 text-sky-700 text-xs font-bold px-3 py-1.5 rounded-xl transition">
+            <button onclick="editSpot(${spot.id}, '${escapeHtml(spot.name)}', '${escapeHtml(spot.category)}', '${escapeHtml(spot.area || spot.regency || '')}', '${spot.rating || 4.5}', '${escapeHtml(spot.price_label || spot.price || '')}', '${escapeHtml(spot.image_url || '')}', '${escapeHtml(spot.amenity || '')}')" class="bg-sky-50 hover:bg-sky-100 text-sky-700 text-xs font-bold px-3 py-1.5 rounded-xl transition">
               Edit
             </button>
             <button onclick="deleteSpot(${spot.id})" class="bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold px-3 py-1.5 rounded-xl transition">
@@ -233,16 +226,7 @@
       const fileInput = document.getElementById('spotImageFile');
       const saveBtn = document.getElementById('saveBtn');
       
-      let imageUrl = document.getElementById('existingImageUrl'].value;
-      let rawMapUrl = document.getElementById('spotMapUrl').value.trim();
-
-      // Filter cerdas: jika user tidak sengaja paste seluruh kode <iframe src="...">, ambil URL-nya saja
-      if (rawMapUrl.includes('<iframe')) {
-        const match = rawMapUrl.match(/src="([^"]+)"/);
-        if (match && match[1]) {
-          rawMapUrl = match[1];
-        }
-      }
+      let imageUrl = document.getElementById('existingImageUrl').value;
 
       try {
         if (fileInput.files && fileInput.files[0]) {
@@ -286,8 +270,7 @@
         rating: document.getElementById('spotRating').value,
         price_label: document.getElementById('spotPrice').value,
         image_url: imageUrl,
-        amenity: document.getElementById('spotAmenity').value,
-        map_url: rawMapUrl // Menyimpan URL maps yang bersih
+        amenity: document.getElementById('spotAmenity').value
       };
 
       if (id) {
@@ -308,7 +291,7 @@
       fetchAdminSpots();
     }
 
-    function editSpot(id, name, category, area, rating, price, imageUrl, amenity, mapUrl) {
+    function editSpot(id, name, category, area, rating, price, imageUrl, amenity) {
       document.getElementById('spotId').value = id;
       document.getElementById('spotName').value = name;
       document.getElementById('spotCategory').value = category;
@@ -317,7 +300,6 @@
       document.getElementById('spotPrice').value = price;
       document.getElementById('existingImageUrl').value = imageUrl || '';
       document.getElementById('spotAmenity').value = amenity;
-      document.getElementById('spotMapUrl').value = mapUrl || '';
 
       document.getElementById('formTitle').innerText = "✏️ Edit Spot ID: " + id;
       document.getElementById('cancelEditBtn').classList.remove('hidden');
@@ -328,7 +310,6 @@
       document.getElementById('adminSpotForm').reset();
       document.getElementById('spotId').value = '';
       document.getElementById('existingImageUrl').value = '';
-      document.getElementById('spotMapUrl').value = '';
       document.getElementById('formTitle').innerText = "➕ Add New Curated Spot";
       document.getElementById('cancelEditBtn').classList.add('hidden');
     }
