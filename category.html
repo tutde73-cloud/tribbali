@@ -37,7 +37,7 @@
       Loading curated spots...
     </div>
 
-    <!-- Grid Kartu Vertikal dengan Foto Besar -->
+    <!-- Grid Kartu Vertikal dengan Google Maps Iframe -->
     <div id="spotsContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-6">
       <!-- Hasil query Supabase akan dirender di sini secara dinamis -->
     </div>
@@ -114,15 +114,26 @@
         }
 
         container.innerHTML = places.map(spot => {
-          const spotImage = spot.image_url || 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=600&q=80';
+          // Buat query lokasi untuk Google Maps berdasarkan nama tempat dan area/regency
+          const locationQuery = encodeURIComponent(`${spot.name}, ${spot.area || spot.regency || 'Bali'}`, Bali);
+          const mapEmbedUrl = `https://maps.google.com/maps?q=${locationQuery}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
 
           return `
             <div class="bg-white rounded-3xl border border-slate-200/90 overflow-hidden shadow-sm hover:shadow-md transition flex flex-col justify-between">
               
-              <!-- FOTO BESAR -->
+              <!-- GOOGLE MAPS IFRAME (Menggantikan Foto Utama) -->
               <div class="relative w-full h-44 bg-slate-100">
-                <img src="${spotImage}" class="w-full h-full object-cover" alt="${escapeHtml(spot.name)}" />
-                <div class="absolute top-3 right-3 bg-white/90 backdrop-blur-md px-2.5 py-1 rounded-full text-xs font-black text-emerald-600 shadow-xs">
+                <iframe 
+                  src="${mapEmbedUrl}" 
+                  width="100%" 
+                  height="100%" 
+                  style="border:0;" 
+                  allowfullscreen="" 
+                  loading="lazy" 
+                  referrerpolicy="no-referrer-when-downgrade"
+                  class="w-full h-full object-cover">
+                </iframe>
+                <div class="absolute top-3 right-3 bg-white/90 backdrop-blur-md px-2.5 py-1 rounded-full text-xs font-black text-emerald-600 shadow-xs pointer-events-none">
                   ★ ${spot.rating || '4.5'}
                 </div>
               </div>
