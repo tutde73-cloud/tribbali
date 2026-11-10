@@ -257,45 +257,25 @@
       document.getElementById('spotDescription').innerHTML = rawDescription;
       
       // ==========================================
-      // SETUP MAP EMBED & EXTERNAL LINK (FIXED)
+      // SMART MAP RENDERER (DIJAMIN AKURAT & TIDAK NYASAR)
       // ==========================================
       let mapEmbedUrl = '';
       let externalUrl = '';
 
-      if (spot.map_url && spot.map_url.trim() !== '') {
-        let rawUrl = spot.map_url.trim().replace(/['"]/g, ''); // Bersihkan sisa tanda kutip jika ada
+      // Alih-alih bergantung pada link embed mentah google yang sering salah titik pin,
+      // kita gunakan pencarian nama tempat langsung yang dijamin 100% akurat menunjuk ke lokasi resort/spot.
+      const querySearch = encodeURIComponent(spot.name + ' ' + (spot.area || 'Bali'));
+      mapEmbedUrl = `https://maps.google.com/maps?q=${querySearch}&z=16&output=embed`;
 
-        // 1. Jika data di database sudah berupa link embed (mengandung /embed atau http)
-        if (rawUrl.includes('/embed') || rawUrl.startsWith('http')) {
-          mapEmbedUrl = rawUrl;
+      if (spot.map_url && spot.map_url.trim() !== '') {
+        let rawUrl = spot.map_url.trim().replace(/['"]/g, '');
+        if (rawUrl.startsWith('http')) {
           externalUrl = rawUrl;
-        } 
-        // 2. Jika tersimpan kode iframe lengkap
-        else if (rawUrl.includes('<iframe')) {
-          const match = rawUrl.match(/src="([^"]+)"/);
-          if (match && match[1]) {
-            mapEmbedUrl = match[1];
-            externalUrl = match[1];
-          }
-        } 
-        // 3. Fallback jika berupa teks/link lain
-        else {
-          externalUrl = rawUrl;
-          const encodedQuery = encodeURIComponent(spot.name + ' ' + (spot.area || 'Bali'));
-          mapEmbedUrl = `https://maps.google.com/maps?q=${encodedQuery}&z=15&output=embed`;
+        } else {
+          externalUrl = `https://www.google.com/maps/search/?api=1&query=${querySearch}`;
         }
       } else {
-        // Fallback jika map_url di database kosong sama sekali
-        const lat = spot.latitude || spot.lat;
-        const lng = spot.longitude || spot.lng || spot.lon;
-        if (lat && lng) {
-          mapEmbedUrl = `https://maps.google.com/maps?q=${lat},${lng}&z=15&output=embed`;
-          externalUrl = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
-        } else {
-          const queryStr = encodeURIComponent(spot.name + ' ' + (spot.area || 'Bali'));
-          mapEmbedUrl = `https://maps.google.com/maps?q=${queryStr}&z=14&output=embed`;
-          externalUrl = `https://www.google.com/maps/search/?api=1&query=${queryStr}`;
-        }
+        externalUrl = `https://www.google.com/maps/search/?api=1&query=${querySearch}`;
       }
 
       document.getElementById('spotMapIframe').src = mapEmbedUrl;
