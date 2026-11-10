@@ -51,7 +51,7 @@
   <!-- ARTICLE CONTENT & DETAILS -->
   <main class="max-w-2xl mx-auto px-4 py-6 space-y-8">
     
-    <!-- INFO CARDS (Rating real dari database reviews & Price) -->
+    <!-- INFO CARDS -->
     <div class="grid grid-cols-2 gap-3">
       <div class="bg-white p-3 rounded-2xl border border-slate-200 text-center shadow-sm">
         <span class="text-[10px] text-slate-400 uppercase font-bold block">Rating</span>
@@ -87,7 +87,7 @@
       </div>
     </div>
 
-    <!-- ARTICLE DESCRIPTION (Support HTML) -->
+    <!-- ARTICLE DESCRIPTION -->
     <article class="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm space-y-3">
       <h2 class="font-extrabold text-base text-slate-900">About this Sanctuary</h2>
       <div id="spotDescription" class="text-xs leading-relaxed text-slate-600 font-medium space-y-2">
@@ -262,17 +262,13 @@
 
       if (spot.map_url && spot.map_url.trim() !== '') {
         externalUrl = spot.map_url.trim();
-        // Jika user mengisi link embed Google Maps utuh, gunakan langsung
         if (externalUrl.includes('output=embed') || externalUrl.includes('/embed')) {
           mapEmbedUrl = externalUrl;
         } else {
-          // Jika link biasa atau link pendek (seperti https://maps.app.goo.gl/...)
-          // Kita gunakan query search google maps embed
           const encodedQuery = encodeURIComponent(spot.name + ' ' + (spot.area || 'Bali'));
           mapEmbedUrl = `https://maps.google.com/maps?q=${encodedQuery}&z=15&output=embed`;
         }
       } else {
-        // Fallback ke Latitude / Longitude jika map_url kosong
         const lat = spot.latitude || spot.lat;
         const lng = spot.longitude || spot.lng || spot.lon;
         if (lat && lng) {
@@ -430,7 +426,11 @@
     }
 
     function escapeHtml(str) {
-      return String(str || '').replace(/&/g, '&amp;').replace(//g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
     }
 
     loadSpotDetail();
