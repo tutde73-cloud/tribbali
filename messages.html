@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  
+  <title>Direct Messages — SpotTribe Bali</title>
+  <meta name="description" content="Connect and chat directly with digital nomads and expats across Bali.">
+  <link rel="canonical" href="https://www.spottribebali.com/messages.html">
+
+  <!-- Tailwind CSS, Lucide Icons & Supabase JS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    body { background-color: #0f172a; font-family: system-ui, -apple-system, sans-serif; margin: 0; padding-bottom: 64px; }
+    .glass-nav-dark { background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(16px); }
+    .glass-nav-light { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(16px); }
+    .chat-height { height: calc(100vh - 136px); }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body class="text-slate-100 flex flex-col h-screen overflow-hidden">
+
+  <!-- HEADER -->
+  <header class="glass-nav-dark border-b border-slate-800 px-4 h-14 flex items-center justify-between shrink-0">
+    <div class="flex items-center gap-3">
+      <a href="./index.html" class="w-8 h-8 rounded-xl bg-slate-800 text-slate-300 flex items-center justify-center hover:bg-slate-700 transition">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+      </a>
+      <div>
+        <h1 class="font-extrabold text-xs tracking-tight text-white uppercase flex items-center gap-1.5">
+          <span>Nomad Messenger</span>
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        </h1>
+        <p class="text-[10px] text-slate-400 font-medium">Direct Peer-to-Peer Chat</p>
+      </div>
+    </div>
+    <div id="currentUserBadge" class="text-right">
+      <span id="senderDisplayName" class="text-xs font-bold text-emerald-400 block">Checking session...</span>
+    </div>
+  </header>
+
+  <!-- AUTH REQUIRED BANNER (JIKA BELUM LOGIN GOOGLE) -->
+  <div id="loginNotice" class="hidden absolute inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center space-y-4">
+    <div class="w-16 h-16 rounded-3xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-3xl">
+      💬
+    </div>
+    <div class="space-y-1 max-w-sm">
+      <h2 class="text-lg font-black text-white">Join Nomad Messenger</h2>
+      <p class="text-xs text-slate-400 leading-relaxed">Sign in with your Google account to connect and exchange private messages with nomads in Bali.</p>
+    </div>
+    <button onclick="signInWithGoogle()" class="px-6 py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs rounded-2xl transition shadow-lg shadow-emerald-500/20 flex items-center gap-2">
+      <span>Continue with Google</span>
+      <i data-lucide="arrow-right" class="w-4 h-4"></i>
+    </button>
+  </div>
+
+  <!-- MAIN CHAT INTERFACE -->
+  <main class="flex-grow flex chat-height max-w-5xl mx-auto w-full border-x border-slate-800/80 bg-slate-900/60 overflow-hidden">
+    
+    <!-- CONVERSATION LIST (SIDEBAR) -->
+    <aside id="chatSidebar" class="w-full sm:w-80 border-r border-slate-800 flex flex-col bg-slate-900 shrink-0">
+      <div class="p-3 border-b border-slate-800">
+        <div class="relative bg-slate-800/80 rounded-xl px-3 py-1.5 flex items-center border border-slate-700/60">
+          <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 mr-2"></i>
+          <input type="text" id="searchContactInput" onkeyup="filterContacts()" placeholder="Filter conversations..." class="w-full bg-transparent text-xs text-white placeholder-slate-400 focus:outline-none">
+        </div>
+      </div>
+      <div id="contactsList" class="flex-grow overflow-y-auto no-scrollbar divide-y divide-slate-800/50">
+        <p class="text-xs text-slate-500 italic text-center py-8">Loading conversations...</p>
+      </div>
+    </aside>
+
+    <!-- ACTIVE CHAT WINDOW -->
+    <section id="chatWindow" class="hidden sm:flex flex-col flex-grow bg-slate-950/40 relative">
+      
+      <!-- CHAT HEADER -->
+      <div id="chatHeader" class="p-3 bg-slate-900/80 border-b border-slate-800 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <button onclick="backToContacts()" class="sm:hidden text-slate-400 hover:text-white mr-1">
+            <i data-lucide="chevron-left" class="w-5 h-5"></i>
+          </button>
+          <div class="w-8 h-8 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center text-xs font-bold" id="activeAvatar">
+            N
+          </div>
+          <div>
+            <h3 id="activeRecipientName" class="text-xs font-extrabold text-white">Select a Nomad</h3>
+            <span id="activeRecipientStatus" class="text-[10px] text-emerald-400 font-medium">Realtime Encrypted</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- MESSAGES DISPLAY BODY -->
+      <div id="messagesContainer" class="flex-grow p-4 overflow-y-auto space-y-3 no-scrollbar">
+        <div class="h-full flex flex-col items-center justify-center text-center text-slate-500 space-y-2">
+          <i data-lucide="message-square" class="w-8 h-8 opacity-40"></i>
+          <p class="text-xs">Select a contact from the left sidebar to start chatting.</p>
+        </div>
+      </div>
+
+      <!-- INPUT BOX -->
+      <form id="messageForm" onsubmit="sendMessage(event)" class="p-3 bg-slate-900 border-t border-slate-800 flex items-center gap-2">
+        <input type="text" id="messageInput" placeholder="Type your message..." required autocomplete="off" class="flex-grow text-xs bg-slate-800 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500">
+        <button type="submit" id="sendBtn" class="px-4 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs rounded-xl transition shadow-md flex items-center gap-1.5 shrink-0">
+          <span>Send</span>
+          <i data-lucide="send" class="w-3.5 h-3.5"></i>
+        </button>
+      </form>
+
+    </section>
+
+  </main>
+
+  <!-- BOTTOM NAVIGATION BAR -->
+  <nav class="glass-nav-light border-t border-slate-200 h-16 flex items-center justify-around px-6 fixed bottom-0 left-0 right-0 z-40 shadow-lg">
+    <a href="./index.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 transition-colors">
+      <i data-lucide="map" class="w-5 h-5"></i>
+      <span class="text-[10px] font-medium">Explore</span>
+    </a>
+    <a href="./messages.html" class="flex flex-col items-center gap-1 text-emerald-600 transition-colors">
+      <i data-lucide="message-square" class="w-5 h-5"></i>
+      <span class="text-[10px] font-extrabold">Chats</span>
+    </a>
+    <a href="./profile.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 transition-colors">
+      <i data-lucide="user" class="w-5 h-5"></i>
+      <span class="text-[10px] font-medium">Profile</span>
+    </a>
+  </nav>
+
+  <!-- SUPABASE REALTIME SCRIPT -->
+  <script>
+    const SUPABASE_URL = 'https://riyupzmllltjrelqytwi.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_df32CqJ5bqDNCHU4OKGRPQ_7LiJvWV0';
+    const clientSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let currentUser = null;
+    let activeRecipientId = null;
+    let activeRecipientName = '';
+    let recentConversations = [];
+
+    // 1. CEK PARAMETER URL (jika diklik dari detail tempat/ulasan, misal: messages.html?to=USER_ID&name=Alex)
+    const urlParams = new URLSearchParams(window.location.search);
+    const targetUserId = urlParams.get('to');
+    const targetUserName = urlParams.get('name');
+
+    async function initChatApp() {
+      const { data: { user } } = await clientSupabase.auth.getUser();
+
+      if (!user) {
+        document.getElementById('loginNotice').classList.remove('hidden');
+        return;
+      }
+
+      currentUser = user;
+      const myName = user.user_metadata?.full_name || user.user_metadata?.name || user.email.split('@')[0];
+      document.getElementById('senderDisplayName').innerText = myName;
+
+      // Mendengarkan pesan baru secara REAL-TIME
+      clientSupabase
+        .channel('public:messages')
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
+          const newMsg = payload.new;
+          if (newMsg.sender_id === currentUser.id || newMsg.receiver_id === currentUser.id) {
+            if (activeRecipientId && (newMsg.sender_id === activeRecipientId || newMsg.receiver_id === activeRecipientId)) {
+              appendSingleMessage(newMsg);
+              scrollToBottom();
+            }
+            loadConversationsList();
+          }
+        })
+        .subscribe();
+
+      // Jika ada target percakapan dari URL
+      if (targetUserId) {
+        openChatWith(targetUserId, targetUserName || 'Nomad Explorer');
+      }
+
+      loadConversationsList();
+    }
+
+    async function signInWithGoogle() {
+      await clientSupabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: window.location.href }
+      });
+    }
+
+    async function loadConversationsList() {
+      const container = document.getElementById('contactsList');
+      
+      const { data: msgs, error } = await clientSupabase
+        .from('messages')
+        .select('*')
+        .or(`sender_id.eq.${currentUser.id},receiver_id.eq.${currentUser.id}`)
+        .order('created_at', { ascending: false });
+
+      if (error || !msgs || msgs.length === 0) {
+        container.innerHTML = `
+          <div class="p-6 text-center text-slate-500 space-y-1">
+            <p class="text-xs font-bold">No messages yet</p>
+            <p class="text-[10px]">Start exploring spots and message fellow tribe members!</p>
+          </div>
+        `;
+        return;
+      }
+
+      // Kelompokkan percakapan berdasarkan User ID lawan bicara
+      const contactsMap = {};
+      msgs.forEach(m => {
+        const isMe = m.sender_id === currentUser.id;
+        const otherId = isMe ? m.receiver_id : m.sender_id;
+        const otherName = isMe ? (m.receiver_name || 'Nomad') : (m.sender_name || 'Nomad');
+
+        if (!contactsMap[otherId]) {
+          contactsMap[otherId] = {
+            id: otherId,
+            name: otherName,
+            lastMsg: m.message,
+            time: new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+          };
+        }
+      });
+
+      recentConversations = Object.values(contactsMap);
+
+      container.innerHTML = recentConversations.map(c => `
+        <div onclick="openChatWith('${c.id}', '${escapeHtml(c.name)}')" class="p-3.5 hover:bg-slate-800/60 cursor-pointer transition flex items-center justify-between ${activeRecipientId === c.id ? 'bg-slate-800/90 border-l-2 border-emerald-400' : ''}">
+          <div class="flex items-center gap-3 overflow-hidden">
+            <div class="w-9 h-9 rounded-full bg-slate-800 border border-slate-700 text-emerald-400 font-extrabold flex items-center justify-center text-xs shrink-0">
+              ${c.name.charAt(0).toUpperCase()}
+            </div>
+            <div class="truncate">
+              <h4 class="text-xs font-bold text-slate-200 truncate">${escapeHtml(c.name)}</h4>
+              <p class="text-[11px] text-slate-400 truncate mt-0.5">${escapeHtml(c.lastMsg)}</p>
+            </div>
+          </div>
+          <span class="text-[9px] text-slate-500 shrink-0 ml-2">${c.time}</span>
+        </div>
+      `).join('');
+    }
+
+    async function openChatWith(recipientId, recipientName) {
+      activeRecipientId = recipientId;
+      activeRecipientName = recipientName;
+
+      document.getElementById('activeRecipientName').innerText = recipientName;
+      document.getElementById('activeAvatar').innerText = recipientName.charAt(0).toUpperCase();
+
+      // UI Switcher untuk Mobile Screen
+      const sidebar = document.getElementById('chatSidebar');
+      const chatWin = document.getElementById('chatWindow');
+      sidebar.classList.add('hidden', 'sm:flex');
+      chatWin.classList.remove('hidden');
+      chatWin.classList.add('flex');
+
+      loadMessagesHistory();
+    }
+
+    function backToContacts() {
+      document.getElementById('chatSidebar').classList.remove('hidden');
+      document.getElementById('chatWindow').classList.add('hidden');
+    }
+
+    async function loadMessagesHistory() {
+      const container = document.getElementById('messagesContainer');
+      container.innerHTML = '<p class="text-xs text-slate-500 text-center py-8">Loading history...</p>';
+
+      const { data: msgs, error } = await clientSupabase
+        .from('messages')
+        .select('*')
+        .or(`and(sender_id.eq.${currentUser.id},receiver_id.eq.${activeRecipientId}),and(sender_id.eq.${activeRecipientId},receiver_id.eq.${currentUser.id})`)
+        .order('created_at', { ascending: true });
+
+      if (error || !msgs || msgs.length === 0) {
+        container.innerHTML = `
+          <div class="h-full flex flex-col items-center justify-center text-center text-slate-500 space-y-1">
+            <p class="text-xs font-bold text-slate-300">Say Hi to ${escapeHtml(activeRecipientName)}! 👋</p>
+            <p class="text-[10px]">Start a conversation about spots, housing, or meetups.</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = '';
+      msgs.forEach(m => appendSingleMessage(m));
+      scrollToBottom();
+    }
+
+    function appendSingleMessage(msg) {
+      const container = document.getElementById('messagesContainer');
+      const isMe = msg.sender_id === currentUser.id;
+
+      const bubbleHtml = `
+        <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'} my-1">
+          <div class="max-w-[80%] rounded-2xl px-3.5 py-2 text-xs leading-relaxed ${
+            isMe 
+              ? 'bg-emerald-500 text-slate-950 font-medium rounded-tr-none' 
+              : 'bg-slate-800 text-slate-100 font-medium rounded-tl-none border border-slate-700/60'
+          }">
+            ${escapeHtml(msg.message)}
+          </div>
+          <span class="text-[9px] text-slate-500 mt-1 px-1">
+            ${new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+          </span>
+        </div>
+      `;
+      container.innerHTML += bubbleHtml;
+    }
+
+    async function sendMessage(e) {
+      e.preventDefault();
+      const input = document.getElementById('messageInput');
+      const text = input.value.trim();
+
+      if (!text || !activeRecipientId) return;
+
+      input.value = '';
+      const myName = currentUser.user_metadata?.full_name || currentUser.user_metadata?.name || currentUser.email.split('@')[0];
+
+      const { error } = await clientSupabase
+        .from('messages')
+        .insert([{
+          sender_id: currentUser.id,
+          sender_name: myName,
+          receiver_id: activeRecipientId,
+          receiver_name: activeRecipientName,
+          message: text
+        }]);
+
+      if (error) {
+        alert('Failed to send message: ' + error.message);
+      }
+    }
+
+    function scrollToBottom() {
+      const container = document.getElementById('messagesContainer');
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function filterContacts() {
+      const query = document.getElementById('searchContactInput').value.toLowerCase();
+      const items = document.querySelectorAll('#contactsList > div');
+      items.forEach(item => {
+        const text = item.innerText.toLowerCase();
+        item.style.display = text.includes(query) ? 'flex' : 'none';
+      });
+    }
+
+    function escapeHtml(str) {
+      return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    initChatApp();
+    lucide.createIcons();
+  </script>
+</body>
+</html>
