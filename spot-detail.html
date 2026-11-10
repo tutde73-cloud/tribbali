@@ -256,19 +256,39 @@
       const rawDescription = spot.description || spot.amenity || 'Enjoy authentic island vibes at ' + spot.name + '.';
       document.getElementById('spotDescription').innerHTML = rawDescription;
       
-      // Setup Map Embed & External Link Berdasarkan map_url dari Supabase (Prioritas Utama)
+      // ==========================================
+      // SETUP MAP EMBED & EXTERNAL LINK (SMART PARSER)
+      // ==========================================
       let mapEmbedUrl = '';
       let externalUrl = '';
 
       if (spot.map_url && spot.map_url.trim() !== '') {
-        externalUrl = spot.map_url.trim();
-        if (externalUrl.includes('output=embed') || externalUrl.includes('/embed')) {
-          mapEmbedUrl = externalUrl;
-        } else {
+        let rawUrl = spot.map_url.trim();
+
+        // 1. Jika user paste kode lengkap <iframe ... src="URL"> ... </iframe>
+        if (rawUrl.includes('<iframe')) {
+          const match = rawUrl.match(/src="([^"]+)"/);
+          if (match && match[1]) {
+            mapEmbedUrl = match[1];
+          }
+        } 
+        // 2. Jika user paste link embed langsung (mengandung /embed atau output=embed)
+        else if (rawUrl.includes('/embed') || rawUrl.includes('output=embed')) {
+          mapEmbedUrl = rawUrl;
+        } 
+        // 3. Jika user paste link biasa / link pendek (seperti maps.app.goo.gl)
+        else {
+          externalUrl = rawUrl;
           const encodedQuery = encodeURIComponent(spot.name + ' ' + (spot.area || 'Bali'));
           mapEmbedUrl = `https://maps.google.com/maps?q=${encodedQuery}&z=15&output=embed`;
         }
+
+        // Tentukan link untuk tombol "Open in Google Maps"
+        if (!externalUrl) {
+          externalUrl = rawUrl.includes('<iframe') ? (rawUrl.match(/src="([^"]+)"/) || [])[1] || '#' : rawUrl;
+        }
       } else {
+        // Fallback jika map_url di database kosong
         const lat = spot.latitude || spot.lat;
         const lng = spot.longitude || spot.lng || spot.lon;
         if (lat && lng) {
