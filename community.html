@@ -89,17 +89,25 @@
       </div>
     </section>
 
-    <!-- SECTION 3: GLOBAL CHAT TAB -->
+    <!-- SECTION 3: GLOBAL CHAT TAB (IMPROVED WITH REPLY, EMOJI & ONLINE PRESENCE) -->
     <section id="chatSection" class="space-y-4 hidden flex-grow flex flex-col">
       <div class="bg-amber-50 border border-amber-100 rounded-2xl p-4 text-xs text-amber-900 flex items-start gap-3">
         <span class="text-lg">💬</span>
         <div>
-          <strong class="font-bold">Tribali Global Chat:</strong> Drop a message or share photos with the entire Bali community in real-time. Messages auto-clear every 3 days to keep discussions fresh.
+          <strong class="font-bold">Tribali Global Chat:</strong> Drop messages, reply to threads, react with emojis, or share photos in real-time. Messages auto-clear every 3 days.
         </div>
       </div>
-      <div class="flex justify-between items-center mb-1">
+
+      <!-- Chat Header Bar with Online Presence Indicator -->
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-1">
         <h2 class="text-lg font-bold text-slate-900 tracking-tight">Tribali Global Chat</h2>
-        <span class="text-[11px] bg-sky-50 text-sky-700 font-medium px-3 py-1 rounded-full border border-sky-100 shadow-2xs">Auto-clear every 3 days & Filtered</span>
+        <div class="flex items-center gap-2">
+          <span class="inline-flex items-center gap-1.5 text-[11px] bg-emerald-50 text-emerald-700 font-bold px-3 py-1 rounded-full border border-emerald-200 shadow-2xs">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span id="onlineCountText">1 online in chat</span>
+          </span>
+          <span class="text-[11px] bg-sky-50 text-sky-700 font-medium px-3 py-1 rounded-full border border-sky-100 shadow-2xs">Filtered & Auto-clear</span>
+        </div>
       </div>
 
       <!-- Bold Shadow Elegant Chat Box Wrapper -->
@@ -108,6 +116,24 @@
         <!-- Messages Scroll Area -->
         <div id="chatMessagesContainer" class="flex-grow p-5 overflow-y-auto space-y-4 bg-slate-50/50">
           <p class="text-slate-400 text-xs italic text-center py-12">Loading live conversation...</p>
+        </div>
+
+        <!-- Reply Preview Bar (Hidden by Default) -->
+        <div id="replyPreviewContainer" class="hidden px-4 py-2 bg-sky-50 border-t border-sky-100 flex items-center justify-between">
+          <div class="text-xs text-sky-900 truncate">
+            <span class="font-bold">Replying to <span id="replyingToName">User</span>:</span> 
+            <span id="replyingToText" class="italic text-slate-600">message...</span>
+          </div>
+          <button type="button" onclick="cancelReply()" class="text-xs text-rose-600 hover:text-rose-700 font-bold px-2 py-1">Cancel ✕</button>
+        </div>
+
+        <!-- Image Preview Bar (Hidden by Default) -->
+        <div id="imagePreviewContainer" class="hidden px-4 py-2 bg-slate-100 border-t border-slate-200 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <img id="imagePreviewThumb" src="" class="w-10 h-10 object-cover rounded-xl border border-slate-300" />
+            <span id="imagePreviewName" class="text-xs text-slate-600 truncate max-w-xs font-medium"></span>
+          </div>
+          <button type="button" onclick="cancelImageSelection()" class="text-xs text-rose-600 hover:text-rose-700 font-bold px-2 py-1">Remove ✕</button>
         </div>
 
         <!-- Chat Input Form Area -->
@@ -127,15 +153,6 @@
             Send 🚀
           </button>
         </form>
-
-        <!-- Image Preview Bar (Hidden by Default) -->
-        <div id="imagePreviewContainer" class="hidden px-4 py-2 bg-slate-100 border-t border-slate-200 flex items-center justify-between">
-          <div class="flex items-center gap-2">
-            <img id="imagePreviewThumb" src="" class="w-10 h-10 object-cover rounded-xl border border-slate-300" />
-            <span id="imagePreviewName" class="text-xs text-slate-600 truncate max-w-xs font-medium"></span>
-          </div>
-          <button type="button" onclick="cancelImageSelection()" class="text-xs text-rose-600 hover:text-rose-700 font-bold px-2 py-1">Remove ✕</button>
-        </div>
 
       </div>
     </section>
@@ -240,8 +257,9 @@
     let currentUserProfile = null;
     let globalMessagesCache = [];
     let selectedImageFile = null;
+    let replyingToMessage = null; // Menyimpan data pesan yang sedang direply
 
-    // Daftar Kata Kasar yang Otomatis Disensor
+    // Daftar Kata Kasar yang Otomatis Disensor[span_0](start_span)[span_0](end_span)
     const profanityList = [
       'fuck', 'shit', 'bitch', 'asshole', 'bastard', 'dick', 'cunt', 'piss', 'cock', 'slut', 'whore', 'bloody', 'damn', 'crap'
     ];
@@ -278,6 +296,7 @@
             <button onclick="handleLogout()" class="text-xs text-rose-600 hover:text-rose-700 font-medium ml-2">Logout</button>
           </div>
         `;
+        setupOnlinePresence(user, name);
       }
     }
 
@@ -302,6 +321,32 @@
 
         currentUserProfile = created;
       }
+    }
+
+    // 2. Indikator Pengguna Online (Online Presence) Realtime
+    function setupOnlinePresence(user, name) {
+      const presenceChannel = supabaseClient.channel('room_online_users');
+      presenceChannel
+        .on('presence', { event: 'sync' }, () => {
+          const state = presenceChannel.presenceState();
+          let totalOnline = 0;
+          Object.keys(state).forEach(key => {
+            totalOnline += state[key].length;
+          });
+          const onlineElem = document.getElementById('onlineCountText');
+          if (onlineElem) {
+            onlineElem.innerText = `${totalOnline} online in chat`;
+          }
+        })
+        .subscribe(async (status) => {
+          if (status === 'SUBSCRIBED') {
+            await presenceChannel.track({
+              user_id: user.id,
+              name: name,
+              online_at: new Date().toISOString(),
+            });
+          }
+        });
     }
 
     function openProfileModal() {
@@ -444,9 +489,17 @@
       container.innerHTML = messages.map(msg => {
         const isMe = currentUserSession && currentUserSession.user.id === msg.sender_id;
         const initials = msg.sender_name ? msg.sender_name.substring(0, 2).toUpperCase() : 'ST';
-        
-        // Format waktu pesan ke time lokal (Jam:Menit)
         const timeStr = msg.created_at ? new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+
+        // Handle Reply Quote Box
+        let replyBoxHtml = '';
+        if (msg.reply_to_text) {
+          replyBoxHtml = `
+            <div class="mb-2 p-2 bg-slate-100/80 border-l-2 border-sky-500 rounded text-[11px] text-slate-600">
+              <span class="font-bold text-slate-700">@${escapeHtml(msg.reply_to_name)}</span>: ${escapeHtml(msg.reply_to_text)}
+            </div>
+          `;
+        }
 
         let imageHtml = '';
         if (msg.image_url) {
@@ -459,17 +512,44 @@
           textHtml = `<div>${escapeHtml(cleanText)}</div>`;
         }
 
+        // Handle Emoji Reactions parsing (dikirim sebagai JSON object misal {"👍": ["id1"], "❤️": ["id2"]})
+        let reactionsObj = {};
+        try {
+          reactionsObj = typeof msg.reactions === 'object' && msg.reactions !== null ? msg.reactions : JSON.parse(msg.reactions || '{}');
+        } catch(e) { reactionsObj = {}; }
+
+        let reactionsHtml = '';
+        const availableEmojis = ['👍', '❤️', '🌴', '🔥'];
+        let reactionsListItems = availableEmojis.map(emoji => {
+          let userList = reactionsObj[emoji] || [];
+          let count = userList.length;
+          let hasReacted = currentUserSession && userList.includes(currentUserSession.user.id);
+          return `
+            <button onclick="toggleReaction('${msg.id}', '${emoji}')" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold border transition ${hasReacted ? 'bg-sky-100 border-sky-300 text-sky-800' : 'bg-white/80 border-slate-200 text-slate-600 hover:bg-slate-100'}">
+              <span>${emoji}</span> ${count > 0 ? `<span>${count}</span>` : ''}
+            </button>
+          `;
+        }).join('');
+
+        reactionsHtml = `<div class="flex flex-wrap gap-1 mt-2 pt-1 border-t border-slate-100/50">${reactionsListItems}</div>`;
+
         return `
-          <div class="flex items-start gap-3 ${isMe ? 'flex-row-reverse' : ''}">
+          <div class="flex items-start gap-3 group ${isMe ? 'flex-row-reverse' : ''}">
             ${msg.sender_avatar ? `<img src="${msg.sender_avatar}" class="w-8 h-8 rounded-full border border-slate-200 flex-shrink-0" />` : `<div class="w-8 h-8 rounded-full bg-sky-100 text-sky-700 font-bold flex items-center justify-center text-xs flex-shrink-0">${initials}</div>`}
-            <div class="max-w-[75%]">
+            <div class="max-w-[75%] relative">
               <div class="flex items-center gap-2 mb-1 ${isMe ? 'justify-end' : ''}">
                 <span class="text-xs font-bold text-slate-700">${escapeHtml(msg.sender_name)}</span>
                 <span class="text-[10px] text-slate-400">${timeStr}</span>
+                <!-- Tombol Reply Cepat -->
+                <button onclick="setReplyTo('${msg.id}', '${escapeHtml(msg.sender_name)}', '${escapeHtml(msg.message_text || '[Photo]')}')" class="text-[10px] text-sky-600 font-bold opacity-0 group-hover:opacity-100 transition hover:underline">
+                  Reply ↩
+                </button>
               </div>
               <div class="p-3.5 rounded-2xl text-xs leading-relaxed ${isMe ? 'bg-sky-600 text-white rounded-tr-none shadow-md shadow-sky-600/10' : 'bg-white border border-slate-200 text-slate-800 rounded-tl-none shadow-md shadow-slate-200/50'}">
+                ${replyBoxHtml}
                 ${textHtml}
                 ${imageHtml}
+                ${reactionsHtml}
               </div>
             </div>
           </div>
@@ -477,6 +557,63 @@
       }).join('');
 
       container.scrollTop = container.scrollHeight;
+    }
+
+    // 1. Fitur Reply Message Setup
+    function setReplyTo(id, name, text) {
+      replyingToMessage = { id, name, text };
+      document.getElementById('replyingToName').innerText = name;
+      document.getElementById('replyingToText').innerText = text.substring(0, 40) + (text.length > 40 ? '...' : '');
+      document.getElementById('replyPreviewContainer').classList.remove('hidden');
+      document.getElementById('replyPreviewContainer').classList.add('flex');
+      document.getElementById('chatInputMessage').focus();
+    }
+
+    function cancelReply() {
+      replyingToMessage = null;
+      document.getElementById('replyPreviewContainer').classList.remove('flex');
+      document.getElementById('replyPreviewContainer').classList.add('hidden');
+    }
+
+    // 3. Fitur Emoji Reactions Handler
+    async function toggleReaction(messageId, emoji) {
+      if (!currentUserSession) {
+        alert("Please sign in with Google to react to messages.");
+        window.location.href = './login.html';
+        return;
+      }
+
+      const msg = globalMessagesCache.find(m => m.id == messageId);
+      if (!msg) return;
+
+      let reactionsObj = {};
+      try {
+        reactionsObj = typeof msg.reactions === 'object' && msg.reactions !== null ? msg.reactions : JSON.parse(msg.reactions || '{}');
+      } catch(e) { reactionsObj = {}; }
+
+      if (!reactionsObj[emoji]) {
+        reactionsObj[emoji] = [];
+      }
+
+      const userId = currentUserSession.user.id;
+      const index = reactionsObj[emoji].indexOf(userId);
+      if (index > -1) {
+        reactionsObj[emoji].splice(index, 1); // Hapus reaksi jika sudah pernah
+        if (reactionsObj[emoji].length === 0) delete reactionsObj[emoji];
+      } else {
+        reactionsObj[emoji].push(userId); // Tambahkan reaksi
+      }
+
+      // Update ke database Supabase
+      const { error } = await supabaseClient
+        .from('messages')
+        .update({ reactions: reactionsObj })
+        .eq('id', messageId);
+
+      if (!error) {
+        msg.reactions = reactionsObj;
+        renderMessages(globalMessagesCache);
+      }
     }
 
     // 4. Image Compression Function
@@ -575,13 +712,18 @@
         }
       }
 
-      const { data, error } = await supabaseClient.from('messages').insert([{
+      const newMsgPayload = {
         sender_id: currentUserSession.user.id,
         sender_name: senderName,
         sender_avatar: senderAvatar,
         message_text: text,
-        image_url: uploadedImageUrl
-      }]).select();
+        image_url: uploadedImageUrl,
+        reply_to_name: replyingToMessage ? replyingToMessage.name : null,
+        reply_to_text: replyingToMessage ? replyingToMessage.text : null,
+        reactions: {}
+      };
+
+      const { data, error } = await supabaseClient.from('messages').insert([newMsgPayload]).select();
 
       if (error) {
         alert("Error sending message: " + error.message);
@@ -590,6 +732,7 @@
 
       input.value = '';
       cancelImageSelection();
+      cancelReply();
 
       if (data && data.length > 0) {
         globalMessagesCache.push(data[0]);
@@ -600,11 +743,20 @@
     function setupRealtimeChat() {
       supabaseClient
         .channel('public:messages')
-        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
-          const newMessage = payload.new;
-          if (!globalMessagesCache.some(m => m.id === newMessage.id)) {
-            globalMessagesCache.push(newMessage);
-            renderMessages(globalMessagesCache);
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, payload => {
+          if (payload.eventType === 'INSERT') {
+            const newMessage = payload.new;
+            if (!globalMessagesCache.some(m => m.id === newMessage.id)) {
+              globalMessagesCache.push(newMessage);
+              renderMessages(globalMessagesCache);
+            }
+          } else if (payload.eventType === 'UPDATE') {
+            const updatedMessage = payload.new;
+            const index = globalMessagesCache.findIndex(m => m.id === updatedMessage.id);
+            if (index > -1) {
+              globalMessagesCache[index] = updatedMessage;
+              renderMessages(globalMessagesCache);
+            }
           }
         })
         .subscribe();
