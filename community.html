@@ -51,7 +51,7 @@
       </div>
     </div>
 
-    <!-- SECTION 1: MEET-UPS TAB -->
+    <!-- SECTION 1: MEET-UPS TAB (ID diperbaiki menjadi meetupSection) -->
     <section id="meetupSection" class="space-y-4">
       <div class="flex justify-between items-center mb-4">
         <h2 class="text-lg font-bold text-slate-800">Upcoming Meet-ups</h2>
@@ -214,7 +214,7 @@
     let globalMessagesCache = [];
     let selectedImageFile = null;
 
-    // Daftar Kata Kasar yang Otomatis Disensor (Bisa ditambah sesuai kebutuhan)
+    // Daftar Kata Kasar yang Otomatis Disensor
     const profanityList = [
       'fuck', 'shit', 'bitch', 'asshole', 'bastard', 'dick', 'cunt', 'piss', 'cock', 'slut', 'whore', 'bloody', 'damn', 'crap'
     ];
@@ -223,7 +223,6 @@
       if (!text) return '';
       let cleanedText = text;
       profanityList.forEach(word => {
-        // Regex untuk mendeteksi kata kasar secara case-insensitive (abaikan huruf besar/kecil)
         const regex = new RegExp(`\\b${word}\\b`, 'gi');
         const masked = '*'.repeat(word.length);
         cleanedText = cleanedText.replace(regex, masked);
@@ -427,7 +426,6 @@
 
         let textHtml = '';
         if (msg.message_text) {
-          // Sensor kata kasar otomatis sebelum ditampilkan
           const cleanText = censorProfanity(msg.message_text);
           textHtml = `<div>${escapeHtml(cleanText)}</div>`;
         }
@@ -662,7 +660,7 @@
       const buddiesBtn = document.getElementById('tabBuddiesBtn');
       const chatBtn = document.getElementById('tabChatBtn');
       
-      const meetupSec = document.getElementById('meetupSession');
+      const meetupSec = document.getElementById('meetupSection');
       const buddiesSec = document.getElementById('buddiesSection');
       const chatSec = document.getElementById('chatSection');
 
