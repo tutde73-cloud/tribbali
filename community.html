@@ -142,6 +142,15 @@
 
   </main>
 
+  <!-- FOOTER -->
+  <footer class="bg-white border-t border-slate-200 mt-12 py-8 text-center text-xs text-slate-500">
+    <div class="max-w-5xl mx-auto px-4 space-y-2">
+      <p class="font-bold text-slate-800">🌴 SpotTribe Bali — The Ultimate Island Community Hub</p>
+      <p>Curating hidden gems, luxury villas, cafes, and connecting nomads across Bali.</p>
+      <p class="text-slate-400 pt-2">&copy; 2026 SpotTribe Bali. All rights reserved.</p>
+    </div>
+  </footer>
+
   <!-- MODAL: EDIT PROFILE -->
   <div id="profileModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 px-4">
     <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl relative">
@@ -435,7 +444,9 @@
       container.innerHTML = messages.map(msg => {
         const isMe = currentUserSession && currentUserSession.user.id === msg.sender_id;
         const initials = msg.sender_name ? msg.sender_name.substring(0, 2).toUpperCase() : 'ST';
-        const timeStr = new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        
+        // Format waktu pesan ke time lokal (Jam:Menit)
+        const timeStr = msg.created_at ? new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
 
         let imageHtml = '';
         if (msg.image_url) {
