@@ -37,8 +37,8 @@
       Loading curated spots...
     </div>
 
-    <!-- Grid Kartu Vertikal dengan Google Maps Iframe -->
-    <div id="spotsContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+    <!-- Grid Kartu Horizontal Preview -->
+    <div id="spotsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-5">
       <!-- Hasil query Supabase akan dirender di sini secara dinamis -->
     </div>
   </main>
@@ -52,30 +52,6 @@
     const urlParams = new URLSearchParams(window.location.search);
     const categoryType = urlParams.get('type');
     const searchQuery = urlParams.get('q');
-
-    // Function untuk memecah teks kolom 'amenity' dari database menjadi badge rapi
-    function renderAmenitiesBadges(amenityString) {
-      if (!amenityString || typeof amenityString !== 'string') {
-        return `
-          <span class="inline-flex items-center gap-1 bg-slate-100 text-slate-600 text-[11px] font-medium px-2.5 py-1 rounded-lg">
-            📍 Scenic Area
-          </span>
-          <span class="inline-flex items-center gap-1 bg-slate-100 text-slate-600 text-[11px] font-medium px-2.5 py-1 rounded-lg">
-            📸 Photo Spot
-          </span>
-        `;
-      }
-
-      // Pecah berdasarkan pemisah titik (•) atau koma (,)
-      const items = amenityString.split(/[•,]/).map(i => i.trim()).filter(Boolean);
-
-      return items.map(item => `
-        <span class="inline-flex items-center gap-1 bg-slate-100 text-slate-700 text-[11px] font-medium px-2.5 py-1 rounded-lg border border-slate-200/60">
-          <span>✨</span>
-          <span>${escapeHtml(item)}</span>
-        </span>
-      `).join('');
-    }
 
     async function loadCategorySpots() {
       const container = document.getElementById('spotsContainer');
@@ -114,53 +90,38 @@
         }
 
         container.innerHTML = places.map(spot => {
-          // Prioritaskan map_url dari database, jika kosong gunakan fallback pencarian nama otomatis
-          let mapEmbedUrl = spot.map_url;
-          if (!mapEmbedUrl) {
-            const locationQuery = encodeURIComponent(`${spot.name}, ${spot.area || spot.regency || 'Bali'}`);
-            mapEmbedUrl = `https://maps.google.com/maps?q=${locationQuery}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
-          }
+          const spotImage = spot.image_url || 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=600&q=80';
+          // Ambil link maps dari database, atau buat link pencarian Google Maps jika kosong
+          const mapLink = spot.map_url || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spot.name + ', ' + (spot.area || 'Bali'))}`;
+          
+          // Format tampilan teks link untuk bagian bawah (misal memotong teks https:// agar mirip maps.app.goo.gl)
+          const displayLinkText = mapLink.includes('maps.app.goo.gl') ? 'maps.app.goo.gl' : 'Open in Google Maps';
 
           return `
-            <div class="bg-white rounded-3xl border border-slate-200/90 overflow-hidden shadow-sm hover:shadow-md transition flex flex-col justify-between">
+            <div class="bg-white rounded-3xl border border-slate-200/90 overflow-hidden shadow-sm hover:shadow-md transition flex flex-row items-stretch p-3 gap-4">
               
-              <!-- GOOGLE MAPS IFRAME (Menggantikan Foto Utama) -->
-              <div class="relative w-full h-44 bg-slate-100">
-                <iframe 
-                  src="${mapEmbedUrl}" 
-                  width="100%" 
-                  height="100%" 
-                  style="border:0;" 
-                  allowfullscreen="" 
-                  loading="lazy" 
-                  referrerpolicy="no-referrer-when-downgrade"
-                  class="w-full h-full object-cover">
-                </iframe>
-                <div class="absolute top-3 right-3 bg-white/90 backdrop-blur-md px-2.5 py-1 rounded-full text-xs font-black text-emerald-600 shadow-xs pointer-events-none">
+              <!-- FOTO DI SEBELAH KIRI -->
+              <div class="relative w-36 sm:w-40 h-auto min-h-[120px] rounded-2xl overflow-hidden bg-slate-100 flex-shrink-0">
+                <img src="${spotImage}" class="w-full h-full object-cover" alt="${escapeHtml(spot.name)}" />
+                <div class="absolute top-2 left-2 bg-slate-900/70 backdrop-blur-md px-2 py-0.5 rounded-full text-[10px] font-black text-emerald-400">
                   ★ ${spot.rating || '4.5'}
                 </div>
               </div>
 
-              <!-- KONTEN -->
-              <div class="p-5 flex flex-col gap-3 flex-grow justify-between">
+              <!-- KONTEN DI SEBELAH KANAN -->
+              <div class="flex flex-col justify-between py-1 pr-2 flex-grow min-w-0">
                 <div>
-                  <h3 class="font-extrabold text-slate-900 text-base leading-snug">${escapeHtml(spot.name)}</h3>
-                  <p class="text-xs text-slate-500 font-medium flex items-center gap-1 mt-1">
-                    <span class="text-rose-500">📍</span> ${escapeHtml(spot.area || spot.regency || 'Bali')}
+                  <h3 class="font-extrabold text-slate-900 text-sm leading-tight truncate">${escapeHtml(spot.name)}</h3>
+                  <p class="text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed">
+                    📍 ${escapeHtml(spot.area || spot.regency || 'Bali')}
                   </p>
                 </div>
 
-                <!-- AMENITIES DARI KOLOM DATABASE -->
-                <div class="flex flex-wrap gap-1.5 pt-2 border-t border-slate-100">
-                  ${renderAmenitiesBadges(spot.amenity)}
-                </div>
-
-                <!-- BOTTOM RATES -->
-                <div class="flex items-center justify-between pt-3 border-t border-slate-100 text-xs">
-                  <span class="text-slate-400 font-medium">Rates / Status</span>
-                  <span class="font-bold text-slate-900 bg-slate-100 px-3 py-1 rounded-xl">
-                    ${escapeHtml(spot.price_label || spot.price || 'Contact for Rates')}
-                  </span>
+                <!-- LINK MAPS -->
+                <div class="pt-2 mt-auto">
+                  <a href="${mapLink}" target="_blank" class="text-xs font-semibold text-sky-600 hover:text-sky-700 hover:underline flex items-center gap-1 truncate">
+                    <span>🗺️</span> <span>${displayLinkText}</span>
+                  </a>
                 </div>
               </div>
 
