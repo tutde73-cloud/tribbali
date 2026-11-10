@@ -12,38 +12,117 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
-    body { background-color: #f8fafc; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding-bottom: 70px; }
+    body { background-color: #f8fafc; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding-bottom: 90px; }
     .glass-nav-dark { background: rgba(15, 23, 42, 0.90); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
   </style>
 </head>
-<body class="flex flex-col text-slate-800">
+<body class="flex flex-col text-slate-800 min-h-screen justify-between">
 
-  <!-- HEADER -->
-  <header class="glass-nav-dark border-b border-slate-800 px-6 h-[72px] flex items-center justify-between sticky top-0 z-50 shadow-lg">
-    <div class="flex items-center gap-3.5">
-      <a href="./index.html" class="w-10 h-10 rounded-xl bg-slate-800 text-white flex items-center justify-center hover:bg-slate-700 transition-colors">
-        <i data-lucide="arrow-left" class="w-5 h-5"></i>
-      </a>
-      <div>
-        <h1 id="categoryTitle" class="font-extrabold text-sm tracking-tight text-white uppercase">Category Directory</h1>
-        <p class="text-[10px] text-slate-400 font-medium tracking-wide">SpotTribe Bali Curated Results</p>
+  <div>
+    <!-- HEADER -->
+    <header class="glass-nav-dark border-b border-slate-800 px-6 h-[72px] flex items-center justify-between sticky top-0 z-50 shadow-lg">
+      <div class="flex items-center gap-3.5">
+        <a href="./index.html" class="w-10 h-10 rounded-xl bg-slate-800 text-white flex items-center justify-center hover:bg-slate-700 transition-colors">
+          <i data-lucide="arrow-left" class="w-5 h-5"></i>
+        </a>
+        <div>
+          <h1 id="categoryTitle" class="font-extrabold text-sm tracking-tight text-white uppercase">Category Directory</h1>
+          <p class="text-[10px] text-slate-400 font-medium tracking-wide">SpotTribe Bali Curated Results</p>
+        </div>
       </div>
-    </div>
-  </header>
+    </header>
 
-  <!-- CONTENT CONTAINER -->
-  <main class="max-w-4xl mx-auto px-6 py-8 w-full">
-    <div id="loadingState" class="text-center py-20 text-slate-400 font-medium">
-      Loading curated spots...
+    <!-- CONTENT CONTAINER -->
+    <main class="max-w-4xl mx-auto px-6 py-8 w-full">
+
+      <!-- BANNER INFORMASI -->
+      <div class="mb-6 p-4 rounded-2xl bg-emerald-50 border border-emerald-200/80 flex items-start gap-3 shadow-sm">
+        <span class="text-xl">✨</span>
+        <div class="text-xs text-emerald-900 leading-relaxed">
+          <strong class="font-bold block mb-0.5 text-emerald-950">Be a Tribe Explorer</strong>
+          Have you visited these places? Feel free to explore and update their cover photos by uploading your own authentic pictures on the spot detail page!
+        </div>
+      </div>
+
+      <div id="loadingState" class="text-center py-20 text-slate-400 font-medium">
+        Loading curated spots...
+      </div>
+
+      <!-- Grid Kartu -->
+      <div id="spotsContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <!-- Hasil query Supabase akan dirender di sini secara dinamis -->
+      </div>
+
+      <!-- PAGINATION CONTROLS (BATAS 20 PER HALAMAN) -->
+      <div id="paginationContainer" class="hidden flex items-center justify-between mt-10 pt-6 border-t border-slate-200">
+        <button id="prevBtn" onclick="changePage(-1)" class="px-4 py-2 rounded-xl bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50 transition disabled:opacity-40 disabled:cursor-not-allowed">
+          ← Previous
+        </button>
+        <span id="pageIndicator" class="text-xs font-bold text-slate-500">Page 1</span>
+        <button id="nextBtn" onclick="changePage(1)" class="px-4 py-2 rounded-xl bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50 transition disabled:opacity-40 disabled:cursor-not-allowed">
+          Next →
+        </button>
+      </div>
+    </main>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="bg-[#0b1329] text-slate-400 pt-16 pb-12 px-6 mt-20 border-t border-slate-800">
+    <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-10 text-xs">
+      
+      <!-- Col 1: Brand Info -->
+      <div class="space-y-4">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-emerald-500 text-slate-950 font-black flex items-center justify-center text-sm">S</div>
+          <span class="font-extrabold text-white text-base tracking-wide">SpotTribe <span class="text-emerald-400">BALI</span></span>
+        </div>
+        <p class="text-slate-400 leading-relaxed">
+          The ultimate verified directory and trusted sanctuary for digital nomads, expats, and travelers exploring the finest spots across Bali.
+        </p>
+      </div>
+
+      <!-- Col 2: Quick Links -->
+      <div class="space-y-3">
+        <h4 class="text-white font-bold tracking-wider uppercase text-[11px]">Quick Links</h4>
+        <ul class="space-y-2">
+          <li><a href="./index.html" class="hover:text-white transition">Explore Map</a></li>
+          <li><a href="#" class="hover:text-white transition">Community Chats</a></li>
+          <li><a href="#" class="hover:text-white transition">User Profile</a></li>
+          <li><a href="#" class="hover:text-white transition">Staff Portal</a></li>
+        </ul>
+      </div>
+
+      <!-- Col 3: Legals -->
+      <div class="space-y-3">
+        <h4 class="text-white font-bold tracking-wider uppercase text-[11px]">Legals</h4>
+        <ul class="space-y-2">
+          <li><a href="#" class="hover:text-white transition">Terms of Service</a></li>
+          <li><a href="#" class="hover:text-white transition">Privacy Policy</a></li>
+          <li><a href="#" class="hover:text-white transition">Cookie Settings</a></li>
+          <li><a href="#" class="hover:text-white transition">Compliance</a></li>
+        </ul>
+      </div>
+
+      <!-- Col 4: Connect -->
+      <div class="space-y-3">
+        <h4 class="text-white font-bold tracking-wider uppercase text-[11px]">Connect</h4>
+        <p class="text-slate-400 leading-relaxed">Join our global network of island creators and remote workers.</p>
+        <div class="flex items-center gap-3 pt-1">
+          <div class="w-9 h-9 rounded-xl bg-slate-800/80 border border-slate-700/60 flex items-center justify-center text-white hover:bg-slate-700 transition cursor-pointer"><i data-lucide="globe" class="w-4 h-4"></i></div>
+          <div class="w-9 h-9 rounded-xl bg-slate-800/80 border border-slate-700/60 flex items-center justify-center text-white hover:bg-slate-700 transition cursor-pointer"><i data-lucide="message-square" class="w-4 h-4"></i></div>
+          <div class="w-9 h-9 rounded-xl bg-slate-800/80 border border-slate-700/60 flex items-center justify-center text-white hover:bg-slate-700 transition cursor-pointer"><i data-lucide="mail" class="w-4 h-4"></i></div>
+        </div>
+      </div>
+
     </div>
 
-    <!-- Grid Kartu dengan Foto Utama -->
-    <div id="spotsContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-      <!-- Hasil query Supabase akan dirender di sini secara dinamis -->
+    <div class="max-w-6xl mx-auto pt-10 mt-10 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between text-[11px] text-slate-500 gap-4">
+      <p>Copyright © 2026 SpotTribe BALI. All rights reserved.</p>
+      <p>Designed for Global Nomads & Expats in Bali</p>
     </div>
-  </main>
+  </footer>
 
-  <!-- SUPABASE FETCH SCRIPT -->
+  <!-- SUPABASE FETCH & PAGINATION SCRIPT -->
   <script>
     const SUPABASE_URL = 'https://riyupzmllltjrelqytwi.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_df32CqJ5bqDNCHU4OKGRPQ_7LiJvWV0';
@@ -53,7 +132,10 @@
     const categoryType = urlParams.get('type');
     const searchQuery = urlParams.get('q');
 
-    // Function untuk memecah teks kolom 'amenity' dari database menjadi badge rapi
+    let currentPage = 1;
+    const pageSize = 20; // Batasi 20 spot per halaman
+    let allPlacesData = [];
+
     function renderAmenitiesBadges(amenityString) {
       if (!amenityString || typeof amenityString !== 'string') {
         return `
@@ -77,7 +159,6 @@
     }
 
     async function loadCategorySpots() {
-      const container = document.getElementById('spotsContainer');
       const titleEl = document.getElementById('categoryTitle');
       const loadingEl = document.getElementById('loadingState');
 
@@ -101,9 +182,10 @@
         if (error) throw error;
 
         loadingEl.style.display = 'none';
+        allPlacesData = places || [];
 
-        if (!places || places.length === 0) {
-          container.innerHTML = `
+        if (allPlacesData.length === 0) {
+          document.getElementById('spotsContainer').innerHTML = `
             <div class="col-span-full text-center py-16 bg-white rounded-3xl border border-slate-200">
               <p class="text-slate-500 font-semibold text-sm">No spots found in this category yet.</p>
               <a href="./index.html" class="inline-block mt-3 text-xs font-bold text-emerald-600 bg-emerald-50 px-4 py-2 rounded-xl">Back to Explore</a>
@@ -112,58 +194,94 @@
           return;
         }
 
-        container.innerHTML = places.map(spot => {
-          const spotImage = spot.image_url || 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=600&q=80';
-          const mapsButtonLink = spot.map_url || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spot.name + ', ' + (spot.area || 'Bali'))}`;
-          const detailUrl = `./spot-detail.html?id=${spot.id}`;
-
-          return `
-            <div onclick="window.location.href='${detailUrl}'" class="bg-white rounded-3xl border border-slate-200/90 overflow-hidden shadow-sm hover:shadow-md transition flex flex-col justify-between cursor-pointer">
-              
-              <!-- FOTO UTAMA DI BAGIAN ATAS -->
-              <div class="relative w-full h-48 bg-slate-100 overflow-hidden">
-                <img src="${spotImage}" class="w-full h-full object-cover" alt="${escapeHtml(spot.name)}" />
-
-                <!-- TOMBOL MAPS DI POJOK KIRI ATAS -->
-                <a href="${mapsButtonLink}" target="_blank" onclick="event.stopPropagation();" class="absolute top-3 left-3 bg-white/90 hover:bg-white backdrop-blur-md px-3 py-1 rounded-xl text-xs font-bold text-slate-700 shadow-xs flex items-center gap-1 transition z-10">
-                  <span>Maps</span>
-                  <i data-lucide="external-link" class="w-3 h-3"></i>
-                </a>
-              </div>
-
-              <!-- KONTEN INFORMASI -->
-              <div class="p-5 flex flex-col gap-3 flex-grow justify-between">
-                <div>
-                  <h3 class="font-extrabold text-slate-900 text-base leading-snug hover:text-emerald-600 transition-colors">${escapeHtml(spot.name)}</h3>
-                  <p class="text-xs text-slate-500 font-medium flex items-center gap-1 mt-1">
-                    <span class="text-rose-500">📍</span> ${escapeHtml(spot.area || spot.regency || 'Bali')}
-                  </p>
-                </div>
-
-                <!-- AMENITIES DARI KOLOM DATABASE -->
-                <div class="flex flex-wrap gap-1.5 pt-2 border-t border-slate-100">
-                  ${renderAmenitiesBadges(spot.amenity)}
-                </div>
-
-                <!-- BOTTOM RATES -->
-                <div class="flex items-center justify-between pt-3 border-t border-slate-100 text-xs">
-                  <span class="text-slate-400 font-medium">Rates / Status</span>
-                  <span class="font-bold text-slate-900 bg-slate-100 px-3 py-1 rounded-xl">
-                    ${escapeHtml(spot.price_label || spot.price || 'Contact for Rates')}
-                  </span>
-                </div>
-              </div>
-
-            </div>
-          `;
-        }).join('');
-
-        lucide.createIcons();
+        renderPagedSpots();
 
       } catch (err) {
         console.error('Error loading category spots:', err);
         loadingEl.innerText = 'Failed to load data. Please check your connection.';
       }
+    }
+
+    function renderPagedSpots() {
+      const container = document.getElementById('spotsContainer');
+      const paginationContainer = document.getElementById('paginationContainer');
+      
+      const startIndex = (currentPage - 1) * pageSize;
+      const endIndex = startIndex + pageSize;
+      const paginatedItems = allPlacesData.slice(startIndex, endIndex);
+
+      container.innerHTML = paginatedItems.map(spot => {
+        const spotImage = spot.image_url || 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=600&q=80';
+        const mapsButtonLink = spot.map_url || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spot.name + ', ' + (spot.area || 'Bali'))}`;
+        const detailUrl = `./spot-detail.html?id=${spot.id}`;
+
+        return `
+          <div onclick="window.location.href='${detailUrl}'" class="bg-white rounded-3xl border border-slate-200/90 overflow-hidden shadow-sm hover:shadow-md transition flex flex-col justify-between cursor-pointer">
+            
+            <!-- FOTO UTAMA DI BAGIAN ATAS -->
+            <div class="relative w-full h-48 bg-slate-100 overflow-hidden">
+              <img src="${spotImage}" class="w-full h-full object-cover" alt="${escapeHtml(spot.name)}" />
+
+              <!-- TOMBOL MAPS DI POJOK KIRI ATAS -->
+              <a href="${mapsButtonLink}" target="_blank" onclick="event.stopPropagation();" class="absolute top-3 left-3 bg-white/90 hover:bg-white backdrop-blur-md px-3 py-1 rounded-xl text-xs font-bold text-slate-700 shadow-xs flex items-center gap-1 transition z-10">
+                <span>Maps</span>
+                <i data-lucide="external-link" class="w-3 h-3"></i>
+              </a>
+            </div>
+
+            <!-- KONTEN INFORMASI -->
+            <div class="p-5 flex flex-col gap-3 flex-grow justify-between">
+              <div>
+                <h3 class="font-extrabold text-slate-900 text-base leading-snug hover:text-emerald-600 transition-colors">${escapeHtml(spot.name)}</h3>
+                <p class="text-xs text-slate-500 font-medium flex items-center gap-1 mt-1">
+                  <span class="text-rose-500">📍</span> ${escapeHtml(spot.area || spot.regency || 'Bali')}
+                </p>
+              </div>
+
+              <!-- AMENITIES DARI KOLOM DATABASE -->
+              <div class="flex flex-wrap gap-1.5 pt-2 border-t border-slate-100">
+                ${renderAmenitiesBadges(spot.amenity)}
+              </div>
+
+              <!-- BOTTOM RATES -->
+              <div class="flex items-center justify-between pt-3 border-t border-slate-100 text-xs">
+                <span class="text-slate-400 font-medium">Rates / Status</span>
+                <span class="font-bold text-slate-900 bg-slate-100 px-3 py-1 rounded-xl">
+                  ${escapeHtml(spot.price_label || spot.price || 'Contact for Rates')}
+                </span>
+              </div>
+            </div>
+
+          </div>
+        `;
+      }).join('');
+
+      lucide.createIcons();
+
+      // Kontrol Tampilan Pagination
+      if (allPlacesData.length > pageSize) {
+        paginationContainer.classList.remove('hidden');
+        paginationContainer.classList.add('flex');
+        
+        const totalPages = Math.ceil(allPlacesData.length / pageSize);
+        document.getElementById('pageIndicator').innerText = `Page ${currentPage} of ${totalPages}`;
+        
+        document.getElementById('prevBtn').disabled = currentPage === 1;
+        document.getElementById('nextBtn').disabled = currentPage === totalPages;
+      } else {
+        paginationContainer.classList.add('hidden');
+      }
+    }
+
+    function changePage(direction) {
+      const totalPages = Math.ceil(allPlacesData.length / pageSize);
+      currentPage += direction;
+      
+      if (currentPage < 1) currentPage = 1;
+      if (currentPage > totalPages) currentPage = totalPages;
+
+      renderPagedSpots();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function escapeHtml(str) {
