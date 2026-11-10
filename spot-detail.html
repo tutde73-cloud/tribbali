@@ -41,11 +41,11 @@
   <!-- ARTICLE CONTENT & DETAILS -->
   <main class="max-w-2xl mx-auto px-4 py-6 space-y-8">
     
-    <!-- INFO CARDS (Rating & Price) -->
+    <!-- INFO CARDS (Rating dihitung otomatis dari database reviews & Price) -->
     <div class="grid grid-cols-2 gap-3">
       <div class="bg-white p-3 rounded-2xl border border-slate-200 text-center shadow-sm">
         <span class="text-[10px] text-slate-400 uppercase font-bold block">Rating</span>
-        <span id="spotRating" class="text-sm font-extrabold text-amber-500">★ 4.5</span>
+        <span id="spotRating" class="text-sm font-extrabold text-amber-500">★ --</span>
       </div>
       <div class="bg-white p-3 rounded-2xl border border-slate-200 text-center shadow-sm">
         <span class="text-[10px] text-slate-400 uppercase font-bold block">Price</span>
@@ -223,7 +223,6 @@
       document.getElementById('spotTitle').innerText = spot.name;
       document.getElementById('spotCategoryBadge').innerText = spot.category;
       document.getElementById('spotLocation').innerText = '📍 ' + (spot.area || spot.regency || 'Bali');
-      document.getElementById('spotRating').innerText = '★ ' + (spot.rating || '4.5');
       document.getElementById('spotPrice').innerText = spot.price_label || spot.price || 'Contact for rates';
       
       // Support HTML format untuk artikel panjang (description) atau fallback ke amenity
@@ -277,6 +276,7 @@
         .order('id', { ascending: false });
 
       if (error || !reviews || reviews.length === 0) {
+        document.getElementById('spotRating').innerText = '★ New';
         container.innerHTML = `
           <div class="bg-white p-6 rounded-2xl border border-slate-200 text-center space-y-1 shadow-sm">
             <p class="text-xs font-bold text-slate-700">No reviews yet!</p>
@@ -285,6 +285,11 @@
         `;
         return;
       }
+
+      // HITUNG RATA-RATA RATING OTOMATIS DARI DATABASE REVIEWS
+      const totalRating = reviews.reduce((sum, rev) => sum + (parseFloat(rev.rating) || 0), 0);
+      const avgRating = (totalRating / reviews.length).toFixed(1);
+      document.getElementById('spotRating').innerText = `★ ${avgRating} (${reviews.length})`;
 
       // Check if latest review has photo to display contributor badge on header
       const latestReviewWithPhoto = reviews.find(r => r.photo_url);
