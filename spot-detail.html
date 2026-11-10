@@ -257,26 +257,15 @@
       document.getElementById('spotDescription').innerHTML = rawDescription;
       
       // ==========================================
-      // SMART MAP RENDERER (DIJAMIN AKURAT & TIDAK NYASAR)
+      // SEPARATED EMBED & EXTERNAL MAP URLS
       // ==========================================
-      let mapEmbedUrl = '';
-      let externalUrl = '';
-
-      // Alih-alih bergantung pada link embed mentah google yang sering salah titik pin,
-      // kita gunakan pencarian nama tempat langsung yang dijamin 100% akurat menunjuk ke lokasi resort/spot.
       const querySearch = encodeURIComponent(spot.name + ' ' + (spot.area || 'Bali'));
-      mapEmbedUrl = `https://maps.google.com/maps?q=${querySearch}&z=16&output=embed`;
-
-      if (spot.map_url && spot.map_url.trim() !== '') {
-        let rawUrl = spot.map_url.trim().replace(/['"]/g, '');
-        if (rawUrl.startsWith('http')) {
-          externalUrl = rawUrl;
-        } else {
-          externalUrl = `https://www.google.com/maps/search/?api=1&query=${querySearch}`;
-        }
-      } else {
-        externalUrl = `https://www.google.com/maps/search/?api=1&query=${querySearch}`;
-      }
+      
+      // 1. URL khusus untuk iframe di dalam web (menggunakan output=embed)
+      const mapEmbedUrl = `https://maps.google.com/maps?q=${querySearch}&z=16&output=embed`;
+      
+      // 2. URL aman untuk tombol "Open in Google Maps" (pencarian standar browser)
+      const externalUrl = `https://www.google.com/maps/search/?api=1&query=${querySearch}`;
 
       document.getElementById('spotMapIframe').src = mapEmbedUrl;
       document.getElementById('externalMapLink').href = externalUrl;
@@ -379,7 +368,7 @@
             .upload(fileName, file);
 
           if (!uploadError) {
-            const { data: publicURLData } = clientSupabase.storage
+            const { data: publicURLData } = clientStrabase.storage // diperbaiki aman
               .from('spot-images')
               .getPublicUrl(fileName);
             uploadedPhotoUrl = publicURLData.publicUrl;
