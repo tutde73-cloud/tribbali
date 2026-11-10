@@ -114,9 +114,12 @@
         }
 
         container.innerHTML = places.map(spot => {
-          // Buat query lokasi untuk Google Maps berdasarkan nama tempat dan area/regency
-          const locationQuery = encodeURIComponent(`${spot.name}, ${spot.area || spot.regency || 'Bali'}`, Bali);
-          const mapEmbedUrl = `https://maps.google.com/maps?q=${locationQuery}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
+          // Prioritaskan map_url dari database, jika kosong gunakan fallback pencarian nama otomatis
+          let mapEmbedUrl = spot.map_url;
+          if (!mapEmbedUrl) {
+            const locationQuery = encodeURIComponent(`${spot.name}, ${spot.area || spot.regency || 'Bali'}`);
+            mapEmbedUrl = `https://maps.google.com/maps?q=${locationQuery}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
+          }
 
           return `
             <div class="bg-white rounded-3xl border border-slate-200/90 overflow-hidden shadow-sm hover:shadow-md transition flex flex-col justify-between">
