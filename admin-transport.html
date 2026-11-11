@@ -83,7 +83,7 @@
       </form>
     </div>
 
-    <!-- DAFTAR KARTU KENDARAAN (KOTAK-KOTAK) -->
+    <!-- DAFTAR KARTU KENDARAAN -->
     <div class="space-y-6">
       <h2 class="text-sm font-extrabold text-white px-2">📋 Daftar Armada & Tarif Per Kotak (Database)</h2>
       <div id="adminGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -243,7 +243,8 @@
       // Jika user memilih file foto baru, upload ke Supabase Storage
       if (fileInput.files && fileInput.files[0]) {
         const file = fileInput.files[0];
-        const fileName = `transport_${Date.now()}_${file.name.replace(/\s+/g, '_')}`;
+        const cleanName = file.name.replace(/[^a-zA-Z0-9_.-]/g, '_');
+        const fileName = `transport_${Date.now()}_${cleanName}`;
         
         const { error: uploadError } = await supabaseClient.storage
           .from('spot-images')
@@ -254,7 +255,7 @@
           return;
         }
 
-        // Susun URL publik secara langsung (tanpa fungsi getPublicUrl yang bikin pending)
+        // Susun URL publik secara langsung dan pasti masuk ke database
         imageUrl = `${SUPABASE_URL}/storage/v1/object/public/spot-images/${fileName}`;
       }
 
@@ -264,7 +265,7 @@
         capacity: document.getElementById('capacity').value,
         route_or_area: document.getElementById('route_or_area').value,
         price: parseFloat(document.getElementById('price').value),
-        image_url: imageUrl !== '' ? imageUrl : null
+        image_url: imageUrl ? imageUrl : null
       };
 
       if (id) {
@@ -315,9 +316,7 @@
 
     function resetForm() {
       document.getElementById('transportForm').reset();
-      document.getElementById('editId').value = '';
-      document.getElementById('existing_image_url').value = '';
-      
+      document.getElementById('editId').value, document.getElementById('existing_image_url').value = '';
       document.getElementById('formTitle').innerHTML = `<span>➕ Tambah Tarif / Rute Baru</span>`;
       document.getElementById('editBadge').classList.add('hidden');
       document.getElementById('submitBtn').innerText = '💾 Simpan Data';
