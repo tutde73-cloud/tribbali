@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  
+  <!-- SEO & Open Graph Meta Tags -->
+  <title>Trusted Bali Car Rental & Private Transport Services — SpotTribe Bali</title>
+  <meta name="description" content="Explore Bali in comfort with our verified family-owned car rental and private chauffeur service. Airport transfers, half-day & full-day tours, and weekly all-in packages.">
+  <link rel="canonical" href="https://spottribebali.com/rent-car.html">
+
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://spottribebali.com/rent-car.html">
+  <meta property="og:title" content="Trusted Bali Car Rental & Private Transport Services — SpotTribe Bali">
+  <meta property="og:description" content="Book your island transport directly with trusted local experts. Airport pickups, custom tours, and professional English-speaking drivers.">
+  <meta property="og:image" content="https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=1200&q=80">
+
+  <!-- Tailwind CSS & Lucide Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    body { background-color: #f8fafc; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding-bottom: 90px; }
+    .glass-nav-dark { background: rgba(15, 23, 42, 0.90); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+  </style>
+</head>
+<body class="flex flex-col text-slate-800 min-h-screen justify-between">
+
+  <div>
+    <!-- HEADER -->
+    <header class="glass-nav-dark border-b border-slate-800 px-6 h-[72px] flex items-center justify-between sticky top-0 z-50 shadow-lg">
+      <div class="flex items-center gap-3.5">
+        <a href="./index.html" class="w-10 h-10 rounded-xl bg-slate-800 text-white flex items-center justify-center hover:bg-slate-700 transition-colors">
+          <i data-lucide="arrow-left" class="w-5 h-5"></i>
+        </a>
+        <div>
+          <h1 class="font-extrabold text-sm tracking-tight text-white uppercase">Bali Car Rental & Transport</h1>
+          <p class="text-[10px] text-emerald-400 font-mono font-bold">Verified Local Fleet & Chauffeur</p>
+        </div>
+      </div>
+      <a href="https://wa.me/6281999060636?text=Hello%20SpotTribe,%20I%20would%20like%20to%20inquire%20about%20car%20rental%20and%20private%20transport%20in%20Bali." target="_blank" class="px-3.5 py-2 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-extrabold text-xs rounded-xl transition shadow-md flex items-center gap-1.5">
+        <span>💬 Instant WhatsApp</span>
+      </a>
+    </header>
+
+    <!-- HERO BANNER WITH EXPAT/NOMAD CTA -->
+    <section class="relative w-full bg-slate-900 text-white py-14 px-6 overflow-hidden">
+      <div class="absolute inset-0 opacity-25">
+        <img src="https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=1600&q=80" class="w-full h-full object-cover" alt="Bali Private Car Rental">
+      </div>
+      <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/80 to-transparent"></div>
+      
+      <div class="max-w-4xl mx-auto relative z-10 space-y-5 text-center sm:text-left">
+        <span class="inline-block px-3.5 py-1 rounded-full text-[10px] font-extrabold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 uppercase tracking-widest">
+          Recommended for Expats & Digital Nomads 🌴
+        </span>
+        <h2 class="text-3xl sm:text-5xl font-black tracking-tight leading-tight">
+          Hassle-Free Island Transport & Private Chauffeurs in Bali
+        </h2>
+        <p class="text-sm sm:text-base text-slate-300 font-medium leading-relaxed max-w-2xl">
+          Tired of chaotic traffic or unreliable ride-hailing? Book clean, well-maintained vehicles with professional English-speaking drivers. Fixed rates, transparent pricing, and 24/7 English support for your peace of mind.
+        </p>
+        
+        <!-- EXPAT CTA BOX -->
+        <div class="pt-4 flex flex-col sm:flex-row items-center gap-4">
+          <a href="https://wa.me/6281999060636?text=Hello,%20I%20need%20a%20reliable%20car%20or%20private%20driver%20in%20Bali.%20Can%20you%20help?" target="_blank" class="w-full sm:w-auto px-6 py-3.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-sm rounded-2xl transition shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-2">
+            <span>🚀 Book via WhatsApp in 1 Click</span>
+          </a>
+          <div class="flex items-center gap-3 text-xs text-slate-300 font-semibold">
+            <span class="flex items-center gap-1">✓ No Hidden Fees</span>
+            <span class="flex items-center gap-1">✓ Fuel & Driver Included</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DYNAMIC CATALOG CONTAINER -->
+    <main class="max-w-4xl mx-auto px-6 py-12 space-y-12">
+      
+      <div id="loadingState" class="text-center py-20 text-slate-400 font-medium">
+        Loading official transport rates from database...
+      </div>
+
+      <div id="transportContent" class="space-y-12 hidden">
+        <!-- Rendered dynamically via JavaScript from Supabase car_transports table -->
+      </div>
+
+      <!-- EXPAT TRUST & FAQ SECTION -->
+      <section class="bg-white rounded-3xl border border-slate-200 p-8 space-y-6 shadow-sm">
+        <div class="space-y-1">
+          <span class="text-[10px] font-extrabold text-emerald-600 uppercase tracking-widest">Expat & Nomad Friendly</span>
+          <h3 class="font-extrabold text-lg text-slate-900">Why International Travelers Choose Us</h3>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 text-xs text-slate-600">
+          <div class="space-y-2 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+            <p class="font-extrabold text-slate-900 text-sm flex items-center gap-1.5"><span>💬</span> English Speaking Drivers</p>
+            <p class="leading-relaxed">Our experienced local drivers speak great English, know the hidden shortcuts, and act as your local guide across Bali.</p>
+          </div>
+          <div class="space-y-2 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+            <p class="font-extrabold text-slate-900 text-sm flex items-center gap-1.5"><span>🛡️</span> Safe & Sanitized Fleet</p>
+            <p class="leading-relaxed">All vehicles undergo rigorous daily maintenance, AC checks, and deep cleaning to ensure maximum comfort on long trips.</p>
+          </div>
+          <div class="space-y-2 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+            <p class="font-extrabold text-slate-900 text-sm flex items-center gap-1.5"><span>💳</span> Flexible Payment</p>
+            <p class="leading-relaxed">Pay easily via bank transfer, cash, or digital payment upon pickup. No complicated deposit requirements.</p>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="bg-[#0b1329] text-slate-400 pt-16 pb-12 px-6 mt-20 border-t border-slate-800">
+    <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-10 text-xs">
+      <div class="space-y-4">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-emerald-500 text-slate-950 font-black flex items-center justify-center text-sm">S</div>
+          <span class="font-extrabold text-white text-base tracking-wide">SpotTribe <span class="text-emerald-400">BALI</span></span>
+        </div>
+        <p class="text-slate-400 leading-relaxed">
+          The ultimate verified directory and trusted sanctuary for digital nomads, expats, and travelers exploring the finest spots across Bali.
+        </p>
+      </div>
+      <div class="space-y-3">
+        <h4 class="text-white font-bold tracking-wider uppercase text-[11px]">Quick Links</h4>
+        <ul class="space-y-2">
+          <li><a href="./index.html" class="hover:text-white transition">Explore Map</a></li>
+          <li><a href="./rent-car.html" class="hover:text-white transition">Car Rental & Transport</a></li>
+          <li><a href="./messages.html" class="hover:text-white transition">Community Chats</a></li>
+          <li><a href="./profile.html" class="hover:text-white transition">User Profile</a></li>
+        </ul>
+      </div>
+      <div class="space-y-3">
+        <h4 class="text-white font-bold tracking-wider uppercase text-[11px]">Legals & Policy</h4>
+        <ul class="space-y-2">
+          <li><a href="./terms.html" class="hover:text-white transition">Terms of Service</a></li>
+          <li><a href="./privacy.html" class="hover:text-white transition">Privacy Policy</a></li>
+          <li><a href="./disclaimer.html" class="hover:text-white transition">Disclaimer</a></li>
+          <li><a href="./cookie-policy.html" class="hover:text-white transition">Cookie Policy</a></li>
+        </ul>
+      </div>
+      <div class="space-y-3">
+        <h4 class="text-white font-bold tracking-wider uppercase text-[11px]">Connect</h4>
+        <p class="text-slate-400 leading-relaxed">Join our global network of island creators and remote workers.</p>
+        <div class="flex items-center gap-3 pt-1">
+          <a href="https://spottribebali.com" target="_blank" rel="noopener noreferrer" class="w-9 h-9 rounded-xl bg-slate-800/80 border border-slate-700/60 flex items-center justify-center text-white hover:bg-slate-700 transition cursor-pointer"><i data-lucide="globe" class="w-4 h-4"></i></a>
+          <a href="./messages.html" class="w-9 h-9 rounded-xl bg-slate-800/80 border border-slate-700/60 flex items-center justify-center text-white hover:bg-slate-700 transition cursor-pointer"><i data-lucide="message-square" class="w-4 h-4"></i></a>
+          <a href="mailto:support@spottribebali.com" class="w-9 h-9 rounded-xl bg-slate-800/80 border border-slate-700/60 flex items-center justify-center text-white hover:bg-slate-700 transition cursor-pointer"><i data-lucide="mail" class="w-4 h-4"></i></a>
+        </div>
+      </div>
+    </div>
+    <div class="max-w-6xl mx-auto pt-10 mt-10 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between text-[11px] text-slate-500 gap-4">
+      <p>Copyright © 2026 SpotTribe BALI. All rights reserved.</p>
+      <p>Designed for Global Nomads & Expats in Bali</p>
+    </div>
+  </footer>
+
+  <!-- SUPABASE DYNAMIC FETCH SCRIPT -->
+  <script>
+    const SUPABASE_URL = 'https://riyupzmllltjrelqytwi.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_df32CqJ5bqDNCHU4OKGRPQ_7LiJvWV0';
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    async function fetchCarTransports() {
+      const loadingEl = document.getElementById('loadingState');
+      const contentEl = document.getElementById('transportContent');
+
+      try {
+        const { data: items, error } = await supabaseClient
+          .from('car_transports')
+          .select('*');
+
+        if (error) throw error;
+
+        loadingEl.style.display = 'none';
+        contentEl.classList.remove('hidden');
+
+        if (!items || items.length === 0) {
+          contentEl.innerHTML = '<div class="text-center text-slate-500 py-10">No transport rates available at the moment.</div>';
+          return;
+        }
+
+        // Group by service_category
+        const categories = {};
+        items.forEach(item => {
+          const cat = item.service_category || 'Other Services';
+          if (!categories[cat]) categories[cat] = [];
+          categories[cat].push(item);
+        });
+
+        let htmlOutput = '';
+
+        for (const [catName, rows] of Object.entries(categories)) {
+          htmlOutput += `
+            <section class="space-y-4">
+              <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+                <div>
+                  <h3 class="font-extrabold text-base text-slate-900">${escapeHtml(catName)}</h3>
+                  <p class="text-xs text-slate-500">Verified official rates for international travelers and residents.</p>
+                </div>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          `;
+
+          // Group by car_model within category
+          const models = {};
+          rows.forEach(r => {
+            const m = r.car_model || 'Standard Vehicle';
+            if (!models[m]) models[m] = [];
+            models[m].push(r);
+          });
+
+          for (const [modelName, subRows] of Object.entries(models)) {
+            const cap = subRows[0].capacity || 'Max 7 pax';
+            const badgeColor = modelName.includes('Alphard') ? 'bg-amber-50 text-amber-700' : (modelName.includes('Hiace') ? 'bg-sky-50 text-sky-700' : 'bg-emerald-50 text-emerald-700');
+
+            htmlOutput += `
+              <div class="bg-white p-5 rounded-3xl border border-slate-200/90 shadow-sm space-y-3 flex flex-col justify-between">
+                <div>
+                  <div class="flex items-center justify-between mb-2">
+                    <h4 class="font-bold text-sm text-slate-900">${escapeHtml(modelName)}</h4>
+                    <span class="text-[10px] font-bold ${badgeColor} px-2.5 py-1 rounded-lg">${escapeHtml(cap)}</span>
+                  </div>
+                  <div class="space-y-2 text-xs divide-y divide-slate-100">
+            `;
+
+            subRows.forEach(sr => {
+              const label = sr.route_or_area ? `${sr.route_or_area} (${sr.duration_note || ''})` : (sr.duration_note || 'Standard Package');
+              const formattedPrice = Number(sr.price).toLocaleString('id-ID');
+              htmlOutput += `
+                <div class="flex justify-between pt-1.5"><span class="text-slate-500 font-medium pr-2">${escapeHtml(label)}</span><span class="font-extrabold text-slate-900 whitespace-nowrap">IDR ${formattedPrice}</span></div>
+              `;
+            });
+
+            const waText = encodeURIComponent(`Hello SpotTribe, I would like to book ${modelName} for ${catName}. Please confirm availability.`);
+            htmlOutput += `
+                  </div>
+                </div>
+                <a href="https://wa.me/6281999060636?text=${waText}" target="_blank" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl transition text-center block mt-3 shadow-md shadow-emerald-600/10">
+                  Book ${escapeHtml(modelName)} via WhatsApp →
+                </a>
+              </div>
+            `;
+          }
+
+          htmlOutput += `
+              </div>
+            </section>
+          `;
+        }
+
+        contentEl.innerHTML = htmlOutput;
+        lucide.createIcons();
+
+      } catch (err) {
+        console.error('Error fetching car transports:', err);
+        loadingEl.innerText = 'Failed to load transport rates from database. Please check connection.';
+      }
+    }
+
+    function escapeHtml(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    fetchCarTransports();
+    lucide.createIcons();
+  </script>
+</body>
+</html>
