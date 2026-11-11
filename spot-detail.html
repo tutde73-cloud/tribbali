@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   
-  <!-- SEO & Open Graph Meta Tags (Dinamis) -->
+  <!-- SEO & Open Graph Meta Tags (Dinamis berbasis Slug) -->
   <title id="metaTitle">Spot Detail — SpotTribe Bali</title>
   <meta id="metaDesc" name="description" content="Explore curated luxury villas, cozy cafés, and hidden gems across Bali with SpotTribe Bali.">
   <link id="canonicalLink" rel="canonical" href="https://spottribebali.com/spot-detail.html">
@@ -172,8 +172,19 @@
     const clientSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     const urlParams = new URLSearchParams(window.location.search);
-    const placeId = urlParams.get('id');
+    const spotSlug = urlParams.get('slug'); // Mengambil parameter slug dari URL
+    let currentPlaceId = null;
     let currentUser = null;
+
+    // Fungsi pembantu mengubah nama tempat menjadi format slug URL (cth: "Bulgari Resort Bali" -> "bulgari-resort-bali")
+    function createSlug(text) {
+      return String(text || '')
+        .toLowerCase()
+        .trim()
+        .replace(/[^\w\s-]/g, '')
+        .replace(/[\s_-]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+    }
 
     async function checkAuthUser() {
       const { data: { user } } = await clientSupabase.auth.getUser();
@@ -208,25 +219,34 @@
     }
 
     async function loadSpotDetail() {
-      if (!placeId) {
-        alert('Invalid spot ID');
+      if (!spotSlug) {
+        alert('Invalid spot URL');
         window.location.href = './index.html';
         return;
       }
 
       await checkAuthUser();
 
-      // Fetch place detail dari database Supabase
-      const { data: spot, error } = await clientSupabase
+      // Ambil seluruh data places dari Supabase untuk dicocokkan slug-nya di sisi klien
+      const { data: places, error } = await clientSupabase
         .from('places')
-        .select('*')
-        .eq('id', placeId)
-        .single();
+        .select('*');
 
-      if (error || !spot) {
+      if (error || !places) {
         document.getElementById('spotTitle').innerText = 'Spot Not Found';
         return;
       }
+
+      // Cari spot yang slug dari namanya cocok dengan parameter URL
+      const spot = places.find(p => createSlug(p.name) === spotSlug);
+
+      if (!spot) {
+        document.getElementById('spotTitle').innerText = 'Spot Not Found';
+        document.getElementById('spotDescription').innerText = 'The requested place could not be found or has been removed.';
+        return;
+      }
+
+      currentPlaceId = spot.id; // Simpan ID untuk pengiriman ulasan
 
       // Update DOM Text & Media
       document.getElementById('spotCover').src = spot.image_url || 'https://images.unsplash.com/photo-1537996194471-e657df975ab4';
@@ -235,10 +255,10 @@
       document.getElementById('spotLocation').innerText = '📍 ' + (spot.area || spot.regency || 'Bali');
       document.getElementById('spotPrice').innerText = spot.price_label || spot.price || 'Contact for rates';
       
-      // Update SEO & Open Graph Tags Dinamis (Tanpa www agar selaras domain utama)
+      // Update SEO & Open Graph Tags Dinamis
       const spotTitleText = `${spot.name} — SpotTribe Bali`;
       const cleanDesc = (spot.description || spot.amenity || `Explore ${spot.name} in ${spot.area || 'Bali'}.`).replace(/<[^>]*>?/gm, '').substring(0, 130) + '...';
-      const canonicalPath = `https://spottribebali.com/spot-detail.html?id=${spot.id}`;
+      const canonicalPath = `https://spottribebali.com/spot-detail.html?slug=${createSlug(spot.name)}`;
 
       document.title = spotTitleText;
       document.getElementById('metaTitle').innerText = spotTitleText;
@@ -281,11 +301,12 @@
     }
 
     async function loadReviews() {
+      if (!currentPlaceId) return;
       const container = document.getElementById('reviewsListContainer');
       const { data: reviews, error } = await clientSupabase
         .from('reviews')
         .select('*')
-        .eq('place_id', placeId)
+        .eq('place_id', currentPlaceId)
         .order('id', { ascending: false });
 
       if (error || !reviews || reviews.length === 0) {
@@ -336,7 +357,7 @@
     async function handleReviewSubmit(e) {
       e.preventDefault();
       
-      if (!currentUser) {
+      if (!currentUser || !currentPlaceId) {
         alert('Please sign in with Google to submit your review.');
         signInWithGoogle();
         return;
@@ -362,7 +383,6 @@
             .upload(fileName, file);
 
           if (!uploadError) {
-            // PERBAIKAN: Menggunakan clientSupabase yang benar (bukan clientStrabase)
             const { data: publicURLData } = clientSupabase.storage
               .from('spot-images')
               .getPublicUrl(fileName);
@@ -373,7 +393,7 @@
         const { error: insertError } = await clientSupabase
           .from('reviews')
           .insert([{
-            place_id: parseInt(placeId),
+            place_id: parseInt(currentPlaceId),
             user_name: name,
             rating: rating,
             comment: comment,
@@ -386,7 +406,7 @@
           await clientSupabase
             .from('places')
             .update({ image_url: uploadedPhotoUrl })
-            .eq('id', placeId);
+            .eq('id', currentPlaceId);
           
           document.getElementById('spotCover').src = uploadedPhotoUrl;
           document.getElementById('contributorName').innerText = name;
