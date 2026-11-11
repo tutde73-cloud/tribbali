@@ -1,334 +1,211 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Transport Admin Portal — SpotTribe Bali</title>
+  
+  <!-- SEO & Open Graph Meta Tags -->
+  <title>Trusted Bali Car Rental & Private Transport Services — SpotTribe Bali</title>
+  <meta name="description" content="Explore Bali in comfort with our verified family-owned car rental and private chauffeur service. Airport transfers, half-day & full-day tours, and weekly all-in packages.">
+  <link rel="canonical" href="https://spottribebali.com/rent-car.html">
+
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://spottribebali.com/rent-car.html">
+  <meta property="og:title" content="Trusted Bali Car Rental & Private Transport Services — SpotTribe Bali">
+  <meta property="og:description" content="Book your island transport directly with trusted local experts. Airport pickups, custom tours, and professional English-speaking drivers.">
+  <meta property="og:image" content="https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=1200&q=80">
+
+  <!-- Tailwind CSS & Lucide Icons -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    body { background-color: #f8fafc; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding-bottom: 90px; }
+    .glass-nav-dark { background: rgba(15, 23, 42, 0.90); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+  </style>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen p-4 sm:p-8">
+<body class="flex flex-col text-slate-800 min-h-screen justify-between">
 
-  <div class="max-w-4xl mx-auto space-y-6">
-    <!-- TOP HEADER -->
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-slate-800/80 p-6 rounded-3xl border border-slate-700/60 shadow-xl gap-4">
-      <div>
-        <span class="px-3 py-1 bg-emerald-500/20 text-emerald-400 font-bold text-[10px] uppercase tracking-wider rounded-full border border-emerald-500/30">Staff Access Only</span>
-        <h1 class="text-2xl font-black text-white mt-2">🚗 Bali Car Transport Dashboard</h1>
-        <p class="text-xs text-slate-400 mt-0.5">Kelola tarif sewa mobil, area jemput, dan upload foto armada dari HP.</p>
-      </div>
-      <div class="flex items-center gap-2.5">
-        <button onclick="resetFormToAddNewCar()" class="px-4 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black text-xs rounded-xl transition shadow-md flex items-center gap-1.5">
-          <span>➕ Tambah Mobil Baru</span>
-        </button>
-        <a href="./rent-car.html" target="_blank" class="px-4 py-2.5 bg-slate-700 hover:bg-slate-600 text-white font-bold text-xs rounded-xl transition flex items-center gap-2">
-          <span>👁️ Lihat Halaman Publik</span>
+  <div>
+    <!-- HEADER -->
+    <header class="glass-nav-dark border-b border-slate-800 px-6 h-[72px] flex items-center justify-between sticky top-0 z-50 shadow-lg">
+      <div class="flex items-center gap-3.5">
+        <a href="./index.html" class="w-10 h-10 rounded-xl bg-slate-800 text-white flex items-center justify-center hover:bg-slate-700 transition-colors">
+          <i data-lucide="arrow-left" class="w-5 h-5"></i>
         </a>
+        <div>
+          <h1 class="font-extrabold text-sm tracking-tight text-white uppercase">Bali Car Rental & Transport</h1>
+          <p class="text-[10px] text-emerald-400 font-mono font-bold">Verified Local Fleet & Chauffeur</p>
+        </div>
       </div>
-    </div>
+      <a href="https://wa.me/6281999060636?text=Hello%20SpotTribe,%20I%20would%20like%20to%20inquire%20about%20car%20rental%20and%20private%20transport%20in%20Bali." target="_blank" class="px-3.5 py-2 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-extrabold text-xs rounded-xl transition shadow-md flex items-center gap-1.5">
+        <span>💬 Instant WhatsApp</span>
+      </a>
+    </header>
 
-    <!-- DYNAMIC FORM (TAMBAH / EDIT) -->
-    <div class="bg-slate-800 p-6 rounded-3xl border border-slate-700 shadow-xl space-y-4">
-      <div class="flex items-center justify-between border-b border-slate-700 pb-3">
-        <h2 id="formTitle" class="text-sm font-extrabold text-white flex items-center gap-2">
-          <span>➕ Tambah Tarif / Rute Baru</span>
-        </h2>
-        <span id="editBadge" class="hidden px-2.5 py-0.5 bg-amber-500/20 text-amber-300 rounded-lg text-[10px] font-bold">Mode Edit Aktif</span>
+    <!-- HERO BANNER -->
+    <section class="relative w-full bg-slate-900 text-white py-14 px-6 overflow-hidden">
+      <div class="absolute inset-0 opacity-25">
+        <img src="https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=1600&q=80" class="w-full h-full object-cover" alt="Bali Private Car Rental">
       </div>
+      <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/80 to-transparent"></div>
       
-      <form id="transportForm" onsubmit="saveTransportItem(event)" class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-        <input type="hidden" id="editId" />
-        <input type="hidden" id="existing_image_url" />
-        
-        <div>
-          <label class="block text-slate-400 font-semibold mb-1">Kategori Layanan</label>
-          <input type="text" id="service_category" placeholder="Contoh: Airport Transfer / Fullday Tour" required class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-emerald-500" />
-        </div>
-
-        <div>
-          <label class="block text-slate-400 font-semibold mb-1">Model Mobil</label>
-          <input type="text" id="car_model" placeholder="Contoh: Innova Reborn / Hiace / Alphard" required class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-emerald-500" />
-        </div>
-
-        <div>
-          <label class="block text-slate-400 font-semibold mb-1">Kapasitas Penumpang</label>
-          <input type="text" id="capacity" placeholder="Contoh: Max 7 pax" value="Max 7 pax" class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-emerald-500" />
-        </div>
-
-        <div>
-          <label class="block text-slate-400 font-semibold mb-1">Rute / Area Tujuan</label>
-          <input type="text" id="route_or_area" placeholder="Contoh: Kuta, Legian, Jimbaran" required class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-emerald-500" />
-        </div>
-
-        <div>
-          <label class="block text-slate-400 font-semibold mb-1">Harga (IDR angka saja)</label>
-          <input type="number" id="price" placeholder="Contoh: 350000" required class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-emerald-500" />
-        </div>
-
-        <div>
-          <label class="block text-slate-400 font-semibold mb-1">Upload Foto Mobil dari HP</label>
-          <input type="file" id="imageFile" accept="image/*" class="w-full text-slate-400 text-xs file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-500 file:text-slate-950 hover:file:bg-emerald-600 file:cursor-pointer" />
-          <p id="currentImageInfo" class="text-[10px] text-emerald-400 mt-1 italic hidden">✓ Foto master sudah terpasang untuk mobil ini.</p>
-        </div>
-
-        <div class="sm:col-span-2 flex items-center gap-3 pt-2">
-          <button type="submit" id="submitBtn" class="px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black rounded-xl transition shadow-lg shadow-emerald-500/20">
-            💾 Simpan Data & Upload Foto
-          </button>
-          <button type="button" id="cancelEditBtn" onclick="resetForm()" class="hidden px-4 py-3 bg-rose-500/20 text-rose-300 font-bold rounded-xl hover:bg-rose-500/30 transition">
-            ✕ Batal
-          </button>
-        </div>
-      </form>
-    </div>
-
-    <!-- DAFTAR KARTU KENDARAAN (KOTAK-KOTAK) -->
-    <div class="space-y-6">
-      <h2 class="text-sm font-extrabold text-white px-2">📋 Daftar Armada & Tarif Per Kotak (Database)</h2>
-      <div id="adminGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        <p class="text-slate-400 py-10 sm:col-span-2 text-center">Memuat data armada...</p>
+      <div class="max-w-4xl mx-auto relative z-10 space-y-5 text-center sm:text-left">
+        <span class="inline-block px-4 py-1.5 rounded-full text-[10px] sm:text-xs font-black bg-emerald-500/20 text-emerald-300 border border-emerald-400/40 uppercase tracking-widest shadow-inner">
+          ✨ Recommended for Family Holidays, Solo Travelers & Island Expats 🌴
+        </span>
+        <h2 class="text-3xl sm:text-5xl font-black tracking-tight leading-tight">
+          Hassle-Free Island Transport & Private Chauffeurs in Bali
+        </h2>
+        <p class="text-sm sm:text-base text-slate-300 font-medium leading-relaxed max-w-2xl">
+          Tired of chaotic traffic or unreliable ride-hailing? Book clean, well-maintained vehicles with professional English-speaking drivers. Fixed rates, transparent pricing, and 24/7 English support for your peace of mind.
+        </p>
       </div>
-    </div>
+    </section>
+
+    <!-- DYNAMIC CATALOG CONTAINER -->
+    <main class="max-w-4xl mx-auto px-6 py-12 space-y-12">
+      
+      <div id="loadingState" class="text-center py-20 text-slate-400 font-medium">
+        Loading official transport rates from database...
+      </div>
+
+      <div id="transportContent" class="space-y-12 hidden">
+        <!-- Rendered dynamically via JavaScript -->
+      </div>
+
+    </main>
   </div>
 
+  <!-- SUPABASE SCRIPT DENGAN MASTER FOTO OTOMATIS BERDASARKAN NAMA MOBIL -->
   <script>
-    // --- PASSWORD GATE ---
-    const ADMIN_PASSWORD = "Komang123";
-    
-    let userPass = prompt("🔒 Masukkan Password Khusus Admin Transport:");
-    if (userPass !== ADMIN_PASSWORD) {
-      alert("❌ Password salah! Anda tidak memiliki akses ke halaman ini.");
-      window.location.href = "./index.html";
-    }
-    // ---------------------
-
     const SUPABASE_URL = 'https://riyupzmllltjrelqytwi.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_df32CqJ5bqDNCHU4OKGRPQ_7LiJvWV0';
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    const defaultCarImages = {
+    // MASTER FOTO UTAMA BERDASARKAN KATA KUNCI NAMA MOBIL
+    const masterCarPhotos = {
       'alphard': 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=600&q=80',
       'innova': 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=600&q=80',
       'hiace': 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&w=600&q=80',
       'avanza': 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=600&q=80',
+      'xenia': 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=600&q=80',
       'default': 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=600&q=80'
     };
 
-    function getCarImage(modelName, rows) {
-      const found = rows.find(r => r.image_url && r.image_url.trim() !== '');
-      if (found) return found.image_url;
+    function getMasterPhoto(modelName) {
       const lower = (modelName || '').toLowerCase();
-      for (const [key, url] of Object.entries(defaultCarImages)) {
-        if (lower.includes(key)) return url;
+      for (const [keyword, url] of Object.entries(masterCarPhotos)) {
+        if (lower.includes(keyword)) {
+          return url;
+        }
       }
-      return defaultCarImages['default'];
+      return masterCarPhotos['default'];
     }
 
-    async function loadAdminData() {
-      const gridEl = document.getElementById('adminGrid');
-      const { data, error } = await supabaseClient.from('car_transports').select('*').order('id', { ascending: true });
+    async function fetchCarTransports() {
+      const loadingEl = document.getElementById('loadingState');
+      const contentEl = document.getElementById('transportContent');
 
-      if (error) {
-        gridEl.innerHTML = `<p class="text-rose-400 py-4 sm:col-span-2 text-center">Gagal memuat data: ${error.message}</p>`;
-        return;
-      }
+      try {
+        const { data: items, error } = await supabaseClient
+          .from('car_transports')
+          .select('*');
 
-      if (!data || data.length === 0) {
-        gridEl.innerHTML = `<p class="text-slate-400 py-10 sm:col-span-2 text-center">Belum ada data tarif armada.</p>`;
-        return;
-      }
+        if (error) throw error;
 
-      const modelGroups = {};
-      data.forEach(item => {
-        const m = item.car_model || 'Standard Vehicle';
-        if (!modelGroups[m]) modelGroups[m] = [];
-        modelGroups[m].push(item);
-      });
+        loadingEl.style.display = 'none';
+        contentEl.classList.remove('hidden');
 
-      let htmlOutput = '';
-
-      for (const [modelName, rows] of Object.entries(modelGroups)) {
-        const cap = rows[0].capacity || 'Max 7 pax';
-        const cat = rows[0].service_category || 'Transport';
-        const carImg = getCarImage(modelName, rows);
-
-        htmlOutput += `
-          <div class="bg-slate-800 rounded-3xl border border-slate-700 shadow-xl overflow-hidden flex flex-col justify-between">
-            <div>
-              <div class="relative w-full h-40 overflow-hidden bg-slate-900">
-                <img src="${carImg}" alt="${modelName}" class="w-full h-full object-cover">
-                <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>
-                <div class="absolute bottom-3 left-4 right-4 flex items-center justify-between">
-                  <div>
-                    <span class="text-[9px] font-extrabold bg-emerald-500 text-slate-950 px-2 py-0.5 rounded uppercase tracking-wider">${escapeHtml(cat)}</span>
-                    <h3 class="font-black text-white text-base mt-0.5 drop-shadow">${escapeHtml(modelName)}</h3>
-                  </div>
-                  <span class="text-[10px] font-bold bg-slate-900/90 text-slate-200 px-2.5 py-1 rounded-lg border border-slate-700">${escapeHtml(cap)}</span>
-                </div>
-              </div>
-
-              <div class="p-5 space-y-3 text-xs divide-y divide-slate-700/60">
-        `;
-
-        rows.forEach(r => {
-          const formattedPrice = Number(r.price).toLocaleString('id-ID');
-          htmlOutput += `
-                <div class="pt-2.5 flex items-center justify-between gap-2 first:pt-0">
-                  <div class="pr-2">
-                    <p class="text-slate-300 font-medium">${escapeHtml(r.route_or_area || 'Standard Rate')}</p>
-                    <p class="font-extrabold text-emerald-400 mt-0.5">IDR ${formattedPrice}</p>
-                  </div>
-                  <div class="flex items-center gap-1.5 shrink-0">
-                    <button onclick="editItem(${r.id}, '${escapeQuote(r.service_category)}', '${escapeQuote(r.car_model)}', '${escapeQuote(r.capacity || '')}', '${escapeQuote(r.route_or_area || '')}', ${r.price}, '${escapeQuote(r.image_url || '')}')" class="px-2.5 py-1 bg-amber-500/20 text-amber-300 font-bold rounded-lg hover:bg-amber-500/30 transition text-[11px]">Edit</button>
-                    <button onclick="deleteItem(${r.id})" class="px-2.5 py-1 bg-rose-500/20 text-rose-300 font-bold rounded-lg hover:bg-rose-500/30 transition text-[11px]">Hapus</button>
-                  </div>
-                </div>
-          `;
-        });
-
-        htmlOutput += `
-              </div>
-            </div>
-
-            <div class="p-4 bg-slate-900/50 border-t border-slate-700/60 flex items-center justify-between">
-              <span class="text-[11px] text-slate-400">Total: ${rows.length} rute aktif</span>
-              <button onclick="quickAddRoute('${escapeQuote(cat)}', '${escapeQuote(modelName)}', '${escapeQuote(cap)}', '${escapeQuote(rows[0].image_url || '')}')" class="px-3 py-1.5 bg-emerald-500/20 text-emerald-300 font-bold rounded-xl hover:bg-emerald-500/30 transition text-xs flex items-center gap-1">
-                <span>➕ Tambah Rute Baru</span>
-              </button>
-            </div>
-          </div>
-        `;
-      }
-
-      gridEl.innerHTML = htmlOutput;
-      lucide.createIcons();
-    }
-
-    function resetFormToAddNewCar() {
-      resetForm();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    function quickAddRoute(cat, model, cap, img) {
-      document.getElementById('editId').value = '';
-      document.getElementById('service_category').value = cat;
-      document.getElementById('car_model').value = model;
-      document.getElementById('capacity').value = cap;
-      document.getElementById('route_or_area').value = '';
-      document.getElementById('price').value = '';
-      document.getElementById('existing_image_url').value = img || '';
-      
-      document.getElementById('imageFile').value = '';
-      if (img) {
-        document.getElementById('currentImageInfo').classList.remove('hidden');
-      } else {
-        document.getElementById('currentImageInfo').classList.add('hidden');
-      }
-
-      document.getElementById('formTitle').innerHTML = `<span>➕ Tambah Rute Baru untuk: ${model}</span>`;
-      document.getElementById('editBadge').classList.add('hidden');
-      document.getElementById('submitBtn').innerText = '💾 Simpan Rute Baru';
-      document.getElementById('cancelEditBtn').classList.remove('hidden');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    async function saveTransportItem(event) {
-      event.preventDefault();
-      const id = document.getElementById('editId').value;
-      const fileInput = document.getElementById('imageFile');
-      let imageUrl = document.getElementById('existing_image_url').value;
-
-      // 1. Jika ada file foto yang dipilih, upload ke Supabase Storage bucket 'spot-images'
-      if (fileInput.files && fileInput.files[0]) {
-        const file = fileInput.files[0];
-        const fileName = `transport_${Date.now()}_${file.name.replace(/\s+/g, '_')}`;
-        
-        const { error: uploadError } = await supabaseClient.storage
-          .from('spot-images')
-          .upload(fileName, file);
-
-        if (uploadError) {
-          alert('Gagal mengunggah foto ke Storage: ' + uploadError.message);
+        if (!items || items.length === 0) {
+          contentEl.innerHTML = '<div class="text-center text-slate-500 py-10">No transport rates available at the moment.</div>';
           return;
         }
 
-        // 2. Ambil Public URL dari file yang berhasil di-upload
-        const { data: urlData } = supabaseClient.storage
-          .from('spot-images')
-          .getPublicUrl(fileName);
+        const categories = {};
+        items.forEach(item => {
+          const cat = item.service_category || 'Other Services';
+          if (!categories[cat]) categories[cat] = [];
+          categories[cat].push(item);
+        });
 
-        if (urlData && urlData.publicUrl) {
-          imageUrl = urlData.publicUrl;
+        let htmlOutput = '';
+
+        for (const [catName, rows] of Object.entries(categories)) {
+          htmlOutput += `
+            <section class="space-y-4">
+              <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+                <div>
+                  <h3 class="font-extrabold text-base text-slate-900">${escapeHtml(catName)}</h3>
+                  <p class="text-xs text-slate-500">Verified official rates for international travelers and residents.</p>
+                </div>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          `;
+
+          const models = {};
+          rows.forEach(r => {
+            const m = r.car_model || 'Standard Vehicle';
+            if (!models[m]) models[m] = [];
+            models[m].push(r);
+          });
+
+          for (const [modelName, subRows] of Object.entries(models)) {
+            const cap = subRows[0].capacity || 'Max 7 pax';
+            // Otomatis mengambil foto master berdasarkan nama model mobil
+            const carImg = getMasterPhoto(modelName);
+
+            htmlOutput += `
+              <div class="bg-white rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden flex flex-col justify-between group">
+                <div>
+                  <div class="relative w-full h-44 overflow-hidden bg-slate-100">
+                    <img src="${escapeHtml(carImg)}" alt="${escapeHtml(modelName)}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent"></div>
+                    <div class="absolute bottom-3 left-4 right-4 flex items-center justify-between">
+                      <h4 class="font-extrabold text-sm text-white drop-shadow-md">${escapeHtml(modelName)}</h4>
+                      <span class="text-[10px] font-bold bg-white/90 backdrop-blur-md text-slate-900 px-2.5 py-1 rounded-lg shadow">${escapeHtml(cap)}</span>
+                    </div>
+                  </div>
+
+                  <div class="p-5 space-y-2 text-xs divide-y divide-slate-100">
+            `;
+
+            subRows.forEach(sr => {
+              const label = sr.route_or_area ? `${sr.route_or_area} (${sr.duration_note || ''})` : (sr.duration_note || 'Standard Package');
+              const formattedPrice = Number(sr.price).toLocaleString('id-ID');
+              htmlOutput += `
+                <div class="flex justify-between pt-2"><span class="text-slate-500 font-medium pr-2">${escapeHtml(label)}</span><span class="font-extrabold text-slate-900 whitespace-nowrap">IDR ${formattedPrice}</span></div>
+              `;
+            });
+
+            const waText = encodeURIComponent(`Hello SpotTribe, I would like to book ${modelName} for ${catName}. Please confirm availability.`);
+            htmlOutput += `
+                  </div>
+                </div>
+                <div class="p-5 pt-0">
+                  <a href="https://wa.me/6281999060636?text=${waText}" target="_blank" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-2xl transition text-center block shadow-md shadow-emerald-600/15 flex items-center justify-center gap-2">
+                    <span>Book ${escapeHtml(modelName)} via WhatsApp</span>
+                    <span>→</span>
+                  </a>
+                </div>
+              </div>
+            `;
+          }
+
+          htmlOutput += `
+              </div>
+            </section>
+          `;
         }
+
+        contentEl.innerHTML = htmlOutput;
+        lucide.createIcons();
+
+      } object (err) {
+        console.error('Error fetching car transports:', err);
+        loadingEl.innerText = 'Failed to load transport rates from database. Please check connection.';
       }
-
-      // 3. Simpan data lengkap beserta image_url ke tabel database
-      const payload = {
-        service_category: document.getElementById('service_category').value,
-        car_model: document.getElementById('car_model').value,
-        capacity: document.getElementById('capacity').value,
-        route_or_area: document.getElementById('route_or_area').value,
-        price: parseFloat(document.getElementById('price').value),
-        image_url: imageUrl !== '' ? imageUrl : null
-      };
-
-      if (id) {
-        const { error } = await supabaseClient.from('car_transports').update(payload).eq('id', id);
-        if (error) alert('Gagal update: ' + error.message);
-        else alert('Berhasil memperbarui data & foto!');
-      } else {
-        const { error } = await supabaseClient.from('car_transports').insert([payload]);
-        if (error) alert('Gagal menambah: ' + error.message);
-        else alert('Berhasil menambahkan data baru!');
-      }
-
-      resetForm();
-      loadAdminData();
-    }
-
-    function editItem(id, cat, model, cap, route, price, img) {
-      document.getElementById('editId').value = id;
-      document.getElementById('service_category').value = cat;
-      document.getElementById('car_model').value = model;
-      document.getElementById('capacity').value = cap;
-      document.getElementById('route_or_area').value = route;
-      document.getElementById('price').value = price;
-      document.getElementById('existing_image_url').value = img || '';
-      document.getElementById('imageFile').value = '';
-      
-      document.getElementById('formTitle').innerHTML = `<span>✏️ Edit Rute: ${model} (${route})</span>`;
-      document.getElementById('editBadge').classList.remove('hidden');
-      document.getElementById('submitBtn').innerText = '💾 Simpan Perubahan';
-      document.getElementById('cancelEditBtn').classList.remove('hidden');
-
-      if (img) {
-        document.getElementById('currentImageInfo').classList.remove('hidden');
-      } else {
-        document.getElementById('currentImageInfo').classList.add('hidden');
-      }
-
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    async function deleteItem(id) {
-      if (confirm('Yakin ingin menghapus rute tarif ini?')) {
-        const { error } = await supabaseClient.from('car_transports').delete().eq('id', id);
-        if (error) alert('Gagal menghapus: ' + error.message);
-        else loadAdminData();
-      }
-    }
-
-    function resetForm() {
-      document.getElementById('transportForm').reset();
-      document.getElementById('editId').value = '';
-      document.getElementById('existing_image_url').value = '';
-      
-      document.getElementById('formTitle').innerHTML = `<span>➕ Tambah Tarif / Rute Baru</span>`;
-      document.getElementById('editBadge').classList.add('hidden');
-      document.getElementById('submitBtn').innerText = '💾 Simpan Data';
-      document.getElementById('cancelEditBtn').classList.add('hidden');
-      document.getElementById('currentImageInfo').classList.add('hidden');
     }
 
     function escapeHtml(str) {
@@ -339,11 +216,7 @@
         .replace(/"/g, '&quot;');
     }
 
-    function escapeQuote(str) {
-      return String(str || '').replace(/'/g, "\\'");
-    }
-
-    loadAdminData();
+    fetchCarTransports();
     lucide.createIcons();
   </script>
 </body>
