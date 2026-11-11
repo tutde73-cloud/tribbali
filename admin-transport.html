@@ -16,7 +16,7 @@
       <div>
         <span class="px-3 py-1 bg-emerald-500/20 text-emerald-400 font-bold text-[10px] uppercase tracking-wider rounded-full border border-emerald-500/30">Staff Access Only</span>
         <h1 class="text-2xl font-black text-white mt-2">🚗 Bali Car Transport Dashboard</h1>
-        <p class="text-xs text-slate-400 mt-0.5">Kelola tarif sewa mobil, area jemput, dan foto armada untuk Kakak.</p>
+        <p class="text-xs text-slate-400 mt-0.5">Kelola tarif sewa mobil, area jemput, dan upload foto armada langsung dari HP.</p>
       </div>
       <a href="./rent-car.html" target="_blank" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white font-bold text-xs rounded-xl transition flex items-center gap-2">
         <span>👁️ Lihat Halaman Publik</span>
@@ -26,11 +26,12 @@
     <!-- QUICK FORM TAMBAH / UPDATE TARIF -->
     <div class="bg-slate-800 p-6 rounded-3xl border border-slate-700 shadow-xl space-y-4">
       <h2 class="text-sm font-extrabold text-white flex items-center gap-2">
-        <span>➕ Tambah / Perbarui Tarif Armada</span>
+        <span>➕ Tambah / Perbarui Tarif & Foto Armada</span>
       </h2>
       
       <form id="transportForm" onsubmit="saveTransportItem(event)" class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
         <input type="hidden" id="editId" />
+        <input type="hidden" id="existing_image_url" />
         
         <div>
           <label class="block text-slate-400 font-semibold mb-1">Kategori Layanan</label>
@@ -58,13 +59,13 @@
         </div>
 
         <div>
-          <label class="block text-slate-400 font-semibold mb-1">URL Foto Mobil (Opsional)</label>
-          <input type="url" id="image_url" placeholder="https://images.unsplash.com/..." class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-emerald-500" />
+          <label class="block text-slate-400 font-semibold mb-1">Upload Foto Mobil dari HP</label>
+          <input type="file" id="imageFile" accept="image/*" class="w-full text-slate-400 text-xs file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-500 file:text-slate-950 hover:file:bg-emerald-600 file:cursor-pointer" />
         </div>
 
         <div class="sm:col-span-2 flex items-center gap-3 pt-2">
           <button type="submit" id="submitBtn" class="px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black rounded-xl transition shadow-lg shadow-emerald-500/20">
-            💾 Simpan Tarif ke Database
+            💾 Simpan Tarif & Upload Foto
           </button>
           <button type="button" onclick="resetForm()" class="px-4 py-3 bg-slate-700 hover:bg-slate-600 text-slate-300 font-bold rounded-xl transition">
             Reset Form
@@ -83,15 +84,15 @@
   </div>
 
   <script>
-    // --- PASSWORD GATE (PINTU PENGAMAN) ---
+    // --- PASSWORD GATE ---
     const ADMIN_PASSWORD = "Komang123";
     
     let userPass = prompt("🔒 Masukkan Password Khusus Admin Transport:");
     if (userPass !== ADMIN_PASSWORD) {
       alert("❌ Password salah! Anda tidak memiliki akses ke halaman ini.");
-      window.location.href = "./index.html"; // Otomatis kembali ke beranda jika salah
+      window.location.href = "./index.html";
     }
-    // -------------------------------------
+    // ---------------------
 
     const SUPABASE_URL = 'https://riyupzmllltjrelqytwi.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_df32CqJ5bqDNCHU4OKGRPQ_7LiJvWV0';
@@ -113,14 +114,18 @@
 
       let html = '';
       data.forEach(item => {
+        const thumb = item.image_url ? `<img src="${item.image_url}" class="w-10 h-10 object-cover rounded-lg border border-slate-600" />` : `<div class="w-10 h-10 bg-slate-700 rounded-lg flex items-center justify-center text-[10px] text-slate-400">No Image</div>`;
         html += `
           <div class="py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-            <div>
-              <div class="flex items-center gap-2">
-                <span class="font-extrabold text-white text-sm">${item.car_model}</span>
-                <span class="bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded text-[10px] font-bold">${item.service_category}</span>
+            <div class="flex items-center gap-3">
+              ${thumb}
+              <div>
+                <div class="flex items-center gap-2">
+                  <span class="font-extrabold text-white text-sm">${item.car_model}</span>
+                  <span class="bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded text-[10px] font-bold">${item.service_category}</span>
+                </div>
+                <p class="text-slate-400 mt-0.5">${item.route_or_area || '-'} • <strong class="text-emerald-400">IDR ${Number(item.price).toLocaleString('id-ID')}</strong></p>
               </div>
-              <p class="text-slate-400 mt-0.5">${item.route_or_area || '-'} • <strong class="text-emerald-400">IDR ${Number(item.price).toLocaleString('id-ID')}</strong></p>
             </div>
             <div class="flex items-center gap-2">
               <button onclick="editItem(${item.id}, '${item.service_category}', '${item.car_model}', '${item.capacity || ''}', '${item.route_or_area || ''}', ${item.price}, '${item.image_url || ''}')" class="px-3 py-1.5 bg-amber-500/20 text-amber-300 font-bold rounded-lg hover:bg-amber-500/30 transition">Edit</button>
@@ -135,19 +140,44 @@
     async function saveTransportItem(event) {
       event.preventDefault();
       const id = document.getElementById('editId').value;
+      const fileInput = document.getElementById('imageFile');
+      let imageUrl = document.getElementById('existing_image_url').value;
+
+      // Jika ada file gambar yang dipilih, upload ke Supabase Storage bucket 'spot-images'
+      if (fileInput.files && fileInput.files[0]) {
+        const file = fileInput.files[0];
+        const fileName = `transport_${Date.now()}_${file.name.replace(/\s+/g, '_')}`;
+        
+        const { data: uploadData, error: uploadError } = await supabaseClient.storage
+          .from('spot-images')
+          .upload(fileName, file);
+
+        if (uploadError) {
+          alert('Gagal mengunggah foto: ' + uploadError.message);
+          return;
+        }
+
+        // Ambil Public URL dari file yang di-upload
+        const { data: urlData } = supabaseClient.storage
+          .from('spot-images')
+          .getPublicUrl(fileName);
+
+        imageUrl = urlData.publicUrl;
+      }
+
       const payload = {
         service_category: document.getElementById('service_category').value,
         car_model: document.getElementById('car_model').value,
         capacity: document.getElementById('capacity').value,
         route_or_area: document.getElementById('route_or_area').value,
         price: parseFloat(document.getElementById('price').value),
-        image_url: document.getElementById('image_url').value
+        image_url: imageUrl
       };
 
       if (id) {
         const { error } = await supabaseClient.from('car_transports').update(payload).eq('id', id);
         if (error) alert('Gagal update: ' + error.message);
-        else alert('Berhasil memperbarui tarif!');
+        else alert('Berhasil memperbarui tarif & foto!');
       } else {
         const { error } = await supabaseClient.from('car_transports').insert([payload]);
         if (error) alert('Gagal menambah: ' + error.message);
@@ -165,8 +195,8 @@
       document.getElementById('capacity').value = cap;
       document.getElementById('route_or_area').value = route;
       document.getElementById('price').value = price;
-      document.getElementById('image_url').value = img;
-      document.getElementById('submitBtn').innerText = '💾 Perbarui Data';
+      document.getElementById('existing_image_url').value = img;
+      document.getElementById('submitBtn').innerText = '💾 Perbarui Data & Foto';
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
@@ -181,7 +211,8 @@
     function resetForm() {
       document.getElementById('transportForm').reset();
       document.getElementById('editId').value = '';
-      document.getElementById('submitBtn').innerText = '💾 Simpan Tarif ke Database';
+      document.getElementById('existing_image_url').value = '';
+      document.getElementById('submitBtn').innerText = '💾 Simpan Tarif & Upload Foto';
     }
 
     loadAdminData();
