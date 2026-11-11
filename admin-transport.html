@@ -16,19 +16,16 @@
       <div>
         <span class="px-3 py-1 bg-emerald-500/20 text-emerald-400 font-bold text-[10px] uppercase tracking-wider rounded-full border border-emerald-500/30">Staff Access Only</span>
         <h1 class="text-2xl font-black text-white mt-2">🚗 Bali Car Transport Dashboard</h1>
-        <p class="text-xs text-slate-400 mt-0.5">Kelola tarif sewa mobil, area jemput, dan upload foto armada dari HP.</p>
+        <p class="text-xs text-slate-400 mt-0.5">Kelola tarif rute dan upload foto armada langsung dari HP.</p>
       </div>
       <div class="flex items-center gap-2.5">
-        <button onclick="resetFormToAddNewCar()" class="px-4 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black text-xs rounded-xl transition shadow-md flex items-center gap-1.5">
-          <span>➕ Tambah Mobil Baru</span>
-        </button>
         <a href="./rent-car.html" target="_blank" class="px-4 py-2.5 bg-slate-700 hover:bg-slate-600 text-white font-bold text-xs rounded-xl transition flex items-center gap-2">
           <span>👁️ Lihat Halaman Publik</span>
         </a>
       </div>
     </div>
 
-    <!-- DYNAMIC FORM (TAMBAH / EDIT) -->
+    <!-- FORM 1: TAMBAH / EDIT TARIF RUTE -->
     <div class="bg-slate-800 p-6 rounded-3xl border border-slate-700 shadow-xl space-y-4">
       <div class="flex items-center justify-between border-b border-slate-700 pb-3">
         <h2 id="formTitle" class="text-sm font-extrabold text-white flex items-center gap-2">
@@ -47,8 +44,10 @@
         </div>
 
         <div>
-          <label class="block text-slate-400 font-semibold mb-1">Model Mobil</label>
-          <input type="text" id="car_model" placeholder="Contoh: Innova Reborn / Hiace / Alphard" required class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-emerald-500" />
+          <label class="block text-slate-400 font-semibold mb-1">Pilih Model Mobil (Master Foto)</label>
+          <select id="car_model_select" required class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-emerald-500">
+            <option value="">-- Memuat Daftar Mobil --</option>
+          </select>
         </div>
 
         <div>
@@ -67,17 +66,43 @@
         </div>
 
         <div>
-          <label class="block text-slate-400 font-semibold mb-1">Pilih Foto Mobil dari Galeri HP</label>
+          <label class="block text-slate-400 font-semibold mb-1">Upload Foto Mobil dari HP (Opsional)</label>
           <input type="file" id="imageFile" accept="image/*" class="w-full text-slate-400 text-xs file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-500 file:text-slate-950 hover:file:bg-emerald-600 file:cursor-pointer" />
-          <p id="currentImageInfo" class="text-[10px] text-emerald-400 mt-1 italic hidden">✓ Foto sudah terpasang. Biarkan kosong jika tidak ingin mengubah foto.</p>
+          <p id="currentImageInfo" class="text-[10px] text-emerald-400 mt-1 italic hidden">✓ Foto sudah terpasang di master.</p>
         </div>
 
         <div class="sm:col-span-2 flex items-center gap-3 pt-2">
           <button type="submit" id="submitBtn" class="px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black rounded-xl transition shadow-lg shadow-emerald-500/20">
-            💾 Simpan Data & Upload Foto
+            💾 Simpan Tarif Rute & Foto
           </button>
           <button type="button" id="cancelEditBtn" onclick="resetForm()" class="hidden px-4 py-3 bg-rose-500/20 text-rose-300 font-bold rounded-xl hover:bg-rose-500/30 transition">
             ✕ Batal
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- FORM 2: KELOLA / TAMBAH MASTER FOTO MOBIL DENGAN UPLOAD HP -->
+    <div class="bg-slate-800 p-6 rounded-3xl border border-slate-700 shadow-xl space-y-4">
+      <div class="border-b border-slate-700 pb-3">
+        <h2 class="text-sm font-extrabold text-white flex items-center gap-2">
+          <span>🖼️ Kelola / Tambah Master Foto Mobil (Upload dari HP)</span>
+        </h2>
+        <p class="text-[11px] text-slate-400 mt-0.5">Tambah jenis mobil baru dan upload foto aslinya langsung dari galeri HP Anda.</p>
+      </div>
+
+      <form onsubmit="saveCarMaster(event)" class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs items-end">
+        <div>
+          <label class="block text-slate-400 font-semibold mb-1">Nama / Model Mobil</label>
+          <input type="text" id="master_car_name" placeholder="Contoh: Hyundai Stargazer" required class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-emerald-500" />
+        </div>
+        <div>
+          <label class="block text-slate-400 font-semibold mb-1">Pilih Foto dari HP</label>
+          <input type="file" id="master_imageFile" accept="image/*" required class="w-full text-slate-400 text-xs file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-sky-500 file:text-slate-950 hover:file:bg-sky-600 file:cursor-pointer" />
+        </div>
+        <div>
+          <button type="submit" class="w-full px-5 py-2.5 bg-sky-500 hover:bg-sky-600 text-slate-950 font-black rounded-xl transition">
+            ➕ Upload & Simpan Master
           </button>
         </div>
       </form>
@@ -95,7 +120,6 @@
   <script>
     // --- PASSWORD GATE ---
     const ADMIN_PASSWORD = "Komang123";
-    
     let userPass = prompt("🔒 Masukkan Password Khusus Admin Transport:");
     if (userPass !== ADMIN_PASSWORD) {
       alert("❌ Password salah! Anda tidak memiliki akses ke halaman ini.");
@@ -107,26 +131,66 @@
     const SUPABASE_ANON_KEY = 'sb_publishable_df32CqJ5bqDNCHU4OKGRPQ_7LiJvWV0';
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    const defaultCarImages = {
-      'alphard': 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=600&q=80',
-      'innova': 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=600&q=80',
-      'hiace': 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&w=600&q=80',
-      'avanza': 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=600&q=80',
-      'xenia': 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=600&q=80',
-      'default': 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=600&q=80'
-    };
+    let masterCarsCache = {};
 
-    function getCarImage(modelName, rows) {
-      const found = rows.find(r => r.image_url && r.image_url.trim() !== '');
-      if (found) return found.image_url;
-      const lower = (modelName || '').toLowerCase();
-      for (const [key, url] of Object.entries(defaultCarImages)) {
-        if (lower.includes(key)) return url;
+    async function loadMasterCars() {
+      const { data, error } = await supabaseClient.from('car_images').select('*');
+      const selectEl = document.getElementById('car_model_select');
+      
+      if (error || !data) {
+        selectEl.innerHTML = `<option value="">Gagal memuat master mobil</option>`;
+        return;
       }
-      return defaultCarImages['default'];
+
+      masterCarsCache = {};
+      let options = '<option value="">-- Pilih Model Mobil --</option>';
+      data.forEach(car => {
+        masterCarsCache[car.car_name] = car.image_url;
+        options += `<option value="${escapeHtml(car.car_name)}">${escapeHtml(car.car_name)}</option>`;
+      });
+      selectEl.innerHTML = options;
+    }
+
+    async function saveCarMaster(event) {
+      event.preventDefault();
+      const carName = document.getElementById('master_car_name').value.trim();
+      const fileInput = document.getElementById('master_imageFile');
+
+      if (!fileInput.files || !fileInput.files[0]) {
+        alert('Pilih foto terlebih dahulu!');
+        return;
+      }
+
+      const file = fileInput.files[0];
+      const cleanName = file.name.replace(/[^a-zA-Z0-9_.-]/g, '_');
+      const fileName = `master_${Date.now()}_${cleanName}`;
+
+      const { error: uploadError } = await supabaseClient.storage
+        .from('spot-images')
+        .upload(fileName, file);
+
+      if (uploadError) {
+        alert('Gagal upload foto master: ' + uploadError.message);
+        return;
+      }
+
+      const imageUrl = `${SUPABASE_URL}/storage/v1/object/public/spot-images/${fileName}`;
+
+      const { error } = await supabaseClient.from('car_images').upsert([{ car_name: carName, image_url: imageUrl }], { onConflict: 'car_name' });
+      
+      if (error) {
+        alert('Gagal menyimpan ke database: ' + error.message);
+      } else {
+        alert('Berhasil menambah Master Mobil & Foto!');
+        document.getElementById('master_car_name').value = '';
+        fileInput.value = '';
+        loadMasterCars();
+        loadAdminData();
+      }
     }
 
     async function loadAdminData() {
+      await loadMasterCars();
       const gridEl = document.getElementById('adminGrid');
       const { data, error } = await supabaseClient.from('car_transports').select('*').order('id', { ascending: true });
 
@@ -152,7 +216,7 @@
       for (const [modelName, rows] of Object.entries(modelGroups)) {
         const cap = rows[0].capacity || 'Max 7 pax';
         const cat = rows[0].service_category || 'Transport';
-        const carImg = getCarImage(modelName, rows);
+        const carImg = masterCarsCache[modelName] || 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=600&q=80';
 
         htmlOutput += `
           <div class="bg-slate-800 rounded-3xl border border-slate-700 shadow-xl overflow-hidden flex flex-col justify-between">
@@ -194,7 +258,7 @@
 
             <div class="p-4 bg-slate-900/50 border-t border-slate-700/60 flex items-center justify-between">
               <span class="text-[11px] text-slate-400">Total: ${rows.length} rute aktif</span>
-              <button onclick="quickAddRoute('${escapeQuote(cat)}', '${escapeQuote(modelName)}', '${escapeQuote(cap)}', '${escapeQuote(rows[0].image_url || '')}')" class="px-3 py-1.5 bg-emerald-500/20 text-emerald-300 font-bold rounded-xl hover:bg-emerald-500/30 transition text-xs flex items-center gap-1">
+              <button onclick="quickAddRoute('${escapeQuote(cat)}', '${escapeQuote(modelName)}', '${escapeQuote(cap)}', '${escapeQuote(masterCarsCache[modelName] || '')}')" class="px-3 py-1.5 bg-emerald-500/20 text-emerald-300 font-bold rounded-xl hover:bg-emerald-500/30 transition text-xs flex items-center gap-1">
                 <span>➕ Tambah Rute Baru</span>
               </button>
             </div>
@@ -206,27 +270,16 @@
       lucide.createIcons();
     }
 
-    function resetFormToAddNewCar() {
-      resetForm();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
     function quickAddRoute(cat, model, cap, img) {
       document.getElementById('editId').value = '';
       document.getElementById('service_category').value = cat;
-      document.getElementById('car_model').value = model;
+      document.getElementById('car_model_select').value = model;
       document.getElementById('capacity').value = cap;
       document.getElementById('route_or_area').value = '';
       document.getElementById('price').value = '';
       document.getElementById('existing_image_url').value = img || '';
       document.getElementById('imageFile').value = '';
       
-      if (img) {
-        document.getElementById('currentImageInfo').classList.remove('hidden');
-      } else {
-        document.getElementById('currentImageInfo').classList.add('hidden');
-      }
-
       document.getElementById('formTitle').innerHTML = `<span>➕ Tambah Rute Baru untuk: ${model}</span>`;
       document.getElementById('editBadge').classList.add('hidden');
       document.getElementById('submitBtn').innerText = '💾 Simpan Rute Baru';
@@ -240,7 +293,7 @@
       const fileInput = document.getElementById('imageFile');
       let imageUrl = document.getElementById('existing_image_url').value;
 
-      // Jika user memilih file foto baru, upload ke Supabase Storage
+      // Jika user memilih file foto baru saat menambah/edit rute
       if (fileInput.files && fileInput.files[0]) {
         const file = fileInput.files[0];
         const cleanName = file.name.replace(/[^a-zA-Z0-9_.-]/g, '_');
@@ -251,17 +304,16 @@
           .upload(fileName, file);
 
         if (uploadError) {
-          alert('Gagal mengunggah foto ke Storage: ' + uploadError.message);
+          alert('Gagal upload foto: ' + uploadError.message);
           return;
         }
 
-        // Susun URL publik secara langsung dan pasti masuk ke database
         imageUrl = `${SUPABASE_URL}/storage/v1/object/public/spot-images/${fileName}`;
       }
 
       const payload = {
         service_category: document.getElementById('service_category').value,
-        car_model: document.getElementById('car_model').value,
+        car_model: document.getElementById('car_model_select').value,
         capacity: document.getElementById('capacity').value,
         route_or_area: document.getElementById('route_or_area').value,
         price: parseFloat(document.getElementById('price').value),
@@ -271,11 +323,11 @@
       if (id) {
         const { error } = await supabaseClient.from('car_transports').update(payload).eq('id', id);
         if (error) alert('Gagal update: ' + error.message);
-        else alert('Berhasil memperbarui data & foto!');
+        else alert('Berhasil memperbarui rute & foto!');
       } else {
         const { error } = await supabaseClient.from('car_transports').insert([payload]);
         if (error) alert('Gagal menambah: ' + error.message);
-        else alert('Berhasil menambahkan data baru!');
+        else alert('Berhasil menambahkan rute baru!');
       }
 
       resetForm();
@@ -285,7 +337,7 @@
     function editItem(id, cat, model, cap, route, price, img) {
       document.getElementById('editId').value = id;
       document.getElementById('service_category').value = cat;
-      document.getElementById('car_model').value = model;
+      document.getElementById('car_model_select').value = model;
       document.getElementById('capacity').value = cap;
       document.getElementById('route_or_area').value = route;
       document.getElementById('price').value = price;
@@ -316,10 +368,12 @@
 
     function resetForm() {
       document.getElementById('transportForm').reset();
-      document.getElementById('editId').value, document.getElementById('existing_image_url').value = '';
+      document.getElementById('editId').value = '';
+      document.getElementById('existing_image_url').value = '';
+      
       document.getElementById('formTitle').innerHTML = `<span>➕ Tambah Tarif / Rute Baru</span>`;
       document.getElementById('editBadge').classList.add('hidden');
-      document.getElementById('submitBtn').innerText = '💾 Simpan Data';
+      document.getElementById('submitBtn').innerText = '💾 Simpan Tarif Rute & Foto';
       document.getElementById('cancelEditBtn').classList.add('hidden');
       document.getElementById('currentImageInfo').classList.add('hidden');
     }
@@ -337,7 +391,6 @@
     }
 
     loadAdminData();
-    lucide.createIcons();
   </script>
 </body>
 </html>
