@@ -84,30 +84,30 @@
     const SUPABASE_ANON_KEY = 'sb_publishable_df32CqJ5bqDNCHU4OKGRPQ_7LiJvWV0';
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    const defaultCarImages = {
-      'alphard': 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=600&q=80',
-      'innova': 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=600&q=80',
-      'hiace': 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&w=600&q=80',
-      'avanza': 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=600&q=80',
-      'xenia': 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=600&q=80',
-      'default': 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=600&q=80'
-    };
-
-    function getCarImage(modelName, rows) {
-      const found = rows.find(r => r.image_url && r.image_url.trim() !== '');
-      if (found) return found.image_url;
-      const lower = (modelName || '').toLowerCase();
-      for (const [key, url] of Object.entries(defaultCarImages)) {
-        if (lower.includes(key)) return url;
-      }
-      return defaultCarImages['default'];
-    }
+    // Fallback foto jika nama mobil tidak ditemukan di master
+    const defaultCarImage = 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=600&q=80';
 
     async function fetchCarTransports() {
       const loadingEl = document.getElementById('loadingState');
       const contentEl = document.getElementById('transportContent');
 
       try {
+        // 1. Ambil Data Master Foto dari Tabel car_images
+        const { data: masterImagesData, error: masterError } = await supabaseClient
+          .from('car_images')
+          .select('*');
+
+        if (masterError) throw masterError;
+
+        // Buat kamus/peta master foto (Nama Mobil -> URL Foto)
+        const masterImages = {};
+        if (masterImagesData) {
+          masterImagesData.forEach(img => {
+            masterImages[img.car_name] = img.image_url;
+          });
+        }
+
+        // 2. Ambil Data Tarif Rute dari Tabel car_transports
         const { data: items, error } = await supabaseClient
           .from('car_transports')
           .select('*');
@@ -152,7 +152,9 @@
 
           for (const [modelName, subRows] of Object.entries(models)) {
             const cap = subRows[0].capacity || 'Max 7 pax';
-            const carImg = getCarImage(modelName, subRows);
+            
+            // Ambil foto dari Master Foto berdasarkan nama mobil yang dipilih di dropdown admin
+            const carImg = masterImages[modelName] || defaultCarImage;
 
             htmlOutput += `
               <div class="bg-white rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden flex flex-col justify-between group">
