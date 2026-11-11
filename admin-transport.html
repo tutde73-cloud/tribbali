@@ -16,7 +16,7 @@
       <div>
         <span class="px-3 py-1 bg-emerald-500/20 text-emerald-400 font-bold text-[10px] uppercase tracking-wider rounded-full border border-emerald-500/30">Staff Access Only</span>
         <h1 class="text-2xl font-black text-white mt-2">🚗 Bali Car Transport Dashboard</h1>
-        <p class="text-xs text-slate-400 mt-0.5">Kelola tarif rute dan upload foto armada langsung dari HP.</p>
+        <p class="text-xs text-slate-400 mt-0.5">Kelola tarif rute dengan Master Pilihan Mobil Otomatis.</p>
       </div>
       <div class="flex items-center gap-2.5">
         <a href="./rent-car.html" target="_blank" class="px-4 py-2.5 bg-slate-700 hover:bg-slate-600 text-white font-bold text-xs rounded-xl transition flex items-center gap-2">
@@ -25,7 +25,7 @@
       </div>
     </div>
 
-    <!-- FORM 1: TAMBAH / EDIT TARIF RUTE -->
+    <!-- FORM 1: TAMBAH / EDIT TARIF RUTE (TANPA UPLOAD FOTO) -->
     <div class="bg-slate-800 p-6 rounded-3xl border border-slate-700 shadow-xl space-y-4">
       <div class="flex items-center justify-between border-b border-slate-700 pb-3">
         <h2 id="formTitle" class="text-sm font-extrabold text-white flex items-center gap-2">
@@ -36,7 +36,6 @@
       
       <form id="transportForm" onsubmit="saveTransportItem(event)" class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
         <input type="hidden" id="editId" />
-        <input type="hidden" id="existing_image_url" />
         
         <div>
           <label class="block text-slate-400 font-semibold mb-1">Kategori Layanan</label>
@@ -44,7 +43,7 @@
         </div>
 
         <div>
-          <label class="block text-slate-400 font-semibold mb-1">Pilih Model Mobil (Master Foto)</label>
+          <label class="block text-slate-400 font-semibold mb-1">Pilih Model Mobil (Otomatis Ada Fotonya)</label>
           <select id="car_model_select" required class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-emerald-500">
             <option value="">-- Memuat Daftar Mobil --</option>
           </select>
@@ -60,20 +59,14 @@
           <input type="text" id="route_or_area" placeholder="Contoh: Kuta, Legian, Jimbaran" required class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-emerald-500" />
         </div>
 
-        <div>
+        <div class="sm:col-span-2">
           <label class="block text-slate-400 font-semibold mb-1">Harga (IDR angka saja)</label>
           <input type="number" id="price" placeholder="Contoh: 350000" required class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-emerald-500" />
         </div>
 
-        <div>
-          <label class="block text-slate-400 font-semibold mb-1">Upload Foto Mobil dari HP (Opsional)</label>
-          <input type="file" id="imageFile" accept="image/*" class="w-full text-slate-400 text-xs file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-500 file:text-slate-950 hover:file:bg-emerald-600 file:cursor-pointer" />
-          <p id="currentImageInfo" class="text-[10px] text-emerald-400 mt-1 italic hidden">✓ Foto sudah terpasang di master.</p>
-        </div>
-
         <div class="sm:col-span-2 flex items-center gap-3 pt-2">
           <button type="submit" id="submitBtn" class="px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black rounded-xl transition shadow-lg shadow-emerald-500/20">
-            💾 Simpan Tarif Rute & Foto
+            💾 Simpan Tarif Rute
           </button>
           <button type="button" id="cancelEditBtn" onclick="resetForm()" class="hidden px-4 py-3 bg-rose-500/20 text-rose-300 font-bold rounded-xl hover:bg-rose-500/30 transition">
             ✕ Batal
@@ -82,13 +75,13 @@
       </form>
     </div>
 
-    <!-- FORM 2: KELOLA / TAMBAH MASTER FOTO MOBIL DENGAN UPLOAD HP -->
+    <!-- FORM 2: KELOLA / TAMBAH MASTER FOTO MOBIL (Hanya di sini tempat upload foto) -->
     <div class="bg-slate-800 p-6 rounded-3xl border border-slate-700 shadow-xl space-y-4">
       <div class="border-b border-slate-700 pb-3">
         <h2 class="text-sm font-extrabold text-white flex items-center gap-2">
-          <span>🖼️ Kelola / Tambah Master Foto Mobil (Upload dari HP)</span>
+          <span>🖼️ Kelola / Tambah Master Foto Mobil Baru</span>
         </h2>
-        <p class="text-[11px] text-slate-400 mt-0.5">Tambah jenis mobil baru dan upload foto aslinya langsung dari galeri HP Anda.</p>
+        <p class="text-[11px] text-slate-400 mt-0.5">Gunakan bagian ini hanya jika ingin menambah jenis mobil baru atau mengganti foto masternya.</p>
       </div>
 
       <form onsubmit="saveCarMaster(event)" class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs items-end">
@@ -245,7 +238,7 @@
                     <p class="font-extrabold text-emerald-400 mt-0.5">IDR ${formattedPrice}</p>
                   </div>
                   <div class="flex items-center gap-1.5 shrink-0">
-                    <button onclick="editItem(${r.id}, '${escapeQuote(r.service_category)}', '${escapeQuote(r.car_model)}', '${escapeQuote(r.capacity || '')}', '${escapeQuote(r.route_or_area || '')}', ${r.price}, '${escapeQuote(r.image_url || '')}')" class="px-2.5 py-1 bg-amber-500/20 text-amber-300 font-bold rounded-lg hover:bg-amber-500/30 transition text-[11px]">Edit</button>
+                    <button onclick="editItem(${r.id}, '${escapeQuote(r.service_category)}', '${escapeQuote(r.car_model)}', '${escapeQuote(r.capacity || '')}', '${escapeQuote(r.route_or_area || '')}', ${r.price})" class="px-2.5 py-1 bg-amber-500/20 text-amber-300 font-bold rounded-lg hover:bg-amber-500/30 transition text-[11px]">Edit</button>
                     <button onclick="deleteItem(${r.id})" class="px-2.5 py-1 bg-rose-500/20 text-rose-300 font-bold rounded-lg hover:bg-rose-500/30 transition text-[11px]">Hapus</button>
                   </div>
                 </div>
@@ -258,7 +251,7 @@
 
             <div class="p-4 bg-slate-900/50 border-t border-slate-700/60 flex items-center justify-between">
               <span class="text-[11px] text-slate-400">Total: ${rows.length} rute aktif</span>
-              <button onclick="quickAddRoute('${escapeQuote(cat)}', '${escapeQuote(modelName)}', '${escapeQuote(cap)}', '${escapeQuote(masterCarsCache[modelName] || '')}')" class="px-3 py-1.5 bg-emerald-500/20 text-emerald-300 font-bold rounded-xl hover:bg-emerald-500/30 transition text-xs flex items-center gap-1">
+              <button onclick="quickAddRoute('${escapeQuote(cat)}', '${escapeQuote(modelName)}', '${escapeQuote(cap)}')" class="px-3 py-1.5 bg-emerald-500/20 text-emerald-300 font-bold rounded-xl hover:bg-emerald-500/30 transition text-xs flex items-center gap-1">
                 <span>➕ Tambah Rute Baru</span>
               </button>
             </div>
@@ -270,15 +263,13 @@
       lucide.createIcons();
     }
 
-    function quickAddRoute(cat, model, cap, img) {
+    function quickAddRoute(cat, model, cap) {
       document.getElementById('editId').value = '';
       document.getElementById('service_category').value = cat;
       document.getElementById('car_model_select').value = model;
       document.getElementById('capacity').value = cap;
       document.getElementById('route_or_area').value = '';
       document.getElementById('price').value = '';
-      document.getElementById('existing_image_url').value = img || '';
-      document.getElementById('imageFile').value = '';
       
       document.getElementById('formTitle').innerHTML = `<span>➕ Tambah Rute Baru untuk: ${model}</span>`;
       document.getElementById('editBadge').classList.add('hidden');
@@ -290,40 +281,19 @@
     async function saveTransportItem(event) {
       event.preventDefault();
       const id = document.getElementById('editId').value;
-      const fileInput = document.getElementById('imageFile');
-      let imageUrl = document.getElementById('existing_image_url').value;
-
-      // Jika user memilih file foto baru saat menambah/edit rute
-      if (fileInput.files && fileInput.files[0]) {
-        const file = fileInput.files[0];
-        const cleanName = file.name.replace(/[^a-zA-Z0-9_.-]/g, '_');
-        const fileName = `transport_${Date.now()}_${cleanName}`;
-        
-        const { error: uploadError } = await supabaseClient.storage
-          .from('spot-images')
-          .upload(fileName, file);
-
-        if (uploadError) {
-          alert('Gagal upload foto: ' + uploadError.message);
-          return;
-        }
-
-        imageUrl = `${SUPABASE_URL}/storage/v1/object/public/spot-images/${fileName}`;
-      }
 
       const payload = {
         service_category: document.getElementById('service_category').value,
         car_model: document.getElementById('car_model_select').value,
         capacity: document.getElementById('capacity').value,
         route_or_area: document.getElementById('route_or_area').value,
-        price: parseFloat(document.getElementById('price').value),
-        image_url: imageUrl ? imageUrl : null
+        price: parseFloat(document.getElementById('price').value)
       };
 
       if (id) {
         const { error } = await supabaseClient.from('car_transports').update(payload).eq('id', id);
         if (error) alert('Gagal update: ' + error.message);
-        else alert('Berhasil memperbarui rute & foto!');
+        else alert('Berhasil memperbarui data rute!');
       } else {
         const { error } = await supabaseClient.from('car_transports').insert([payload]);
         if (error) alert('Gagal menambah: ' + error.message);
@@ -334,26 +304,18 @@
       loadAdminData();
     }
 
-    function editItem(id, cat, model, cap, route, price, img) {
+    function editItem(id, cat, model, cap, route, price) {
       document.getElementById('editId').value = id;
       document.getElementById('service_category').value = cat;
       document.getElementById('car_model_select').value = model;
       document.getElementById('capacity').value = cap;
       document.getElementById('route_or_area').value = route;
       document.getElementById('price').value = price;
-      document.getElementById('existing_image_url').value = img || '';
-      document.getElementById('imageFile').value = '';
       
       document.getElementById('formTitle').innerHTML = `<span>✏️ Edit Rute: ${model} (${route})</span>`;
       document.getElementById('editBadge').classList.remove('hidden');
       document.getElementById('submitBtn').innerText = '💾 Simpan Perubahan';
       document.getElementById('cancelEditBtn').classList.remove('hidden');
-
-      if (img) {
-        document.getElementById('currentImageInfo').classList.remove('hidden');
-      } else {
-        document.getElementById('currentImageInfo').classList.add('hidden');
-      }
 
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -369,13 +331,11 @@
     function resetForm() {
       document.getElementById('transportForm').reset();
       document.getElementById('editId').value = '';
-      document.getElementById('existing_image_url').value = '';
       
       document.getElementById('formTitle').innerHTML = `<span>➕ Tambah Tarif / Rute Baru</span>`;
       document.getElementById('editBadge').classList.add('hidden');
-      document.getElementById('submitBtn').innerText = '💾 Simpan Tarif Rute & Foto';
+      document.getElementById('submitBtn').innerText = '💾 Simpan Tarif Rute';
       document.getElementById('cancelEditBtn').classList.add('hidden');
-      document.getElementById('currentImageInfo').classList.add('hidden');
     }
 
     function escapeHtml(str) {
