@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  
+  <title>Nomad Profile — SpotTribe Bali</title>
+  <meta name="description" content="Manage your nomad profile, review history, and preferences on SpotTribe Bali.">
+  
+  <!-- SEO & Canonical Settings -->
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="canonical" href="https://spottribebali.com/profile.html">
+
+  <!-- Tailwind CSS, Lucide Icons & Supabase JS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    body { 
+      background-color: #f8fafc; 
+      font-family: system-ui, -apple-system, sans-serif; 
+      margin: 0; 
+      padding-bottom: 80px; 
+      overscroll-behavior-y: none;
+      -webkit-overflow-scrolling: touch;
+    }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body class="text-slate-800 flex flex-col min-h-screen">
+
+  <!-- HEADER -->
+  <header class="sticky top-0 z-50 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-4 h-14 flex items-center justify-between shrink-0 text-white">
+    <div class="flex items-center gap-3">
+      <a href="./index.html" class="w-8 h-8 rounded-xl bg-slate-800 text-slate-300 flex items-center justify-center hover:bg-slate-700 transition">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+      </a>
+      <div>
+        <h1 class="font-extrabold text-xs tracking-tight text-white uppercase flex items-center gap-1.5">
+          <span>Nomad Profile</span>
+          <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+        </h1>
+        <p class="text-[10px] text-slate-400 font-medium">Account & Contributions</p>
+      </div>
+    </div>
+    <button onclick="signOut()" class="text-xs font-bold text-rose-400 hover:text-rose-300 transition px-3 py-1.5 rounded-xl bg-rose-500/10 border border-rose-500/20">
+      Sign Out
+    </button>
+  </header>
+
+  <!-- AUTH REQUIRED BANNER -->
+  <div id="loginNotice" class="hidden fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center space-y-4">
+    <div class="w-16 h-16 rounded-3xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-3xl">
+      👤
+    </div>
+    <div class="space-y-1 max-w-sm">
+      <h2 class="text-lg font-black text-white">Sign In Required</h2>
+      <p class="text-xs text-slate-400 leading-relaxed">Sign in with your Google account to view and manage your SpotTribe profile.</p>
+    </div>
+    <button onclick="signInWithGoogle()" class="px-6 py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs rounded-2xl transition shadow-lg shadow-emerald-500/20 flex items-center gap-2">
+      <span>Continue with Google</span>
+      <i data-lucide="arrow-right" class="w-4 h-4"></i>
+    </button>
+  </div>
+
+  <!-- MAIN PROFILE CONTAINER -->
+  <main class="max-w-2xl mx-auto px-4 py-6 w-full space-y-6">
+    
+    <!-- PROFILE CARD -->
+    <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-6">
+      <div class="flex items-center gap-4">
+        <div id="userAvatarContainer" class="w-16 h-16 rounded-2xl bg-emerald-100 border border-emerald-200 text-emerald-700 font-black text-2xl flex items-center justify-center overflow-hidden shrink-0">
+          <span id="avatarInitial">N</span>
+        </div>
+        <div class="min-w-0 flex-1">
+          <div class="flex items-center gap-2">
+            <h2 id="profileName" class="text-base font-black text-slate-900 truncate">Loading Name...</h2>
+            <span class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200 shrink-0">✓ Verified</span>
+          </div>
+          <p id="profileEmail" class="text-xs text-slate-500 truncate mt-0.5">Loading email...</p>
+          <p class="text-[10px] text-slate-400 mt-1">📍 <span id="profileLocationDisplay">Bali</span></p>
+        </div>
+      </div>
+
+      <!-- EDIT PROFILE FORM -->
+      <form id="profileForm" onsubmit="updateProfile(event)" class="space-y-4 pt-4 border-t border-slate-100">
+        <h3 class="text-xs font-black uppercase tracking-wider text-slate-500">Edit Nomad Bio & Details</h3>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-600 mb-1">Base Location in Bali</label>
+            <input type="text" id="inputLocation" placeholder="e.g. Canggu, Ubud, Seminyak" class="w-full text-xs border border-slate-200 rounded-xl px-3 py-2 bg-slate-50 font-medium text-slate-700 focus:outline-none focus:border-emerald-500">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-600 mb-1">Interests / Focus</label>
+            <input type="text" id="inputInterests" placeholder="e.g. Surfing, Cafes, Web Dev" class="w-full text-xs border border-slate-200 rounded-xl px-3 py-2 bg-slate-50 font-medium text-slate-700 focus:outline-none focus:border-emerald-500">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-600 mb-1">Nomad Bio / Introduction</label>
+          <textarea id="inputBio" rows="2" placeholder="Tell fellow nomads what you do or what you're looking for..." class="w-full text-xs border border-slate-200 rounded-xl p-3 bg-slate-50 font-medium text-slate-700 focus:outline-none focus:border-emerald-500"></textarea>
+        </div>
+
+        <button type="submit" id="saveProfileBtn" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl transition shadow-md shadow-emerald-600/20">
+          Save Profile Changes
+        </button>
+      </form>
+    </div>
+
+    <!-- USER REVIEWS & CONTRIBUTIONS HISTORY -->
+    <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+      <h3 class="text-xs font-black uppercase tracking-wider text-slate-500">My Contributions & Reviews</h3>
+      <div id="userReviewsContainer" class="space-y-3">
+        <p class="text-xs text-slate-400 italic text-center py-4">Loading your contributions...</p>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- BOTTOM NAVIGATION BAR -->
+  <nav class="bg-white/95 backdrop-blur-md border-t border-slate-200 h-16 flex items-center justify-around px-6 fixed bottom-0 left-0 right-0 z-40 shadow-lg">
+    <a href="./index.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 transition-colors">
+      <i data-lucide="map" class="w-5 h-5"></i>
+      <span class="text-[10px] font-medium">Explore</span>
+    </a>
+    <a href="./messages.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 transition-colors">
+      <i data-lucide="message-square" class="w-5 h-5"></i>
+      <span class="text-[10px] font-medium">Chats</span>
+    </a>
+    <a href="./profile.html" class="flex flex-col items-center gap-1 text-emerald-600 transition-colors">
+      <i data-lucide="user" class="w-5 h-5"></i>
+      <span class="text-[10px] font-extrabold">Profile</span>
+    </a>
+  </nav>
+
+  <!-- SUPABASE PROFILE SCRIPT -->
+  <script>
+    const SUPABASE_URL = 'https://riyupzmllltjrelqytwi.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_df32CqJ5bqDNCHU4OKGRPQ_7LiJvWV0';
+    const clientSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let currentUser = null;
+
+    async function initProfile() {
+      const { data: { user } } = await clientSupabase.auth.getUser();
+
+      if (!user) {
+        document.getElementById('loginNotice').classList.remove('hidden');
+        return;
+      }
+
+      currentUser = user;
+      const metadata = user.user_metadata || {};
+      const fullName = metadata.full_name || metadata.name || user.email.split('@')[0];
+      const avatarUrl = metadata.avatar_url || metadata.picture;
+
+      document.getElementById('profileName').innerText = fullName;
+      document.getElementById('profileEmail').innerText = user.email;
+
+      if (avatarUrl) {
+        document.getElementById('userAvatarContainer').innerHTML = `<img src="${avatarUrl}" class="w-full h-full object-cover">`;
+      } else {
+        document.getElementById('avatarInitial').innerText = fullName.charAt(0).toUpperCase();
+      }
+
+      // Ambil data tambahan dari tabel profiles di Supabase
+      loadUserData(user.id);
+      loadUserReviews(fullName);
+    }
+
+    async function loadUserData(userId) {
+      const { data, error } = await clientSupabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+
+      if (data) {
+        document.getElementById('inputLocation').value = data.location || 'Bali';
+        document.getElementById('inputInterests').value = data.interests || '';
+        document.getElementById('inputBio').value = data.bio || '';
+        document.getElementById('profileLocationDisplay').innerText = data.location || 'Bali';
+      }
+    }
+
+    async function loadUserReviews(userName) {
+      const container = document.getElementById('userReviewsContainer');
+      const { data: reviews, error } = await clientSupabase
+        .from('reviews')
+        .select('*')
+        .eq('user_name', userName)
+        .order('id', { ascending: false });
+
+      if (error || !reviews || reviews.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-6 text-slate-400 space-y-1">
+            <p class="text-xs font-bold text-slate-600">No reviews submitted yet</p>
+            <p class="text-[10px]">Explore spots and share your first review & photo!</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = reviews.map(rev => `
+        <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-200/80 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-bold text-amber-500">★ ${rev.rating}.0 Rating</span>
+            <span class="text-[9px] text-slate-400">${new Date(rev.created_at).toLocaleDateString()}</span>
+          </div>
+          <p class="text-xs text-slate-700 font-medium">${escapeHtml(rev.comment)}</p>
+          ${rev.photo_url ? `<img src="${rev.photo_url}" class="w-full h-32 object-cover rounded-xl mt-1 border border-slate-200">` : ''}
+        </div>
+      `).join('');
+    }
+
+    async function updateProfile(e) {
+      e.preventDefault();
+      const btn = document.getElementById('saveProfileBtn');
+      btn.innerText = 'Saving...';
+      btn.disabled = true;
+
+      const location = document.getElementById('inputLocation').value;
+      const interests = document.getElementById('inputInterests').value;
+      const bio = document.getElementById('inputBio').value;
+
+      const updates = {
+        id: currentUser.id,
+        location: location,
+        interests: interests,
+        bio: bio,
+        updated_at: new Date()
+      };
+
+      const { error } = await clientSupabase
+        .from('profiles')
+        .upsert(updates);
+
+      if (error) {
+        alert('Failed to update profile: ' + error.message);
+      } else {
+        alert('Profile updated successfully!');
+        document.getElementById('profileLocationDisplay').innerText = location || 'Bali';
+      }
+
+      btn.innerText = 'Save Profile Changes';
+      btn.disabled = false;
+    }
+
+    async function signInWithGoogle() {
+      await clientSupabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: window.location.href }
+      });
+    }
+
+    async function signOut() {
+      await clientSupabase.auth.signOut();
+      window.location.reload();
+    }
+
+    function escapeHtml(str) {
+      return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    initProfile();
+    lucide.createIcons();
+  </script>
+</body>
+</html>
