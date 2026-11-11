@@ -266,11 +266,11 @@
 
       await checkAuthUser();
 
-      // MEMPERBAIKI BATASAN PAGINASI AGAR MEMBACA SEMUA BARIS (HINGGA 1000 DATA)
+      // Ambil data dengan range besar hingga 1999 baris
       const { data: places, error } = await clientSupabase
         .from('places')
         .select('*')
-        .range(0, 999);
+        .range(0, 1999);
 
       if (error || !places) {
         document.getElementById('spotTitle').innerText = 'Spot Not Found';
@@ -287,14 +287,14 @@
 
       currentPlaceId = spot.id;
 
-      // Cek apakah spot ini masuk kategori Accommodation & Living
+      // DETEKSI KATEGORI AKOMODASI YANG LEBIH LUAS & FLEKSIBEL (Mendukung villas, hotel, resort, coliving, dll)
       const category = (spot.category || '').toLowerCase();
-      isAccommodationSpot = ['villa', 'villas', 'coliving', 'hotel', 'hotels'].some(cat => category.includes(cat));
+      isAccommodationSpot = ['villa', 'coliving', 'hotel', 'resort', 'stay', 'accommodation'].some(cat => category.includes(cat));
 
       // Jika kategori akomodasi, kunci form foto agar tidak bisa mengganti cover utama
       if (isAccommodationSpot) {
         document.getElementById('reviewFormTitle').innerHTML = `<span>📸</span> Share Your Experience & Review`;
-        document.getElementById('photoUploadContainer').style.display = 'none'; // Sembunyikan input foto khusus akomodasi
+        document.getElementById('photoUploadContainer').style.display = 'none';
       }
 
       // Update DOM Text & Media
@@ -344,9 +344,7 @@
         amenitiesContainer.innerHTML = `<span class="text-xs text-slate-400 italic">No specific facilities listed.</span>`;
       }
 
-      // EXECUTE SMART ROLLING & RANDOMIZER INTERNAL LINKING
       renderSmartRelatedSpots(spot, places);
-
       loadReviews();
     }
 
