@@ -1,15 +1,23 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
-// Inisialisasi Supabase menggunakan kunci yang Anda berikan
 const supabaseUrl = 'https://riyupzmllltjrelqytwi.supabase.co'
 const supabaseKey = 'sb_publishable_df32CqJ5bqDNCHU4OKGRPQ_7LiJvWV0'
 const supabase = createClient(supabaseUrl, supabaseKey)
 
+// Fungsi helper untuk mengubah nama tempat menjadi format slug (contoh: "The Edge Bali" -> "the-edge-bali")
+function stringToSlug(str) {
+  return str
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, '') // Hapus simbol khusus
+    .trim()
+    .replace(/\s+/g, '-')     // Ganti spasi dengan tanda -
+}
+
 async function generateSitemap() {
-  // Mengambil data slug dari tabel places
+  // Ambil kolom 'name' dari tabel places
   const { data: places, error } = await supabase
     .from('places')
-    .select('slug, updated_at')
+    .select('name')
 
   if (error) {
     console.error('Gagal mengambil data dari Supabase:', error)
@@ -36,14 +44,16 @@ async function generateSitemap() {
     xml += `  </url>\n`
   })
 
-  // Halaman Dinamis berdasarkan Slug dari Supabase
+  // Halaman Dinamis Berdasarkan Kolom 'name' dari Supabase
   if (places) {
     places.forEach(place => {
-      if (place.slug) {
-        const lastmod = place.updated_at ? place.updated_at.split('T')[0] : new Date().toISOString().split('T')[0]
+      if (place.name) {
+        const slug = stringToSlug(place.name)
+        const currentDate = new Date().toISOString().split('T')[0]
+        
         xml += `  <url>\n`
-        xml += `    <loc>${baseUrl}/spot-detail.html?slug=${place.slug}</loc>\n`
-        xml += `    <lastmod>${lastmod}</lastmod>\n`
+        xml += `    <loc>${baseUrl}/spot-detail.html?slug=${slug}</loc>\n`
+        xml += `    <lastmod>${currentDate}</lastmod>\n`
         xml += `    <changefreq>weekly</changefreq>\n`
         xml += `    <priority>0.7</priority>\n`
         xml += `  </url>\n`
@@ -53,9 +63,9 @@ async function generateSitemap() {
 
   xml += `</urlset>`
 
-  // Simpan hasilnya ke file sitemap.xml di root folder repository
+  // Simpan ke file sitemap.xml di root folder
   await Deno.writeTextFile('sitemap.xml', xml)
-  console.log('Sitemap.xml berhasil di-generate secara otomatis dari Supabase!')
+  console.log('Sitemap.xml berhasil di-generate otomatis dari kolom name Supabase!')
 }
 
 generateSitemap()
