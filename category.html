@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   
-  <!-- SEO & Open Graph Meta Tags Dinamis (Selaras dengan domain utama tanpa www) -->
+  <!-- SEO & Open Graph Meta Tags Dinamis -->
   <title id="metaTitle">SpotTribe Bali — Category Directory</title>
   <meta id="metaDesc" name="description" content="Explore curated spots, cafes, and hidden gems across Bali with SpotTribe Bali.">
   <link id="canonicalLink" rel="canonical" href="https://spottribebali.com/category.html">
@@ -46,7 +46,6 @@
 
       <!-- BANNER EYE-CATCHING & ELEGAN -->
       <div class="mb-8 p-6 rounded-3xl bg-gradient-to-br from-slate-900 via-slate-900 to-emerald-950 border border-emerald-500/30 shadow-xl relative overflow-hidden">
-        <!-- Aksen Cahaya Background -->
         <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none"></div>
 
         <div class="relative z-10 flex flex-col sm:flex-row items-start sm:items-center gap-4">
@@ -73,10 +72,10 @@
 
       <!-- Grid Kartu -->
       <div id="spotsContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        <!-- Hasil query Supabase akan dirender di sini secara dinamis -->
+        <!-- Hasil query Supabase dirender secara dinamis -->
       </div>
 
-      <!-- PAGINATION CONTROLS (BATAS 20 PER HALAMAN) -->
+      <!-- PAGINATION CONTROLS -->
       <div id="paginationContainer" class="hidden flex items-center justify-between mt-10 pt-6 border-t border-slate-200">
         <button id="prevBtn" onclick="changePage(-1)" class="px-4 py-2 rounded-xl bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50 transition disabled:opacity-40 disabled:cursor-not-allowed">
           ← Previous
@@ -89,7 +88,7 @@
     </main>
   </div>
 
-  <!-- FOOTER -->
+  <!-- FOOTER (ADSENSE COMPLIANT) -->
   <footer class="bg-[#0b1329] text-slate-400 pt-16 pb-12 px-6 mt-20 border-t border-slate-800">
     <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-10 text-xs">
       
@@ -109,20 +108,20 @@
         <h4 class="text-white font-bold tracking-wider uppercase text-[11px]">Quick Links</h4>
         <ul class="space-y-2">
           <li><a href="./index.html" class="hover:text-white transition">Explore Map</a></li>
-          <li><a href="#" class="hover:text-white transition">Community Chats</a></li>
-          <li><a href="#" class="hover:text-white transition">User Profile</a></li>
-          <li><a href="#" class="hover:text-white transition">Staff Portal</a></li>
+          <li><a href="./messages.html" class="hover:text-white transition">Community Chats</a></li>
+          <li><a href="./profile.html" class="hover:text-white transition">User Profile</a></li>
+          <li><a href="./admin.html" class="hover:text-white transition">Staff Portal</a></li>
         </ul>
       </div>
 
-      <!-- Col 3: Legals -->
+      <!-- Col 3: Legals & Policy (AdSense Compliance) -->
       <div class="space-y-3">
-        <h4 class="text-white font-bold tracking-wider uppercase text-[11px]">Legals</h4>
+        <h4 class="text-white font-bold tracking-wider uppercase text-[11px]">Legals & Policy</h4>
         <ul class="space-y-2">
-          <li><a href="#" class="hover:text-white transition">Terms of Service</a></li>
-          <li><a href="#" class="hover:text-white transition">Privacy Policy</a></li>
-          <li><a href="#" class="hover:text-white transition">Cookie Settings</a></li>
-          <li><a href="#" class="hover:text-white transition">Compliance</a></li>
+          <li><a href="./terms.html" class="hover:text-white transition">Terms of Service</a></li>
+          <li><a href="./privacy.html" class="hover:text-white transition">Privacy Policy</a></li>
+          <li><a href="./disclaimer.html" class="hover:text-white transition">Disclaimer</a></li>
+          <li><a href="./cookie-policy.html" class="hover:text-white transition">Cookie Policy</a></li>
         </ul>
       </div>
 
@@ -131,9 +130,9 @@
         <h4 class="text-white font-bold tracking-wider uppercase text-[11px]">Connect</h4>
         <p class="text-slate-400 leading-relaxed">Join our global network of island creators and remote workers.</p>
         <div class="flex items-center gap-3 pt-1">
-          <div class="w-9 h-9 rounded-xl bg-slate-800/80 border border-slate-700/60 flex items-center justify-center text-white hover:bg-slate-700 transition cursor-pointer"><i data-lucide="globe" class="w-4 h-4"></i></div>
-          <div class="w-9 h-9 rounded-xl bg-slate-800/80 border border-slate-700/60 flex items-center justify-center text-white hover:bg-slate-700 transition cursor-pointer"><i data-lucide="message-square" class="w-4 h-4"></i></div>
-          <div class="w-9 h-9 rounded-xl bg-slate-800/80 border border-slate-700/60 flex items-center justify-center text-white hover:bg-slate-700 transition cursor-pointer"><i data-lucide="mail" class="w-4 h-4"></i></div>
+          <a href="https://spottribebali.com" target="_blank" rel="noopener noreferrer" class="w-9 h-9 rounded-xl bg-slate-800/80 border border-slate-700/60 flex items-center justify-center text-white hover:bg-slate-700 transition cursor-pointer"><i data-lucide="globe" class="w-4 h-4"></i></a>
+          <a href="./messages.html" class="w-9 h-9 rounded-xl bg-slate-800/80 border border-slate-700/60 flex items-center justify-center text-white hover:bg-slate-700 transition cursor-pointer"><i data-lucide="message-square" class="w-4 h-4"></i></a>
+          <a href="mailto:support@spottribebali.com" class="w-9 h-9 rounded-xl bg-slate-800/80 border border-slate-700/60 flex items-center justify-center text-white hover:bg-slate-700 transition cursor-pointer"><i data-lucide="mail" class="w-4 h-4"></i></a>
         </div>
       </div>
 
@@ -156,10 +155,9 @@
     const searchQuery = urlParams.get('q');
 
     let currentPage = 1;
-    const pageSize = 20; // Batasi 20 spot per halaman
+    const pageSize = 20;
     let allPlacesData = [];
 
-    // Fungsi pembantu pembuat slug URL
     function createSlug(text) {
       return String(text || '')
         .toLowerCase()
@@ -204,7 +202,6 @@
       
       titleEl.innerText = pageHeading;
 
-      // UPDATE SEO & OPEN GRAPH SECARA DINAMIS
       const seoTitle = `${pageHeading} — SpotTribe Bali`;
       const seoDesc = `Explore the best curated ${categoryType || 'Bali'} spots, cafes, and hidden gems for digital nomads and expats.`;
       
@@ -261,26 +258,18 @@
       container.innerHTML = paginatedItems.map(spot => {
         const spotImage = spot.image_url || 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=600&q=80';
         const mapsButtonLink = spot.map_url || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spot.name + ', ' + (spot.area || 'Bali'))}`;
-        
-        // Menggunakan slug berbasis nama tempat
         const spotSlug = createSlug(spot.name);
         const detailUrl = `./spot-detail.html?slug=${spotSlug}`;
 
         return `
           <div onclick="window.location.href='${detailUrl}'" class="bg-white rounded-3xl border border-slate-200/90 overflow-hidden shadow-sm hover:shadow-md transition flex flex-col justify-between cursor-pointer">
-            
-            <!-- FOTO UTAMA DI BAGIAN ATAS -->
             <div class="relative w-full h-48 bg-slate-100 overflow-hidden">
               <img src="${spotImage}" class="w-full h-full object-cover" alt="${escapeHtml(spot.name)}" />
-
-              <!-- TOMBOL MAPS DI POJOK KIRI ATAS -->
               <a href="${mapsButtonLink}" target="_blank" onclick="event.stopPropagation();" class="absolute top-3 left-3 bg-white/90 hover:bg-white backdrop-blur-md px-3 py-1 rounded-xl text-xs font-bold text-slate-700 shadow-xs flex items-center gap-1 transition z-10">
                 <span>Maps</span>
                 <i data-lucide="external-link" class="w-3 h-3"></i>
               </a>
             </div>
-
-            <!-- KONTEN INFORMASI -->
             <div class="p-5 flex flex-col gap-3 flex-grow justify-between">
               <div>
                 <h3 class="font-extrabold text-slate-900 text-base leading-snug hover:text-emerald-600 transition-colors">${escapeHtml(spot.name)}</h3>
@@ -288,13 +277,9 @@
                   <span class="text-rose-500">📍</span> ${escapeHtml(spot.area || spot.regency || 'Bali')}
                 </p>
               </div>
-
-              <!-- AMENITIES DARI KOLOM DATABASE -->
               <div class="flex flex-wrap gap-1.5 pt-2 border-t border-slate-100">
                 ${renderAmenitiesBadges(spot.amenity)}
               </div>
-
-              <!-- BOTTOM RATES -->
               <div class="flex items-center justify-between pt-3 border-t border-slate-100 text-xs">
                 <span class="text-slate-400 font-medium">Explore More</span>
                 <span class="font-bold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-xl flex items-center gap-1">
@@ -302,14 +287,12 @@
                 </span>
               </div>
             </div>
-
           </div>
         `;
       }).join('');
 
       lucide.createIcons();
 
-      // Kontrol Tampilan Pagination
       if (allPlacesData.length > pageSize) {
         paginationContainer.classList.remove('hidden');
         paginationContainer.classList.add('flex');
