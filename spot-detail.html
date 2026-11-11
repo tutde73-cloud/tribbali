@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   
-  <!-- SEO & Open Graph Meta Tags (Dinamis berbasis Slug) -->
+  <!-- SEO & Open Graph Meta Tags (Dynamic based on Slug) -->
   <title id="metaTitle">Spot Detail — SpotTribe Bali</title>
   <meta id="metaDesc" name="description" content="Explore curated luxury villas, cozy cafés, and hidden gems across Bali with SpotTribe Bali.">
   <link id="canonicalLink" rel="canonical" href="https://spottribebali.com/spot-detail.html">
@@ -40,7 +40,7 @@
         <h1 id="spotTitle" class="text-2xl sm:text-3xl font-black text-white leading-tight">Loading Spot...</h1>
         <p id="spotLocation" class="text-xs text-slate-300 font-medium mt-1">📍 Loading location...</p>
       </div>
-      <!-- BADGE KONTRIBUTOR UTAMA -->
+      <!-- CONTRIBUTOR BADGE -->
       <div id="contributorBadge" class="hidden bg-black/60 backdrop-blur-md border border-white/20 px-3 py-1.5 rounded-xl text-right">
         <span class="text-[9px] uppercase tracking-widest text-emerald-400 font-extrabold block">Captured by</span>
         <span id="contributorName" class="text-xs font-bold text-white">Nomad Explorer</span>
@@ -102,6 +102,33 @@
       </div>
     </article>
 
+    <!-- SMART ROLLING RELATED SPOTS (INTERNAL LINKING SECTION) -->
+    <section class="space-y-6 pt-2">
+      
+      <!-- SECTION 1: Similar Category Recommendations (2 Links) -->
+      <div class="space-y-3">
+        <h3 id="sameCategoryTitle" class="text-xs font-black uppercase tracking-widest text-slate-500 flex items-center gap-2">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> More Similar Spots
+        </h3>
+        <div id="sameCategoryContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <!-- Populated via Javascript -->
+        </div>
+      </div>
+
+      <!-- SECTION 2: Cross-Category Recommendations (3 Rolling Links) -->
+      <div class="bg-slate-900 text-white p-5 rounded-3xl space-y-3 shadow-lg">
+        <div class="flex items-center justify-between">
+          <h3 id="crossCategoryPrompt" class="text-xs font-bold uppercase tracking-widest text-emerald-400 flex items-center gap-2">
+            <span>✨</span> Looking for a great cafe, dining, or a different vibe?
+          </h3>
+        </div>
+        <div id="crossCategoryContainer" class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <!-- Populated via Javascript (3 randomized rolling links) -->
+        </div>
+      </div>
+
+    </section>
+
     <!-- REVIEWS & COMMUNITY SECTION -->
     <section class="space-y-6 pt-4">
       <div class="flex items-center justify-between">
@@ -117,7 +144,7 @@
           <span>📸</span> Share Your Experience & Update Spot Cover
         </h4>
 
-        <!-- BOX PERINGATAN REQUIRING LOGIN -->
+        <!-- LOGIN NOTICE BOX -->
         <div id="loginNotice" class="hidden bg-slate-900 text-white p-4 rounded-2xl text-center space-y-2">
           <p class="text-xs font-medium text-slate-300">Sign in with your Google account to submit reviews & update cover photos.</p>
           <button onclick="signInWithGoogle()" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-extrabold text-xs rounded-xl transition shadow-md inline-flex items-center gap-2">
@@ -172,11 +199,10 @@
     const clientSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     const urlParams = new URLSearchParams(window.location.search);
-    const spotSlug = urlParams.get('slug'); // Mengambil parameter slug dari URL
+    const spotSlug = urlParams.get('slug');
     let currentPlaceId = null;
     let currentUser = null;
 
-    // Fungsi pembantu mengubah nama tempat menjadi format slug URL (cth: "Bulgari Resort Bali" -> "bulgari-resort-bali")
     function createSlug(text) {
       return String(text || '')
         .toLowerCase()
@@ -227,7 +253,6 @@
 
       await checkAuthUser();
 
-      // Ambil seluruh data places dari Supabase untuk dicocokkan slug-nya di sisi klien
       const { data: places, error } = await clientSupabase
         .from('places')
         .select('*');
@@ -237,7 +262,6 @@
         return;
       }
 
-      // Cari spot yang slug dari namanya cocok dengan parameter URL
       const spot = places.find(p => createSlug(p.name) === spotSlug);
 
       if (!spot) {
@@ -246,7 +270,7 @@
         return;
       }
 
-      currentPlaceId = spot.id; // Simpan ID untuk pengiriman ulasan
+      currentPlaceId = spot.id;
 
       // Update DOM Text & Media
       document.getElementById('spotCover').src = spot.image_url || 'https://images.unsplash.com/photo-1537996194471-e657df975ab4';
@@ -255,7 +279,7 @@
       document.getElementById('spotLocation').innerText = '📍 ' + (spot.area || spot.regency || 'Bali');
       document.getElementById('spotPrice').innerText = spot.price_label || spot.price || 'Contact for rates';
       
-      // Update SEO & Open Graph Tags Dinamis
+      // Update SEO & Dynamic Open Graph Tags
       const spotTitleText = `${spot.name} — SpotTribe Bali`;
       const cleanDesc = (spot.description || spot.amenity || `Explore ${spot.name} in ${spot.area || 'Bali'}.`).replace(/<[^>]*>?/gm, '').substring(0, 130) + '...';
       const canonicalPath = `https://spottribebali.com/spot-detail.html?slug=${createSlug(spot.name)}`;
@@ -272,17 +296,13 @@
         document.getElementById('ogImage').setAttribute('content', spot.image_url);
       }
 
-      // Description HTML
       const rawDescription = spot.description || spot.amenity || 'Enjoy authentic island vibes at ' + spot.name + '.';
       document.getElementById('spotDescription').innerHTML = rawDescription;
       
       // MAP EMBED & EXTERNAL URL
       const querySearch = encodeURIComponent(spot.name + ' ' + (spot.area || 'Bali'));
-      const mapEmbedUrl = `https://maps.google.com/maps?q=${querySearch}&z=16&output=embed`;
-      const externalUrl = `https://www.google.com/maps/search/?api=1&query=${querySearch}`;
-
-      document.getElementById('spotMapIframe').src = mapEmbedUrl;
-      document.getElementById('externalMapLink').href = externalUrl;
+      document.getElementById('spotMapIframe').src = `https://maps.google.com/maps?q=${querySearch}&z=16&output=embed`;
+      document.getElementById('externalMapLink').href = `https://www.google.com/maps/search/?api=1&query=${querySearch}`;
 
       // Render amenities chips
       const amenitiesContainer = document.getElementById('spotAmenities');
@@ -297,7 +317,107 @@
         amenitiesContainer.innerHTML = `<span class="text-xs text-slate-400 italic">No specific facilities listed.</span>`;
       }
 
+      // EXECUTE SMART ROLLING & RANDOMIZER INTERNAL LINKING
+      renderSmartRelatedSpots(spot, places);
+
       loadReviews();
+    }
+
+    // SMART ROLLING & RANDOMIZER LOGIC
+    function renderSmartRelatedSpots(currentSpot, allPlaces) {
+      const otherPlaces = allPlaces.filter(p => p.id !== currentSpot.id);
+
+      // 1. SECTION 1: Same Category Recommendations (Max 2 spots, randomized)
+      const sameCatPlaces = otherPlaces.filter(p => 
+        (p.category || '').toLowerCase() === (currentSpot.category || '').toLowerCase()
+      );
+      shuffleArray(sameCatPlaces);
+      const selectedSameCat = sameCatPlaces.slice(0, 2);
+
+      if (currentSpot.category) {
+        document.getElementById('sameCategoryTitle').innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> More ${currentSpot.category}s in Bali`;
+      }
+
+      const sameCatContainer = document.getElementById('sameCategoryContainer');
+      if (selectedSameCat.length > 0) {
+        sameCatContainer.innerHTML = selectedSameCat.map(spot => createSpotCardHtml(spot)).join('');
+      } else {
+        shuffleArray(otherPlaces);
+        const fallback = otherPlaces.slice(0, 2);
+        sameCatContainer.innerHTML = fallback.map(spot => createSpotCardHtml(spot)).join('');
+      }
+
+      // 2. SECTION 2: Cross-Category Recommendations (3 Rolling Random Links)
+      const crossCatPlaces = otherPlaces.filter(p => 
+        (p.category || '').toLowerCase() !== (currentSpot.category || '').toLowerCase()
+      );
+      shuffleArray(crossCatPlaces);
+      const selectedCrossCat = crossCatPlaces.slice(0, 3); // Display 3 links
+
+      const prompts = [
+        "✨ Looking for great cafes, dining, or a different vibe?",
+        "🌴 Want to explore scenic beaches or hidden natural destinations?",
+        "💡 Need recommendations for hangout spots or exciting activities?",
+        "🌊 Check out these other must-visit spots around Bali:"
+      ];
+      const randomPrompt = prompts[Math.floor(Math.random() * prompts.length)];
+      document.getElementById('crossCategoryPrompt').innerHTML = `<span>✨</span> ${randomPrompt}`;
+
+      const crossCatContainer = document.getElementById('crossCategoryContainer');
+      if (selectedCrossCat.length > 0) {
+        crossCatContainer.innerHTML = selectedCrossCat.map(spot => createDarkSpotCardHtml(spot)).join('');
+      } else {
+        crossCatContainer.innerHTML = `<p class="text-xs text-slate-400 italic">Explore more amazing spots on the home map.</p>`;
+      }
+    }
+
+    // Fisher-Yates Shuffle Algorithm for continuous rolling randomization
+    function shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    // HTML Template for Section 1 Cards (White Background)
+    function createSpotCardHtml(spot) {
+      const slug = createSlug(spot.name);
+      const imageUrl = spot.image_url || spot.image || 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=300&q=80';
+      const name = escapeHtml(spot.name);
+      const area = escapeHtml(spot.area || spot.location || 'Bali');
+      const category = escapeHtml(spot.category || 'Spot');
+      const rating = spot.rating || '4.5';
+
+      return `
+        <a href="./spot-detail.html?slug=${slug}" class="flex items-center gap-3 p-3 bg-white rounded-2xl border border-slate-200/90 shadow-sm hover:shadow-md transition group">
+          <img src="${imageUrl}" class="w-16 h-16 rounded-xl object-cover shrink-0 group-hover:scale-105 transition" />
+          <div class="min-w-0 flex-1">
+            <span class="text-[9px] font-extrabold text-emerald-600 uppercase tracking-wider block">${category}</span>
+            <h4 class="text-xs font-bold text-slate-900 truncate group-hover:text-emerald-600 transition">${name}</h4>
+            <p class="text-[10px] text-slate-500 truncate mt-0.5">📍 ${area}</p>
+            <span class="text-[10px] font-bold text-amber-500 mt-1 inline-block">★ ${rating}</span>
+          </div>
+        </a>
+      `;
+    }
+
+    // HTML Template for Section 2 Cards (Dark Theme Container)
+    function createDarkSpotCardHtml(spot) {
+      const slug = createSlug(spot.name);
+      const imageUrl = spot.image_url || spot.image || 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=300&q=80';
+      const name = escapeHtml(spot.name);
+      const area = escapeHtml(spot.area || spot.location || 'Bali');
+      const category = escapeHtml(spot.category || 'Spot');
+
+      return `
+        <a href="./spot-detail.html?slug=${slug}" class="flex flex-col bg-slate-800/80 hover:bg-slate-800 p-2.5 rounded-2xl border border-slate-700/80 transition group shadow-sm">
+          <img src="${imageUrl}" class="w-full h-24 rounded-xl object-cover mb-2 group-hover:scale-[1.02] transition" />
+          <span class="text-[9px] font-bold text-emerald-400 uppercase tracking-wider">${category}</span>
+          <h4 class="text-xs font-bold text-white truncate group-hover:text-emerald-300 transition mt-0.5">${name}</h4>
+          <span class="text-[10px] text-slate-400 truncate mt-1">📍 ${area}</span>
+        </a>
+      `;
     }
 
     async function loadReviews() {
