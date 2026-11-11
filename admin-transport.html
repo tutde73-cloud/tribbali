@@ -16,7 +16,7 @@
       <div>
         <span class="px-3 py-1 bg-emerald-500/20 text-emerald-400 font-bold text-[10px] uppercase tracking-wider rounded-full border border-emerald-500/30">Staff Access Only</span>
         <h1 class="text-2xl font-black text-white mt-2">🚗 Bali Car Transport Dashboard</h1>
-        <p class="text-xs text-slate-400 mt-0.5">Kelola tarif sewa mobil, area jemput, dan master foto armada.</p>
+        <p class="text-xs text-slate-400 mt-0.5">Kelola tarif sewa mobil, area jemput, dan upload foto armada dari HP.</p>
       </div>
       <div class="flex items-center gap-2.5">
         <button onclick="resetFormToAddNewCar()" class="px-4 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black text-xs rounded-xl transition shadow-md flex items-center gap-1.5">
@@ -39,6 +39,7 @@
       
       <form id="transportForm" onsubmit="saveTransportItem(event)" class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
         <input type="hidden" id="editId" />
+        <input type="hidden" id="existing_image_url" />
         
         <div>
           <label class="block text-slate-400 font-semibold mb-1">Kategori Layanan</label>
@@ -66,13 +67,14 @@
         </div>
 
         <div>
-          <label class="block text-slate-400 font-semibold mb-1">URL Foto Mobil (Opsional / Master)</label>
-          <input type="url" id="image_url" placeholder="https://images.unsplash.com/..." class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-emerald-500" />
+          <label class="block text-slate-400 font-semibold mb-1">Upload Foto Mobil dari HP</label>
+          <input type="file" id="imageFile" accept="image/*" class="w-full text-slate-400 text-xs file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-500 file:text-slate-950 hover:file:bg-emerald-600 file:cursor-pointer" />
+          <p id="currentImageInfo" class="text-[10px] text-emerald-400 mt-1 italic hidden">✓ Foto master sudah terpasang untuk mobil ini.</p>
         </div>
 
         <div class="sm:col-span-2 flex items-center gap-3 pt-2">
           <button type="submit" id="submitBtn" class="px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black rounded-xl transition shadow-lg shadow-emerald-500/20">
-            💾 Simpan Data
+            💾 Simpan Data & Upload Foto
           </button>
           <button type="button" id="cancelEditBtn" onclick="resetForm()" class="hidden px-4 py-3 bg-rose-500/20 text-rose-300 font-bold rounded-xl hover:bg-rose-500/30 transition">
             ✕ Batal
@@ -215,8 +217,15 @@
       document.getElementById('capacity').value = cap;
       document.getElementById('route_or_area').value = '';
       document.getElementById('price').value = '';
-      document.getElementById('image_url').value = img || '';
+      document.getElementById('existing_image_url').value = img || '';
       
+      document.getElementById('imageFile').value = '';
+      if (img) {
+        document.getElementById('currentImageInfo').classList.remove('hidden');
+      } else {
+        document.getElementById('currentImageInfo').classList.add('hidden');
+      }
+
       document.getElementById('formTitle').innerHTML = `<span>➕ Tambah Rute Baru untuk: ${model}</span>`;
       document.getElementById('editBadge').classList.add('hidden');
       document.getElementById('submitBtn').innerText = '💾 Simpan Rute Baru';
@@ -227,7 +236,29 @@
     async function saveTransportItem(event) {
       event.preventDefault();
       const id = document.getElementById('editId').value;
-      const imageUrl = document.getElementById('image_url').value.trim();
+      const fileInput = document.getElementById('imageFile');
+      let imageUrl = document.getElementById('existing_image_url').value;
+
+      // Jika user memilih file gambar baru dari HP, upload ke Supabase Storage bucket 'spot-images'
+      if (fileInput.files && fileInput.files[0]) {
+        const file = fileInput.files[0];
+        const fileName = `transport_${Date.now()}_${file.name.replace(/\s+/g, '_')}`;
+        
+        const { error: uploadError } = await supabaseClient.storage
+          .from('spot-images')
+          .upload(fileName, file);
+
+        if (uploadError) {
+          alert('Gagal mengunggah foto ke Storage: ' + uploadError.message);
+          return;
+        }
+
+        const { data: urlData } = supabaseClient.storage
+          .from('spot-images')
+          .getPublicUrl(fileName);
+
+        imageUrl = urlData.publicUrl;
+      }
 
       const payload = {
         service_category: document.getElementById('service_category').value,
@@ -259,12 +290,19 @@
       document.getElementById('capacity').value = cap;
       document.getElementById('route_or_area').value = route;
       document.getElementById('price').value = price;
-      document.getElementById('image_url').value = img || '';
+      document.getElementById('existing_image_url').value = img || '';
+      document.getElementById('imageFile').value = '';
       
       document.getElementById('formTitle').innerHTML = `<span>✏️ Edit Rute: ${model} (${route})</span>`;
       document.getElementById('editBadge').classList.remove('hidden');
       document.getElementById('submitBtn').innerText = '💾 Simpan Perubahan';
       document.getElementById('cancelEditBtn').classList.remove('hidden');
+
+      if (img) {
+        document.getElementById('currentImageInfo').classList.remove('hidden');
+      } else {
+        document.getElementById('currentImageInfo').classList.add('hidden');
+      }
 
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -280,12 +318,13 @@
     function resetForm() {
       document.getElementById('transportForm').reset();
       document.getElementById('editId').value = '';
-      document.getElementById('image_url').value = '';
+      document.getElementById('existing_image_url').value = '';
       
       document.getElementById('formTitle').innerHTML = `<span>➕ Tambah Tarif / Rute Baru</span>`;
       document.getElementById('editBadge').classList.add('hidden');
       document.getElementById('submitBtn').innerText = '💾 Simpan Data';
       document.getElementById('cancelEditBtn').classList.add('hidden');
+      document.getElementById('currentImageInfo').classList.add('hidden');
     }
 
     function escapeHtml(str) {
