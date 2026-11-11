@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
   
   <!-- SEO & Open Graph Meta Tags (Dynamic based on Slug) -->
   <title id="metaTitle">Spot Detail — SpotTribe Bali</title>
@@ -19,13 +19,21 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <style>
+    /* Mencegah efek pull-to-refresh / overscroll bounce di mobile & iPad */
+    body {
+      overscroll-behavior-y: none;
+      -webkit-overflow-scrolling: touch;
+    }
+  </style>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen pb-20">
 
   <!-- TOP BAR -->
   <header class="sticky top-0 z-50 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-4 h-14 flex items-center justify-between text-white">
-    <a href="./index.html" class="flex items-center gap-2 text-xs font-bold text-slate-300 hover:text-white transition">
-      ← Back to Explore
+    <a href="./category.html" class="flex items-center gap-2 text-xs font-bold text-slate-300 hover:text-white transition">
+      ← Back to Categories
     </a>
     <span class="text-xs font-extrabold tracking-wider text-emerald-400 uppercase">SpotTribe Bali</span>
   </header>
