@@ -65,9 +65,13 @@
         <span class="text-[10px] text-slate-400 uppercase font-bold block">Rating</span>
         <span id="spotRating" class="text-sm font-extrabold text-amber-500">★ --</span>
       </div>
-      <div class="bg-white p-3 rounded-2xl border border-slate-200 text-center shadow-sm">
-        <span class="text-[10px] text-slate-400 uppercase font-bold block">Price</span>
-        <span id="spotPrice" class="text-xs font-bold text-slate-700 truncate block">Inquiry</span>
+      
+      <!-- DYNAMIC PRICE / TRAVELOKA AFFILIATE BOX -->
+      <div id="priceBoxContainer">
+        <div class="bg-white p-3 rounded-2xl border border-slate-200 text-center shadow-sm">
+          <span class="text-[10px] text-slate-400 uppercase font-bold block">Price</span>
+          <span id="spotPrice" class="text-xs font-bold text-slate-700 truncate block">Inquiry</span>
+        </div>
       </div>
     </div>
 
@@ -211,6 +215,9 @@
     let currentPlaceId = null;
     let currentUser = null;
 
+    // URL Link Afiliasi Traveloka Utama
+    const TRAVELOKA_AFFILIATE_URL = "https://trv.lk/b44d3d8d";
+
     function createSlug(text) {
       return String(text || '')
         .toLowerCase()
@@ -285,8 +292,10 @@
       document.getElementById('spotTitle').innerText = spot.name;
       document.getElementById('spotCategoryBadge').innerText = spot.category;
       document.getElementById('spotLocation').innerText = '📍 ' + (spot.area || spot.regency || 'Bali');
-      document.getElementById('spotPrice').innerText = spot.price_label || spot.price || 'Contact for rates';
       
+      // RENDER PRICE BOX DINAMIS (KATEGORI AKOMODASI VS UMUM)
+      renderDynamicPriceBox(spot);
+
       // Update SEO & Dynamic Open Graph Tags
       const spotTitleText = `${spot.name} — SpotTribe Bali`;
       const cleanDesc = (spot.description || spot.amenity || `Explore ${spot.name} in ${spot.area || 'Bali'}.`).replace(/<[^>]*>?/gm, '').substring(0, 130) + '...';
@@ -329,6 +338,44 @@
       renderSmartRelatedSpots(spot, places);
 
       loadReviews();
+    }
+
+    // RENDER DINAMIS BOX PRICE / TOMBOL TRAVELOKA KHUSUS AKOMODASI
+    function renderDynamicPriceBox(spot) {
+      const container = document.getElementById('priceBoxContainer');
+      if (!container) return;
+
+      const category = (spot.category || '').toLowerCase();
+      
+      // Cek apakah spot termasuk kategori Accommodation & Living (villas, coliving, hotel)
+      const isAccommodation = ['villa', 'villas', 'coliving', 'hotel', 'hotels'].some(cat => category.includes(cat));
+
+      if (isAccommodation) {
+        const bookingUrl = spot.affiliate_url || spot.traveloka_url || TRAVELOKA_AFFILIATE_URL;
+
+        container.innerHTML = `
+          <a href="${bookingUrl}" target="_blank" rel="noopener noreferrer" 
+             class="relative overflow-hidden flex flex-col items-center justify-center p-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-2xl shadow-md shadow-emerald-600/20 transition-all duration-300 transform hover:scale-[1.02] border border-emerald-400/40 group text-center h-full">
+            
+            <span class="absolute top-1 right-1.5 px-1.5 py-0.2 text-[7px] font-black bg-amber-400 text-slate-950 rounded-full shadow uppercase">
+              PROMO 🔥
+            </span>
+
+            <span class="text-[9px] font-bold text-emerald-100 uppercase tracking-wider block">PRICE & BOOKING</span>
+            <div class="flex items-center justify-center gap-1 mt-0.5">
+              <span class="text-[11px] font-black text-white group-hover:underline leading-tight">Check Rates & Deals</span>
+            </div>
+          </a>
+        `;
+      } else {
+        // TAMPILAN STANDAR UNTUK KATEGORI LAIN
+        container.innerHTML = `
+          <div class="bg-white p-3 rounded-2xl border border-slate-200 text-center shadow-sm h-full flex flex-col justify-center">
+            <span class="text-[10px] text-slate-400 uppercase font-bold block">Price</span>
+            <span id="spotPrice" class="text-xs font-bold text-slate-700 truncate block">${escapeHtml(spot.price_label || spot.price || 'Contact for Rates')}</span>
+          </div>
+        `;
+      }
     }
 
     // SMART ROLLING & RANDOMIZER LOGIC
