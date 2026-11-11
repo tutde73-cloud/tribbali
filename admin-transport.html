@@ -254,13 +254,8 @@
           return;
         }
 
-        const { data: urlData } = supabaseClient.storage
-          .from('spot-images')
-          .getPublicUrl(fileName);
-
-        if (urlData && urlData.publicUrl) {
-          imageUrl = urlData.publicUrl;
-        }
+        // Susun URL publik secara langsung (tanpa fungsi getPublicUrl yang bikin pending)
+        imageUrl = `${SUPABASE_URL}/storage/v1/object/public/spot-images/${fileName}`;
       }
 
       const payload = {
