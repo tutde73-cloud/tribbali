@@ -78,10 +78,10 @@
     <!-- FORM 2: TAMBAH / KELOLA MASTER FOTO MOBIL -->
     <div class="bg-slate-800 p-6 rounded-3xl border border-slate-700 shadow-xl space-y-4">
       <div class="border-b border-slate-700 pb-3">
-        <h2 class="text-sm font-extrabold text-white flex items-center gap-2">
+        <h2 id="masterFormTitle" class="text-sm font-extrabold text-white flex items-center gap-2">
           <span>🖼️ Tambah / Kelola Master Foto Mobil</span>
         </h2>
-        <p class="text-[11px] text-slate-400 mt-0.5">Tambah jenis mobil baru beserta fotonya, atau kelola daftar master yang sudah ada di bawah.</p>
+        <p class="text-[11px] text-slate-400 mt-0.5">Tambah jenis mobil baru beserta fotonya, atau edit foto master yang sudah ada di bawah.</p>
       </div>
 
       <form onsubmit="saveCarMaster(event)" class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs items-end">
@@ -90,11 +90,11 @@
           <input type="text" id="master_car_name" placeholder="Contoh: Terios / Alphard" required class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-emerald-500" />
         </div>
         <div>
-          <label class="block text-slate-400 font-semibold mb-1">Pilih Foto dari HP</label>
-          <input type="file" id="master_imageFile" accept="image/*" required class="w-full text-slate-400 text-xs file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-sky-500 file:text-slate-950 hover:file:bg-sky-600 file:cursor-pointer" />
+          <label class="block text-slate-400 font-semibold mb-1">Pilih Foto Baru dari HP</label>
+          <input type="file" id="master_imageFile" accept="image/*" class="w-full text-slate-400 text-xs file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-sky-500 file:text-slate-950 hover:file:bg-sky-600 file:cursor-pointer" />
         </div>
         <div>
-          <button type="submit" class="w-full px-5 py-2.5 bg-sky-500 hover:bg-sky-600 text-slate-950 font-black rounded-xl transition">
+          <button type="submit" id="masterSubmitBtn" class="w-full px-5 py-2.5 bg-sky-500 hover:bg-sky-600 text-slate-950 font-black rounded-xl transition">
             ➕ Simpan Master Baru
           </button>
         </div>
@@ -159,7 +159,10 @@
               <img src="${car.image_url}" alt="${car.car_name}" class="w-12 h-10 object-cover rounded-xl bg-slate-800 shrink-0">
               <span class="font-bold text-white text-xs">${escapeHtml(car.car_name)}</span>
             </div>
-            <button onclick="deleteMasterCar('${escapeQuote(car.car_name)}')" class="px-2.5 py-1 bg-rose-500/20 text-rose-300 font-bold rounded-lg hover:bg-rose-500/30 transition text-[10px] shrink-0">Hapus</button>
+            <div class="flex items-center gap-1.5 shrink-0">
+              <button onclick="editMasterCar('${escapeQuote(car.car_name)}')" class="px-2.5 py-1 bg-amber-500/20 text-amber-300 font-bold rounded-lg hover:bg-amber-500/30 transition text-[10px]">✏️ Ganti Foto</button>
+              <button onclick="deleteMasterCar('${escapeQuote(car.car_name)}')" class="px-2.5 py-1 bg-rose-500/20 text-rose-300 font-bold rounded-lg hover:bg-rose-500/30 transition text-[10px]">Hapus</button>
+            </div>
           </div>
         `;
       });
@@ -168,9 +171,19 @@
       listEl.innerHTML = listHtml || '<p class="text-slate-400 text-xs">Belum ada master mobil.</p>';
     }
 
+    function editMasterCar(carName) {
+      document.getElementById('master_car_name').value = carName;
+      document.getElementById('master_car_name').readOnly = true; // Kunci nama agar tidak berubah saat ganti foto
+      document.getElementById('master_imageFile').required = true;
+      document.getElementById('masterFormTitle.innerHTML') = `<span>✏️ Ganti Foto Master: ${carName}</span>`;
+      document.getElementById('masterSubmitBtn').innerText = '💾 Perbarui Foto Master';
+      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    }
+
     async function saveCarMaster(event) {
       event.preventDefault();
-      const carName = document.getElementById('master_car_name').value.trim();
+      const carNameInput = document.getElementById('master_car_name');
+      const carName = carNameInput.value.trim();
       const fileInput = document.getElementById('master_imageFile');
 
       if (!fileInput.files || !fileInput.files[0]) {
@@ -198,9 +211,11 @@
       if (error) {
         alert('Gagal menyimpan ke database: ' + error.message);
       } else {
-        alert('Berhasil menambah Master Mobil & Foto!');
-        document.getElementById('master_car_name').value = '';
+        alert('Berhasil menyimpan Master Mobil & Foto!');
+        carNameInput.value = '';
+        carNameInput.readOnly = false;
         fileInput.value = '';
+        document.getElementById('masterSubmitBtn').innerText = '➕ Simpan Master Baru';
         loadMasterCars();
         loadAdminData();
       }
