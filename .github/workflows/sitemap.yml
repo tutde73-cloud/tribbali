@@ -1,0 +1,31 @@
+name: Generate Dynamic Sitemap
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Otomatis berjalan setiap hari jam 00:00 UTC
+  workflow_dispatch: # Bisa dijalankan manual juga dari tab Actions di GitHub
+
+jobs:
+  build:
+  # Tentukan izin write agar workflow bisa melakukan commit file sitemap.xml otomatis
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+
+      - name: Generate Sitemap
+        run: deno run --allow-net --allow-write generate-sitemap.js
+
+      - name: Commit and Push Sitemap
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add sitemap.xml
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-update dynamic sitemap.xml [skip ci]" && git push)
