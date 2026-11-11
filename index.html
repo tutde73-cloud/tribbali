@@ -171,33 +171,64 @@
         </a>
       </section>
 
-      <!-- GROUP 1: Accommodation & Living -->
+      <!-- GROUP 1: Accommodation & Living (Updated Style & Discount Info) -->
       <section>
-        <h2 class="text-xs font-black uppercase tracking-widest text-slate-500 mb-3 px-1 flex items-center gap-2">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Accommodation & Living
-        </h2>
-        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3.5">
-          <a href="./category.html?type=villas" class="flex items-center gap-4 p-4 bg-white/90 backdrop-blur-md border border-slate-200/90 rounded-3xl shadow-sm text-left group hover:shadow-lg transition-all">
-            <div class="w-12 h-12 rounded-2xl bg-violet-50 text-violet-600 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform"><i data-lucide="home" class="w-6 h-6"></i></div>
-            <div>
-              <div class="text-xs font-extrabold text-slate-900 group-hover:text-emerald-600 transition-colors">Villas & Houses</div>
-              <div class="text-[10px] text-slate-500 font-medium mt-0.5">Long-term Stay</div>
+        <div class="flex items-center justify-between mb-3 px-1">
+          <h2 class="text-xs font-black uppercase tracking-widest text-slate-500 flex items-center gap-2">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Accommodation & Living
+          </h2>
+          <span class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200 shadow-sm">
+            ✨ Special Partner Discounts Included
+          </span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+          
+          <!-- Villas & Houses -->
+          <a href="./category.html?type=villas" class="relative overflow-hidden flex items-center gap-4 p-4 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 text-white rounded-3xl shadow-xl shadow-emerald-600/25 text-left group hover:scale-[1.02] transition-all duration-300 border border-emerald-400/50">
+            <div class="absolute -right-4 -bottom-4 w-20 h-20 bg-white/10 rounded-full blur-xl group-hover:scale-150 transition-transform"></div>
+            <div class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md text-white flex items-center justify-center shrink-0 group-hover:rotate-12 transition-transform shadow-inner">
+              <i data-lucide="home" class="w-6 h-6"></i>
+            </div>
+            <div class="relative z-10">
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-black tracking-tight text-white group-hover:underline">Villas & Houses</span>
+                <span class="px-1.5 py-0.5 text-[9px] font-extrabold bg-amber-400 text-slate-950 rounded-full shadow">DISCOUNT</span>
+              </div>
+              <div class="text-[10px] text-emerald-100 font-medium mt-0.5">Long-term Stay</div>
             </div>
           </a>
-          <a href="./category.html?type=coliving" class="flex items-center gap-4 p-4 bg-white/90 backdrop-blur-md border border-slate-200/90 rounded-3xl shadow-sm text-left group hover:shadow-lg transition-all">
-            <div class="w-12 h-12 rounded-2xl bg-teal-50 text-teal-600 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform"><i data-lucide="building-2" class="w-6 h-6"></i></div>
-            <div>
-              <div class="text-xs font-extrabold text-slate-900 group-hover:text-emerald-600 transition-colors">Coliving Hubs</div>
-              <div class="text-[10px] text-slate-500 font-medium mt-0.5">Nomad Living</div>
+
+          <!-- Coliving Hubs -->
+          <a href="./category.html?type=coliving" class="relative overflow-hidden flex items-center gap-4 p-4 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 text-white rounded-3xl shadow-xl shadow-emerald-600/25 text-left group hover:scale-[1.02] transition-all duration-300 border border-emerald-400/50">
+            <div class="absolute -right-4 -bottom-4 w-20 h-20 bg-white/10 rounded-full blur-xl group-hover:scale-150 transition-transform"></div>
+            <div class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md text-white flex items-center justify-center shrink-0 group-hover:rotate-12 transition-transform shadow-inner">
+              <i data-lucide="building-2" class="w-6 h-6"></i>
+            </div>
+            <div class="relative z-10">
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-black tracking-tight text-white group-hover:underline">Coliving Hubs</span>
+                <span class="px-1.5 py-0.5 text-[9px] font-extrabold bg-amber-400 text-slate-950 rounded-full shadow">PROMO</span>
+              </div>
+              <div class="text-[10px] text-emerald-100 font-medium mt-0.5">Nomad Living</div>
             </div>
           </a>
-          <a href="./category.html?type=hotel" class="col-span-2 sm:col-span-1 flex items-center gap-4 p-4 bg-white/90 backdrop-blur-md border border-slate-200/90 rounded-3xl shadow-sm text-left group hover:shadow-lg transition-all">
-            <div class="w-12 h-12 rounded-2xl bg-sky-50 text-sky-600 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform"><i data-lucide="bed" class="w-6 h-6"></i></div>
-            <div>
-              <div class="text-xs font-extrabold text-slate-900 group-hover:text-emerald-600 transition-colors">Hotels & Resorts</div>
-              <div class="text-[10px] text-slate-500 font-medium mt-0.5">Short Stay</div>
+
+          <!-- Hotels & Resorts (Traveloka Affiliate Link) -->
+          <a href="https://trv.lk/b44d3d8d" target="_blank" rel="noopener noreferrer" class="relative overflow-hidden flex items-center gap-4 p-4 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 text-white rounded-3xl shadow-xl shadow-emerald-600/25 text-left group hover:scale-[1.02] transition-all duration-300 border border-emerald-400/50">
+            <div class="absolute -right-4 -bottom-4 w-20 h-20 bg-white/10 rounded-full blur-xl group-hover:scale-150 transition-transform"></div>
+            <div class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md text-white flex items-center justify-center shrink-0 group-hover:rotate-12 transition-transform shadow-inner">
+              <i data-lucide="bed" class="w-6 h-6"></i>
+            </div>
+            <div class="relative z-10">
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-black tracking-tight text-white group-hover:underline">Hotels & Resorts</span>
+                <span class="px-1.5 py-0.5 text-[9px] font-extrabold bg-amber-400 text-slate-950 rounded-full shadow">HOT DEAL 🔥</span>
+              </div>
+              <div class="text-[10px] text-emerald-100 font-medium mt-0.5">Short Stay & Best Rates</div>
             </div>
           </a>
+
         </div>
       </section>
 
@@ -238,14 +269,14 @@
         </div>
       </section>
 
-      <!-- GROUP 3: Essentials & Work (EYE-CATCHING RENT CAR & TRANSPORT BUTTON) -->
+      <!-- GROUP 3: Essentials & Work -->
       <section>
         <h2 class="text-xs font-black uppercase tracking-widest text-slate-500 mb-3 px-1 flex items-center gap-2">
           <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Essentials & Work
         </h2>
         <div class="grid grid-cols-2 sm:grid-cols-3 gap-3.5">
           
-          <!-- EYE-CATCHING RENT CAR & TRANSPORT BUTTON -->
+          <!-- RENT CAR & TRANSPORT BUTTON -->
           <a href="./rent-car.html" class="col-span-2 sm:col-span-1 relative overflow-hidden flex items-center gap-4 p-4 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 text-white rounded-3xl shadow-xl shadow-emerald-600/25 text-left group hover:scale-[1.02] transition-all duration-300 border border-emerald-400/50">
             <div class="absolute -right-4 -bottom-4 w-20 h-20 bg-white/10 rounded-full blur-xl group-hover:scale-150 transition-transform"></div>
             <div class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md text-white flex items-center justify-center shrink-0 group-hover:rotate-12 transition-transform shadow-inner">
@@ -328,7 +359,7 @@
         </div>
       </section>
 
-      <!-- GROUP 5: Community & Social Hub (Full Gradient, Centered Title & Description Outside) -->
+      <!-- GROUP 5: Community & Social Hub -->
       <section class="space-y-3">
         <div class="text-center px-1">
           <h2 class="text-xs font-black uppercase tracking-widest text-slate-500 inline-flex items-center gap-2">
@@ -336,15 +367,12 @@
           </h2>
         </div>
         
-        <!-- KETERANGAN DI LUAR TOMBOL -->
         <p class="text-xs text-slate-500 px-1 leading-relaxed text-center">
           Your central gateway to connect with fellow travelers and island visitors. Access the <strong>Global Chat</strong> to connect instantly with guests across all of Bali, discover weekly meetups, and join surf buddies for daily wave sessions.
         </p>
 
-        <!-- TOMBOL FULL GRADASI TANPA KOTAK PUTIH DI DALAM -->
         <a href="./community.html" class="relative overflow-hidden flex flex-col sm:flex-row items-center justify-between p-6 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 text-white rounded-3xl shadow-xl shadow-teal-600/25 group hover:scale-[1.01] transition-all duration-300 border border-emerald-400/40 gap-4">
           
-          <!-- Efek Cahaya Latar Belakang -->
           <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-150 transition-transform"></div>
 
           <div class="flex items-center gap-4 relative z-10 w-full sm:w-auto">
