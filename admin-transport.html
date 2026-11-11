@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Transport Admin Portal — SpotTribe Bali</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen p-4 sm:p-8">
+
+  <div class="max-w-4xl mx-auto space-y-6">
+    <!-- TOP HEADER -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-slate-800/80 p-6 rounded-3xl border border-slate-700/60 shadow-xl gap-4">
+      <div>
+        <span class="px-3 py-1 bg-emerald-500/20 text-emerald-400 font-bold text-[10px] uppercase tracking-wider rounded-full border border-emerald-500/30">Staff Access Only</span>
+        <h1 class="text-2xl font-black text-white mt-2">🚗 Bali Car Transport Dashboard</h1>
+        <p class="text-xs text-slate-400 mt-0.5">Kelola tarif sewa mobil, area jemput, dan foto armada untuk Kakak.</p>
+      </div>
+      <a href="./rent-car.html" target="_blank" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white font-bold text-xs rounded-xl transition flex items-center gap-2">
+        <span>👁️ Lihat Halaman Publik</span>
+      </a>
+    </div>
+
+    <!-- QUICK FORM TAMBAH / UPDATE TARIF -->
+    <div class="bg-slate-800 p-6 rounded-3xl border border-slate-700 shadow-xl space-y-4">
+      <h2 class="text-sm font-extrabold text-white flex items-center gap-2">
+        <span>➕ Tambah / Perbarui Tarif Armada</span>
+      </h2>
+      
+      <form id="transportForm" onsubmit="saveTransportItem(event)" class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+        <input type="hidden" id="editId" />
+        
+        <div>
+          <label class="block text-slate-400 font-semibold mb-1">Kategori Layanan</label>
+          <input type="text" id="service_category" placeholder="Contoh: Airport Transfer / Full Day Charter" required class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-emerald-500" />
+        </div>
+
+        <div>
+          <label class="block text-slate-400 font-semibold mb-1">Model Mobil</label>
+          <input type="text" id="car_model" placeholder="Contoh: Avanza / Innova Reborn / Alphard" required class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-emerald-500" />
+        </div>
+
+        <div>
+          <label class="block text-slate-400 font-semibold mb-1">Kapasitas Penumpang</label>
+          <input type="text" id="capacity" placeholder="Contoh: Max 7 pax" value="Max 7 pax" class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-emerald-500" />
+        </div>
+
+        <div>
+          <label class="block text-slate-400 font-semibold mb-1">Rute / Area / Durasi</label>
+          <input type="text" id="route_or_area" placeholder="Contoh: Kuta, Legian, Jimbaran (45 minutes)" class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-emerald-500" />
+        </div>
+
+        <div>
+          <label class="block text-slate-400 font-semibold mb-1">Harga (IDR angka saja)</label>
+          <input type="number" id="price" placeholder="Contoh: 225000" required class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-emerald-500" />
+        </div>
+
+        <div>
+          <label class="block text-slate-400 font-semibold mb-1">URL Foto Mobil (Opsional)</label>
+          <input type="url" id="image_url" placeholder="https://images.unsplash.com/..." class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-emerald-500" />
+        </div>
+
+        <div class="sm:col-span-2 flex items-center gap-3 pt-2">
+          <button type="submit" id="submitBtn" class="px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black rounded-xl transition shadow-lg shadow-emerald-500/20">
+            💾 Simpan Tarif ke Database
+          </button>
+          <button type="button" onclick="resetForm()" class="px-4 py-3 bg-slate-700 hover:bg-slate-600 text-slate-300 font-bold rounded-xl transition">
+            Reset Form
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- DAFTAR DATA SAAT INI -->
+    <div class="bg-slate-800 p-6 rounded-3xl border border-slate-700 shadow-xl space-y-4">
+      <h2 class="text-sm font-extrabold text-white">📋 Daftar Tarif Aktif di Database</h2>
+      <div id="adminList" class="divide-y divide-slate-700 text-xs">
+        <p class="text-slate-400 py-4 text-center">Memuat data...</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --- PASSWORD GATE (PINTU PENGAMAN) ---
+    const ADMIN_PASSWORD = "Komang123";
+    
+    let userPass = prompt("🔒 Masukkan Password Khusus Admin Transport:");
+    if (userPass !== ADMIN_PASSWORD) {
+      alert("❌ Password salah! Anda tidak memiliki akses ke halaman ini.");
+      window.location.href = "./index.html"; // Otomatis kembali ke beranda jika salah
+    }
+    // -------------------------------------
+
+    const SUPABASE_URL = 'https://riyupzmllltjrelqytwi.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_df32CqJ5bqDNCHU4OKGRPQ_7LiJvWV0';
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    async function loadAdminData() {
+      const listEl = document.getElementById('adminList');
+      const { data, error } = await supabaseClient.from('car_transports').select('*').order('id', { ascending: false });
+
+      if (error) {
+        listEl.innerHTML = `<p class="text-rose-400 py-4">Gagal memuat data: ${error.message}</p>`;
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        listEl.innerHTML = `<p class="text-slate-400 py-4 text-center">Belum ada data tarif.</p>`;
+        return;
+      }
+
+      let html = '';
+      data.forEach(item => {
+        html += `
+          <div class="py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="font-extrabold text-white text-sm">${item.car_model}</span>
+                <span class="bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded text-[10px] font-bold">${item.service_category}</span>
+              </div>
+              <p class="text-slate-400 mt-0.5">${item.route_or_area || '-'} • <strong class="text-emerald-400">IDR ${Number(item.price).toLocaleString('id-ID')}</strong></p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="editItem(${item.id}, '${item.service_category}', '${item.car_model}', '${item.capacity || ''}', '${item.route_or_area || ''}', ${item.price}, '${item.image_url || ''}')" class="px-3 py-1.5 bg-amber-500/20 text-amber-300 font-bold rounded-lg hover:bg-amber-500/30 transition">Edit</button>
+              <button onclick="deleteItem(${item.id})" class="px-3 py-1.5 bg-rose-500/20 text-rose-300 font-bold rounded-lg hover:bg-rose-500/30 transition">Hapus</button>
+            </div>
+          </div>
+        `;
+      });
+      listEl.innerHTML = html;
+    }
+
+    async function saveTransportItem(event) {
+      event.preventDefault();
+      const id = document.getElementById('editId').value;
+      const payload = {
+        service_category: document.getElementById('service_category').value,
+        car_model: document.getElementById('car_model').value,
+        capacity: document.getElementById('capacity').value,
+        route_or_area: document.getElementById('route_or_area').value,
+        price: parseFloat(document.getElementById('price').value),
+        image_url: document.getElementById('image_url').value
+      };
+
+      if (id) {
+        const { error } = await supabaseClient.from('car_transports').update(payload).eq('id', id);
+        if (error) alert('Gagal update: ' + error.message);
+        else alert('Berhasil memperbarui tarif!');
+      } else {
+        const { error } = await supabaseClient.from('car_transports').insert([payload]);
+        if (error) alert('Gagal menambah: ' + error.message);
+        else alert('Berhasil menambahkan tarif baru!');
+      }
+
+      resetForm();
+      loadAdminData();
+    }
+
+    function editItem(id, cat, model, cap, route, price, img) {
+      document.getElementById('editId').value = id;
+      document.getElementById('service_category').value = cat;
+      document.getElementById('car_model').value = model;
+      document.getElementById('capacity').value = cap;
+      document.getElementById('route_or_area').value = route;
+      document.getElementById('price').value = price;
+      document.getElementById('image_url').value = img;
+      document.getElementById('submitBtn').innerText = '💾 Perbarui Data';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    async function deleteItem(id) {
+      if (confirm('Yakin ingin menghapus data tarif ini?')) {
+        const { error } = await supabaseClient.from('car_transports').delete().eq('id', id);
+        if (error) alert('Gagal menghapus: ' + error.message);
+        else loadAdminData();
+      }
+    }
+
+    function resetForm() {
+      document.getElementById('transportForm').reset();
+      document.getElementById('editId').value = '';
+      document.getElementById('submitBtn').innerText = '💾 Simpan Tarif ke Database';
+    }
+
+    loadAdminData();
+    lucide.createIcons();
+  </script>
+</body>
+</html>
