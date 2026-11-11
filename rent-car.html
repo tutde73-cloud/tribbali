@@ -44,7 +44,7 @@
       </a>
     </header>
 
-    <!-- HERO BANNER WITH EXPAT/NOMAD CTA -->
+    <!-- HERO BANNER WITH CREATIVE BADGE -->
     <section class="relative w-full bg-slate-900 text-white py-14 px-6 overflow-hidden">
       <div class="absolute inset-0 opacity-25">
         <img src="https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=1600&q=80" class="w-full h-full object-cover" alt="Bali Private Car Rental">
@@ -52,8 +52,9 @@
       <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/80 to-transparent"></div>
       
       <div class="max-w-4xl mx-auto relative z-10 space-y-5 text-center sm:text-left">
-        <span class="inline-block px-3.5 py-1 rounded-full text-[10px] font-extrabold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 uppercase tracking-widest">
-          Recommended for Expats & Digital Nomads 🌴
+        <!-- CREATIVE UPDATED BADGE -->
+        <span class="inline-block px-4 py-1.5 rounded-full text-[10px] sm:text-xs font-black bg-emerald-500/20 text-emerald-300 border border-emerald-400/40 uppercase tracking-widest shadow-inner">
+          ✨ Recommended for Family Holidays, Solo Travelers & Island Expats 🌴
         </span>
         <h2 class="text-3xl sm:text-5xl font-black tracking-tight leading-tight">
           Hassle-Free Island Transport & Private Chauffeurs in Bali
@@ -62,7 +63,7 @@
           Tired of chaotic traffic or unreliable ride-hailing? Book clean, well-maintained vehicles with professional English-speaking drivers. Fixed rates, transparent pricing, and 24/7 English support for your peace of mind.
         </p>
         
-        <!-- EXPAT CTA BOX -->
+        <!-- CTA BOX -->
         <div class="pt-4 flex flex-col sm:flex-row items-center gap-4">
           <a href="https://wa.me/6281999060636?text=Hello,%20I%20need%20a%20reliable%20car%20or%20private%20driver%20in%20Bali.%20Can%20you%20help?" target="_blank" class="w-full sm:w-auto px-6 py-3.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-sm rounded-2xl transition shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-2">
             <span>🚀 Book via WhatsApp in 1 Click</span>
@@ -86,20 +87,20 @@
         <!-- Rendered dynamically via JavaScript from Supabase car_transports table -->
       </div>
 
-      <!-- EXPAT TRUST & FAQ SECTION -->
+      <!-- TRUST & FAQ SECTION -->
       <section class="bg-white rounded-3xl border border-slate-200 p-8 space-y-6 shadow-sm">
         <div class="space-y-1">
-          <span class="text-[10px] font-extrabold text-emerald-600 uppercase tracking-widest">Expat & Nomad Friendly</span>
-          <h3 class="font-extrabold text-lg text-slate-900">Why International Travelers Choose Us</h3>
+          <span class="text-[10px] font-extrabold text-emerald-600 uppercase tracking-widest">Traveler Friendly</span>
+          <h3 class="font-extrabold text-lg text-slate-900">Why International Travelers & Families Choose Us</h3>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 text-xs text-slate-600">
           <div class="space-y-2 bg-slate-50 p-4 rounded-2xl border border-slate-100">
             <p class="font-extrabold text-slate-900 text-sm flex items-center gap-1.5"><span>💬</span> English Speaking Drivers</p>
-            <p class="leading-relaxed">Our experienced local drivers speak great English, know the hidden shortcuts, and act as your local guide across Bali.</p>
+            <p class="leading-relaxed">Our experienced local drivers speak great English, know the hidden shortcuts, and act as your friendly local guide across Bali.</p>
           </div>
           <div class="space-y-2 bg-slate-50 p-4 rounded-2xl border border-slate-100">
             <p class="font-extrabold text-slate-900 text-sm flex items-center gap-1.5"><span>🛡️</span> Safe & Sanitized Fleet</p>
-            <p class="leading-relaxed">All vehicles undergo rigorous daily maintenance, AC checks, and deep cleaning to ensure maximum comfort on long trips.</p>
+            <p class="leading-relaxed">All vehicles undergo rigorous daily maintenance, AC checks, and deep cleaning to ensure maximum comfort for families and groups.</p>
           </div>
           <div class="space-y-2 bg-slate-50 p-4 rounded-2xl border border-slate-100">
             <p class="font-extrabold text-slate-900 text-sm flex items-center gap-1.5"><span>💳</span> Flexible Payment</p>
@@ -163,7 +164,6 @@
     const SUPABASE_ANON_KEY = 'sb_publishable_df32CqJ5bqDNCHU4OKGRPQ_7LiJvWV0';
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // Default placeholder images if image_url is not set in database
     const defaultCarImages = {
       'Alphard': 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=600&q=80',
       'Innova': 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=600&q=80',
@@ -199,7 +199,6 @@
           return;
         }
 
-        // Group by service_category
         const categories = {};
         items.forEach(item => {
           const cat = item.service_category || 'Other Services';
@@ -221,7 +220,6 @@
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
           `;
 
-          // Group by car_model within category
           const models = {};
           rows.forEach(r => {
             const m = r.car_model || 'Standard Vehicle';
@@ -233,12 +231,10 @@
             const cap = subRows[0].capacity || 'Max 7 pax';
             const dbImg = subRows[0].image_url;
             const carImg = getCarImage(modelName, dbImg);
-            const badgeColor = modelName.includes('Alphard') ? 'bg-amber-50 text-amber-700' : (modelName.includes('Hiace') ? 'bg-sky-50 text-sky-700' : 'bg-emerald-50 text-emerald-700');
 
             htmlOutput += `
               <div class="bg-white rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden flex flex-col justify-between group">
                 <div>
-                  <!-- CAR IMAGE CONTAINER -->
                   <div class="relative w-full h-44 overflow-hidden bg-slate-100">
                     <img src="${escapeHtml(carImg)}" alt="${escapeHtml(modelName)}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
                     <div class="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent"></div>
@@ -248,7 +244,6 @@
                     </div>
                   </div>
 
-                  <!-- RATES LIST -->
                   <div class="p-5 space-y-2 text-xs divide-y divide-slate-100">
             `;
 
