@@ -96,8 +96,15 @@
           <input type="text" id="spotPrice" value="Contact for Rates" required class="w-full text-sm border border-slate-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-sky-500">
         </div>
 
-        <!-- GOOGLE MAPS URL -->
+        <!-- TRAVELOKA AFFILIATE URL KHUSUS AKOMODASI -->
         <div>
+          <label class="block text-xs font-semibold text-emerald-700 mb-1">🔗 Traveloka Affiliate URL (Khusus Hotel/Villa)</label>
+          <input type="text" id="spotAffiliateUrl" placeholder="https://trv.lk/..." class="w-full text-sm border border-emerald-300 bg-emerald-50/30 rounded-xl px-3 py-2.5 focus:outline-none focus:border-emerald-500">
+          <p class="text-[10px] text-slate-400 mt-1 italic">Kosongkan jika ingin menggunakan link afiliasi default.</p>
+        </div>
+
+        <!-- GOOGLE MAPS URL -->
+        <div class="sm:col-span-2">
           <label class="block text-xs font-semibold text-slate-600 mb-1">Google Maps URL / Share Link / Embed</label>
           <input type="text" id="spotMapUrl" placeholder="https://maps.app.goo.gl/... atau URL Embed" class="w-full text-sm border border-slate-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-sky-500">
           <p class="text-[10px] text-slate-400 mt-1 italic">Bisa diisi link pendek Google Maps (maps.app.goo.gl) atau link embed.</p>
@@ -247,7 +254,7 @@
             </div>
           </div>
           <div class="flex items-center gap-2 flex-shrink-0">
-            <button onclick="editSpot(${spot.id}, '${escapeHtml(spot.name)}', '${escapeHtml(spot.category)}', '${escapeHtml(spot.area || spot.regency || '')}', '${spot.rating || 4.5}', '${escapeHtml(spot.price_label || spot.price || '')}', '${escapeHtml(spot.image_url || '')}', '${escapeHtml(spot.amenity || '')}', '${escapeHtml(spot.map_url || '')}', encodeURIComponent(\`${escapeHtml(spot.description || '')}\`))" class="bg-sky-50 hover:bg-sky-100 text-sky-700 text-xs font-bold px-3 py-1.5 rounded-xl transition cursor-pointer">
+            <button onclick="editSpot(${spot.id}, '${escapeHtml(spot.name)}', '${escapeHtml(spot.category)}', '${escapeHtml(spot.area || spot.regency || '')}', '${spot.rating || 4.5}', '${escapeHtml(spot.price_label || spot.price || '')}', '${escapeHtml(spot.image_url || '')}', '${escapeHtml(spot.amenity || '')}', '${escapeHtml(spot.map_url || '')}', '${escapeHtml(spot.affiliate_url || '')}', encodeURIComponent(\`${escapeHtml(spot.description || '')}\`))" class="bg-sky-50 hover:bg-sky-100 text-sky-700 text-xs font-bold px-3 py-1.5 rounded-xl transition cursor-pointer">
               Edit
             </button>
             <button onclick="deleteSpot(${spot.id})" class="bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold px-3 py-1.5 rounded-xl transition cursor-pointer">
@@ -373,7 +380,8 @@
         image_url: imageUrl,
         amenity: document.getElementById('spotAmenity').value,
         description: document.getElementById('spotDescription').value,
-        map_url: rawMapUrl
+        map_url: rawMapUrl,
+        affiliate_url: document.getElementById('spotAffiliateUrl').value.trim() || null
       };
 
       if (id) {
@@ -394,7 +402,7 @@
       fetchAdminSpots();
     }
 
-    function editSpot(id, name, category, area, rating, price, imageUrl, amenity, mapUrl, encodedDesc) {
+    function editSpot(id, name, category, area, rating, price, imageUrl, amenity, mapUrl, affiliateUrl, encodedDesc) {
       document.getElementById('spotId').value = id;
       document.getElementById('spotName').value = name;
       document.getElementById('spotCategory').value = category;
@@ -404,6 +412,7 @@
       document.getElementById('existingImageUrl').value = imageUrl || '';
       document.getElementById('spotAmenity').value = amenity;
       document.getElementById('spotMapUrl').value = mapUrl || '';
+      document.getElementById('spotAffiliateUrl').value = affiliateUrl || '';
       document.getElementById('spotDescription').value = encodedDesc ? decodeURIComponent(encodedDesc) : '';
 
       document.getElementById('formTitle').innerText = "✏️ Edit Spot ID: " + id;
@@ -416,6 +425,7 @@
       document.getElementById('spotId').value = '';
       document.getElementById('existingImageUrl').value = '';
       document.getElementById('spotMapUrl').value = '';
+      document.getElementById('spotAffiliateUrl').value = '';
       document.getElementById('spotDescription').value = '';
       document.getElementById('formTitle').innerText = "➕ Add New Curated Spot";
       document.getElementById('cancelEditBtn').classList.add('hidden');
