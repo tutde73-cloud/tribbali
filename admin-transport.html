@@ -16,7 +16,7 @@
       <div>
         <span class="px-3 py-1 bg-emerald-500/20 text-emerald-400 font-bold text-[10px] uppercase tracking-wider rounded-full border border-emerald-500/30">Staff Access Only</span>
         <h1 class="text-2xl font-black text-white mt-2">🚗 Bali Car Transport Dashboard</h1>
-        <p class="text-xs text-slate-400 mt-0.5">Kelola tarif sewa mobil, area jemput, dan foto armada per kotak model mobil.</p>
+        <p class="text-xs text-slate-400 mt-0.5">Kelola tarif sewa mobil, area jemput, dan master foto armada.</p>
       </div>
       <div class="flex items-center gap-2.5">
         <button onclick="resetFormToAddNewCar()" class="px-4 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black text-xs rounded-xl transition shadow-md flex items-center gap-1.5">
@@ -29,7 +29,7 @@
     </div>
 
     <!-- DYNAMIC FORM (TAMBAH / EDIT) -->
-    <div id="formContainer" class="bg-slate-800 p-6 rounded-3xl border border-slate-700 shadow-xl space-y-4">
+    <div class="bg-slate-800 p-6 rounded-3xl border border-slate-700 shadow-xl space-y-4">
       <div class="flex items-center justify-between border-b border-slate-700 pb-3">
         <h2 id="formTitle" class="text-sm font-extrabold text-white flex items-center gap-2">
           <span>➕ Tambah Tarif / Rute Baru</span>
@@ -39,7 +39,6 @@
       
       <form id="transportForm" onsubmit="saveTransportItem(event)" class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
         <input type="hidden" id="editId" />
-        <input type="hidden" id="existing_image_url" />
         
         <div>
           <label class="block text-slate-400 font-semibold mb-1">Kategori Layanan</label>
@@ -58,7 +57,7 @@
 
         <div>
           <label class="block text-slate-400 font-semibold mb-1">Rute / Area Tujuan</label>
-          <input type="text" id="route_or_area" placeholder="Contoh: Kuta, Legian, Jimbaran (45 minutes)" required class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-emerald-500" />
+          <input type="text" id="route_or_area" placeholder="Contoh: Kuta, Legian, Jimbaran" required class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-emerald-500" />
         </div>
 
         <div>
@@ -67,9 +66,8 @@
         </div>
 
         <div>
-          <label class="block text-slate-400 font-semibold mb-1">Upload Foto Mobil Master (Opsional)</label>
-          <input type="file" id="imageFile" accept="image/*" class="w-full text-slate-400 text-xs file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-500 file:text-slate-950 hover:file:bg-emerald-600 file:cursor-pointer" />
-          <p id="currentImageInfo" class="text-[10px] text-slate-400 mt-1 italic hidden">Foto master mobil ini sudah tersimpan.</p>
+          <label class="block text-slate-400 font-semibold mb-1">URL Foto Mobil (Opsional / Master)</label>
+          <input type="url" id="image_url" placeholder="https://images.unsplash.com/..." class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-emerald-500" />
         </div>
 
         <div class="sm:col-span-2 flex items-center gap-3 pt-2">
@@ -217,7 +215,7 @@
       document.getElementById('capacity').value = cap;
       document.getElementById('route_or_area').value = '';
       document.getElementById('price').value = '';
-      document.getElementById('existing_image_url').value = img;
+      document.getElementById('image_url').value = img || '';
       
       document.getElementById('formTitle').innerHTML = `<span>➕ Tambah Rute Baru untuk: ${model}</span>`;
       document.getElementById('editBadge').classList.add('hidden');
@@ -229,28 +227,7 @@
     async function saveTransportItem(event) {
       event.preventDefault();
       const id = document.getElementById('editId').value;
-      const fileInput = document.getElementById('imageFile');
-      let imageUrl = document.getElementById('existing_image_url').value;
-
-      if (fileInput.files && fileInput.files[0]) {
-        const file = fileInput.files[0];
-        const fileName = `transport_${Date.now()}_${file.name.replace(/\s+/g, '_')}`;
-        
-        const { error: uploadError } = await supabaseClient.storage
-          .from('spot-images')
-          .upload(fileName, file);
-
-        if (uploadError) {
-          alert('Gagal mengunggah foto: ' + uploadError.message);
-          return;
-        }
-
-        const { data: urlData } = supabaseClient.storage
-          .from('spot-images')
-          .getPublicUrl(fileName);
-
-        imageUrl = urlData.publicUrl;
-      }
+      const imageUrl = document.getElementById('image_url').value.trim();
 
       const payload = {
         service_category: document.getElementById('service_category').value,
@@ -258,7 +235,7 @@
         capacity: document.getElementById('capacity').value,
         route_or_area: document.getElementById('route_or_area').value,
         price: parseFloat(document.getElementById('price').value),
-        image_url: imageUrl
+        image_url: imageUrl !== '' ? imageUrl : null
       };
 
       if (id) {
@@ -282,18 +259,12 @@
       document.getElementById('capacity').value = cap;
       document.getElementById('route_or_area').value = route;
       document.getElementById('price').value = price;
-      document.getElementById('existing_image_url').value = img;
+      document.getElementById('image_url').value = img || '';
       
       document.getElementById('formTitle').innerHTML = `<span>✏️ Edit Rute: ${model} (${route})</span>`;
       document.getElementById('editBadge').classList.remove('hidden');
       document.getElementById('submitBtn').innerText = '💾 Simpan Perubahan';
       document.getElementById('cancelEditBtn').classList.remove('hidden');
-      
-      if (img) {
-        document.getElementById('currentImageInfo').classList.remove('hidden');
-      } else {
-        document.getElementById('currentImageInfo').classList.add('hidden');
-      }
 
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -309,13 +280,12 @@
     function resetForm() {
       document.getElementById('transportForm').reset();
       document.getElementById('editId').value = '';
-      document.getElementById('existing_image_url').value = '';
+      document.getElementById('image_url').value = '';
       
       document.getElementById('formTitle').innerHTML = `<span>➕ Tambah Tarif / Rute Baru</span>`;
       document.getElementById('editBadge').classList.add('hidden');
       document.getElementById('submitBtn').innerText = '💾 Simpan Data';
       document.getElementById('cancelEditBtn').classList.add('hidden');
-      document.getElementById('currentImageInfo').classList.add('hidden');
     }
 
     function escapeHtml(str) {
