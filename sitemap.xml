@@ -1,17 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- Halaman Utama / Beranda & Peta -->
   <url>
     <loc>https://spottribebali.com/</loc>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
+
+  <!-- Halaman Chat / Messages -->
   <url>
     <loc>https://spottribebali.com/messages.html</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
+
+  <!-- Halaman Profile Pengguna -->
   <url>
     <loc>https://spottribebali.com/profile.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Halaman Kategori Utama -->
+  <url>
+    <loc>https://spottribebali.com/category.html?type=villas</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://spottribebali.com/category.html?type=cafe</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://spottribebali.com/category.html?type=coworking</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
