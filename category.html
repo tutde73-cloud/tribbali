@@ -159,6 +159,16 @@
     const pageSize = 20; // Batasi 20 spot per halaman
     let allPlacesData = [];
 
+    // Fungsi pembantu pembuat slug URL
+    function createSlug(text) {
+      return String(text || '')
+        .toLowerCase()
+        .trim()
+        .replace(/[^\w\s-]/g, '')
+        .replace(/[\s_-]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+    }
+
     function renderAmenitiesBadges(amenityString) {
       if (!amenityString || typeof amenityString !== 'string') {
         return `
@@ -251,7 +261,10 @@
       container.innerHTML = paginatedItems.map(spot => {
         const spotImage = spot.image_url || 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=600&q=80';
         const mapsButtonLink = spot.map_url || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spot.name + ', ' + (spot.area || 'Bali'))}`;
-        const detailUrl = `./spot-detail.html?id=${spot.id}`;
+        
+        // Menggunakan slug berbasis nama tempat
+        const spotSlug = createSlug(spot.name);
+        const detailUrl = `./spot-detail.html?slug=${spotSlug}`;
 
         return `
           <div onclick="window.location.href='${detailUrl}'" class="bg-white rounded-3xl border border-slate-200/90 overflow-hidden shadow-sm hover:shadow-md transition flex flex-col justify-between cursor-pointer">
