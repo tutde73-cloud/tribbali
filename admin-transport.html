@@ -16,7 +16,7 @@
       <div>
         <span class="px-3 py-1 bg-emerald-500/20 text-emerald-400 font-bold text-[10px] uppercase tracking-wider rounded-full border border-emerald-500/30">Staff Access Only</span>
         <h1 class="text-2xl font-black text-white mt-2">🚗 Bali Car Transport Dashboard</h1>
-        <p class="text-xs text-slate-400 mt-0.5">Kelola tarif rute dengan Master Pilihan Mobil Otomatis.</p>
+        <p class="text-xs text-slate-400 mt-0.5">Kelola tarif rute dan master foto mobil dengan mudah.</p>
       </div>
       <div class="flex items-center gap-2.5">
         <a href="./rent-car.html" target="_blank" class="px-4 py-2.5 bg-slate-700 hover:bg-slate-600 text-white font-bold text-xs rounded-xl transition flex items-center gap-2">
@@ -25,7 +25,7 @@
       </div>
     </div>
 
-    <!-- FORM 1: TAMBAH / EDIT TARIF RUTE (TANPA UPLOAD FOTO) -->
+    <!-- FORM 1: TAMBAH / EDIT TARIF RUTE -->
     <div class="bg-slate-800 p-6 rounded-3xl border border-slate-700 shadow-xl space-y-4">
       <div class="flex items-center justify-between border-b border-slate-700 pb-3">
         <h2 id="formTitle" class="text-sm font-extrabold text-white flex items-center gap-2">
@@ -43,7 +43,7 @@
         </div>
 
         <div>
-          <label class="block text-slate-400 font-semibold mb-1">Pilih Model Mobil (Otomatis Ada Fotonya)</label>
+          <label class="block text-slate-400 font-semibold mb-1">Pilih Model Mobil (Master Foto)</label>
           <select id="car_model_select" required class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-emerald-500">
             <option value="">-- Memuat Daftar Mobil --</option>
           </select>
@@ -75,19 +75,19 @@
       </form>
     </div>
 
-    <!-- FORM 2: KELOLA / TAMBAH MASTER FOTO MOBIL (Hanya di sini tempat upload foto) -->
+    <!-- FORM 2: TAMBAH / KELOLA MASTER FOTO MOBIL -->
     <div class="bg-slate-800 p-6 rounded-3xl border border-slate-700 shadow-xl space-y-4">
       <div class="border-b border-slate-700 pb-3">
         <h2 class="text-sm font-extrabold text-white flex items-center gap-2">
-          <span>🖼️ Kelola / Tambah Master Foto Mobil Baru</span>
+          <span>🖼️ Tambah / Kelola Master Foto Mobil</span>
         </h2>
-        <p class="text-[11px] text-slate-400 mt-0.5">Gunakan bagian ini hanya jika ingin menambah jenis mobil baru atau mengganti foto masternya.</p>
+        <p class="text-[11px] text-slate-400 mt-0.5">Tambah jenis mobil baru beserta fotonya, atau kelola daftar master yang sudah ada di bawah.</p>
       </div>
 
       <form onsubmit="saveCarMaster(event)" class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs items-end">
         <div>
           <label class="block text-slate-400 font-semibold mb-1">Nama / Model Mobil</label>
-          <input type="text" id="master_car_name" placeholder="Contoh: Hyundai Stargazer" required class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-emerald-500" />
+          <input type="text" id="master_car_name" placeholder="Contoh: Terios / Alphard" required class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-emerald-500" />
         </div>
         <div>
           <label class="block text-slate-400 font-semibold mb-1">Pilih Foto dari HP</label>
@@ -95,13 +95,21 @@
         </div>
         <div>
           <button type="submit" class="w-full px-5 py-2.5 bg-sky-500 hover:bg-sky-600 text-slate-950 font-black rounded-xl transition">
-            ➕ Upload & Simpan Master
+            ➕ Simpan Master Baru
           </button>
         </div>
       </form>
+
+      <!-- TABEL DAFTAR MASTER MOBIL -->
+      <div class="pt-4 border-t border-slate-700/60">
+        <h3 class="text-xs font-bold text-slate-300 mb-3">Daftar Master Foto Mobil yang Tersedia:</h3>
+        <div id="masterCarsList" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <p class="text-slate-400 text-xs">Memuat daftar master mobil...</p>
+        </div>
+      </div>
     </div>
 
-    <!-- DAFTAR KARTU KENDARAAN -->
+    <!-- DAFTAR KARTU RUTE KENDARAAN -->
     <div class="space-y-6">
       <h2 class="text-sm font-extrabold text-white px-2">📋 Daftar Armada & Tarif Per Kotak (Database)</h2>
       <div id="adminGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -129,19 +137,35 @@
     async function loadMasterCars() {
       const { data, error } = await supabaseClient.from('car_images').select('*');
       const selectEl = document.getElementById('car_model_select');
+      const listEl = document.getElementById('masterCarsList');
       
       if (error || !data) {
         selectEl.innerHTML = `<option value="">Gagal memuat master mobil</option>`;
+        listEl.innerHTML = `<p class="text-rose-400 text-xs">Gagal memuat daftar master.</p>`;
         return;
       }
 
       masterCarsCache = {};
       let options = '<option value="">-- Pilih Model Mobil --</option>';
+      let listHtml = '';
+
       data.forEach(car => {
         masterCarsCache[car.car_name] = car.image_url;
         options += `<option value="${escapeHtml(car.car_name)}">${escapeHtml(car.car_name)}</option>`;
+        
+        listHtml += `
+          <div class="flex items-center justify-between bg-slate-900/60 p-2.5 rounded-2xl border border-slate-700/60 gap-3">
+            <div class="flex items-center gap-3">
+              <img src="${car.image_url}" alt="${car.car_name}" class="w-12 h-10 object-cover rounded-xl bg-slate-800 shrink-0">
+              <span class="font-bold text-white text-xs">${escapeHtml(car.car_name)}</span>
+            </div>
+            <button onclick="deleteMasterCar('${escapeQuote(car.car_name)}')" class="px-2.5 py-1 bg-rose-500/20 text-rose-300 font-bold rounded-lg hover:bg-rose-500/30 transition text-[10px] shrink-0">Hapus</button>
+          </div>
+        `;
       });
+
       selectEl.innerHTML = options;
+      listEl.innerHTML = listHtml || '<p class="text-slate-400 text-xs">Belum ada master mobil.</p>';
     }
 
     async function saveCarMaster(event) {
@@ -179,6 +203,14 @@
         fileInput.value = '';
         loadMasterCars();
         loadAdminData();
+      }
+    }
+
+    async function deleteMasterCar(carName) {
+      if (confirm(`Yakin ingin menghapus master mobil "${carName}"?`)) {
+        const { error } = await supabaseClient.from('car_images').delete().eq('car_name', carName);
+        if (error) alert('Gagal menghapus: ' + error.message);
+        else loadMasterCars();
       }
     }
 
