@@ -7,10 +7,10 @@
   <!-- SEO & Open Graph Meta Tags (Dinamis) -->
   <title id="metaTitle">Spot Detail — SpotTribe Bali</title>
   <meta id="metaDesc" name="description" content="Explore curated luxury villas, cozy cafés, and hidden gems across Bali with SpotTribe Bali.">
-  <link id="canonicalLink" rel="canonical" href="https://www.spottribebali.com/spot-detail.html">
+  <link id="canonicalLink" rel="canonical" href="https://spottribebali.com/spot-detail.html">
 
   <meta property="og:type" content="website">
-  <meta id="ogUrl" property="og:url" content="https://www.spottribebali.com/spot-detail.html">
+  <meta id="ogUrl" property="og:url" content="https://spottribebali.com/spot-detail.html">
   <meta id="ogTitle" property="og:title" content="Spot Detail — SpotTribe Bali">
   <meta id="ogDesc" property="og:description" content="Explore verified island spots, luxury living, and hidden gems across Bali.">
   <meta id="ogImage" property="og:image" content="https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=1200&q=80">
@@ -235,10 +235,10 @@
       document.getElementById('spotLocation').innerText = '📍 ' + (spot.area || spot.regency || 'Bali');
       document.getElementById('spotPrice').innerText = spot.price_label || spot.price || 'Contact for rates';
       
-      // Update SEO & Open Graph Tags Dinamis
+      // Update SEO & Open Graph Tags Dinamis (Tanpa www agar selaras domain utama)
       const spotTitleText = `${spot.name} — SpotTribe Bali`;
       const cleanDesc = (spot.description || spot.amenity || `Explore ${spot.name} in ${spot.area || 'Bali'}.`).replace(/<[^>]*>?/gm, '').substring(0, 130) + '...';
-      const canonicalPath = `./spot-detail.html?id=${spot.id}`;
+      const canonicalPath = `https://spottribebali.com/spot-detail.html?id=${spot.id}`;
 
       document.title = spotTitleText;
       document.getElementById('metaTitle').innerText = spotTitleText;
@@ -246,7 +246,7 @@
       document.getElementById('ogTitle').setAttribute('content', spotTitleText);
       document.getElementById('ogDesc').setAttribute('content', cleanDesc);
       document.getElementById('canonicalLink').setAttribute('href', canonicalPath);
-      document.getElementById('ogUrl').setAttribute('content', window.location.href);
+      document.getElementById('ogUrl').setAttribute('content', canonicalPath);
 
       if (spot.image_url) {
         document.getElementById('ogImage').setAttribute('content', spot.image_url);
@@ -256,15 +256,9 @@
       const rawDescription = spot.description || spot.amenity || 'Enjoy authentic island vibes at ' + spot.name + '.';
       document.getElementById('spotDescription').innerHTML = rawDescription;
       
-      // ==========================================
-      // SEPARATED EMBED & EXTERNAL MAP URLS
-      // ==========================================
+      // MAP EMBED & EXTERNAL URL
       const querySearch = encodeURIComponent(spot.name + ' ' + (spot.area || 'Bali'));
-      
-      // 1. URL khusus untuk iframe di dalam web (menggunakan output=embed)
       const mapEmbedUrl = `https://maps.google.com/maps?q=${querySearch}&z=16&output=embed`;
-      
-      // 2. URL aman untuk tombol "Open in Google Maps" (pencarian standar browser)
       const externalUrl = `https://www.google.com/maps/search/?api=1&query=${querySearch}`;
 
       document.getElementById('spotMapIframe').src = mapEmbedUrl;
@@ -368,7 +362,8 @@
             .upload(fileName, file);
 
           if (!uploadError) {
-            const { data: publicURLData } = clientStrabase.storage // diperbaiki aman
+            // PERBAIKAN: Menggunakan clientSupabase yang benar (bukan clientStrabase)
+            const { data: publicURLData } = clientSupabase.storage
               .from('spot-images')
               .getPublicUrl(fileName);
             uploadedPhotoUrl = publicURLData.publicUrl;
