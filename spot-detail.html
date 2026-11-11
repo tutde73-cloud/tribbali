@@ -152,13 +152,13 @@
 
       <!-- FORM UPLOAD REVIEW -->
       <div class="bg-white p-5 rounded-3xl border border-emerald-200 shadow-sm space-y-4">
-        <h4 class="font-bold text-sm text-slate-900 flex items-center gap-2">
+        <h4 id="reviewFormTitle" class="font-bold text-sm text-slate-900 flex items-center gap-2">
           <span>📸</span> Share Your Experience & Update Spot Cover
         </h4>
 
         <!-- LOGIN NOTICE BOX -->
         <div id="loginNotice" class="hidden bg-slate-900 text-white p-4 rounded-2xl text-center space-y-2">
-          <p class="text-xs font-medium text-slate-300">Sign in with your Google account to submit reviews & update cover photos.</p>
+          <p class="text-xs font-medium text-slate-300">Sign in with your Google account to submit reviews.</p>
           <button onclick="signInWithGoogle()" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-extrabold text-xs rounded-xl transition shadow-md inline-flex items-center gap-2">
             <span>Continue with Google</span>
           </button>
@@ -182,8 +182,8 @@
               <option value="1">★☆☆☆☆ (1.0 - Poor)</option>
             </select>
           </div>
-          <div>
-            <label class="block text-xs font-bold text-slate-600 mb-1">Upload Photo (Will become main cover if first!)</label>
+          <div id="photoUploadContainer">
+            <label id="photoLabel" class="block text-xs font-bold text-slate-600 mb-1">Upload Photo (Will become main cover if first!)</label>
             <input type="file" id="reviewPhoto" accept="image/*" class="w-full text-xs border border-slate-200 rounded-xl p-1 bg-slate-50 cursor-pointer">
           </div>
           <div>
@@ -191,7 +191,7 @@
             <textarea id="reviewerComment" rows="3" required placeholder="How was the vibe, wifi, or food? Any insider tips?" class="w-full text-xs border border-slate-200 rounded-xl p-3 focus:outline-none focus:border-emerald-500"></textarea>
           </div>
           <button type="submit" id="submitReviewBtn" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl transition shadow-md shadow-emerald-600/20">
-            Submit Review & Photo
+            Submit Review
           </button>
         </form>
       </div>
@@ -214,6 +214,7 @@
     const spotSlug = urlParams.get('slug');
     let currentPlaceId = null;
     let currentUser = null;
+    let isAccommodationSpot = false;
 
     // URL Link Afiliasi Traveloka Utama
     const TRAVELOKA_AFFILIATE_URL = "https://trv.lk/b44d3d8d";
@@ -287,13 +288,23 @@
 
       currentPlaceId = spot.id;
 
+      // Cek apakah spot ini masuk kategori Accommodation & Living
+      const category = (spot.category || '').toLowerCase();
+      isAccommodationSpot = ['villa', 'villas', 'coliving', 'hotel', 'hotels'].some(cat => category.includes(cat));
+
+      // Jika kategori akomodasi, kunci form foto agar tidak bisa mengganti cover utama
+      if (isAccommodationSpot) {
+        document.getElementById('reviewFormTitle').innerHTML = `<span>📸</span> Share Your Experience & Review`;
+        document.getElementById('photoUploadContainer').style.display = 'none'; // Sembunyikan input foto khusus akomodasi
+      }
+
       // Update DOM Text & Media
       document.getElementById('spotCover').src = spot.image_url || 'https://images.unsplash.com/photo-1537996194471-e657df975ab4';
       document.getElementById('spotTitle').innerText = spot.name;
       document.getElementById('spotCategoryBadge').innerText = spot.category;
       document.getElementById('spotLocation').innerText = '📍 ' + (spot.area || spot.regency || 'Bali');
       
-      // RENDER PRICE BOX DINAMIS (KATEGORI AKOMODASI VS UMUM)
+      // RENDER PRICE BOX DINAMIS
       renderDynamicPriceBox(spot);
 
       // Update SEO & Dynamic Open Graph Tags
@@ -345,12 +356,7 @@
       const container = document.getElementById('priceBoxContainer');
       if (!container) return;
 
-      const category = (spot.category || '').toLowerCase();
-      
-      // Cek apakah spot termasuk kategori Accommodation & Living (villas, coliving, hotel)
-      const isAccommodation = ['villa', 'villas', 'coliving', 'hotel', 'hotels'].some(cat => category.includes(cat));
-
-      if (isAccommodation) {
+      if (isAccommodationSpot) {
         const bookingUrl = spot.affiliate_url || spot.traveloka_url || TRAVELOKA_AFFILIATE_URL;
 
         container.innerHTML = `
@@ -368,7 +374,6 @@
           </a>
         `;
       } else {
-        // TAMPILAN STANDAR UNTUK KATEGORI LAIN
         container.innerHTML = `
           <div class="bg-white p-3 rounded-2xl border border-slate-200 text-center shadow-sm h-full flex flex-col justify-center">
             <span class="text-[10px] text-slate-400 uppercase font-bold block">Price</span>
@@ -382,7 +387,7 @@
     function renderSmartRelatedSpots(currentSpot, allPlaces) {
       const otherPlaces = allPlaces.filter(p => p.id !== currentSpot.id);
 
-      // 1. SECTION 1: Same Category Recommendations (Max 2 spots, randomized)
+      // 1. SECTION 1: Same Category Recommendations
       const sameCatPlaces = otherPlaces.filter(p => 
         (p.category || '').toLowerCase() === (currentSpot.category || '').toLowerCase()
       );
@@ -402,12 +407,12 @@
         sameCatContainer.innerHTML = fallback.map(spot => createSpotCardHtml(spot)).join('');
       }
 
-      // 2. SECTION 2: Cross-Category Recommendations (3 Rolling Random Links)
+      // 2. SECTION 2: Cross-Category Recommendations
       const crossCatPlaces = otherPlaces.filter(p => 
         (p.category || '').toLowerCase() !== (currentSpot.category || '').toLowerCase()
       );
       shuffleArray(crossCatPlaces);
-      const selectedCrossCat = crossCatPlaces.slice(0, 3); // Display 3 links
+      const selectedCrossCat = crossCatPlaces.slice(0, 3);
 
       const prompts = [
         "✨ Looking for great cafes, dining, or a different vibe?",
@@ -426,7 +431,6 @@
       }
     }
 
-    // Fisher-Yates Shuffle Algorithm for continuous rolling randomization
     function shuffleArray(array) {
       for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -435,7 +439,6 @@
       return array;
     }
 
-    // HTML Template for Section 1 Cards (White Background)
     function createSpotCardHtml(spot) {
       const slug = createSlug(spot.name);
       const imageUrl = spot.image_url || spot.image || 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=300&q=80';
@@ -457,7 +460,6 @@
       `;
     }
 
-    // HTML Template for Section 2 Cards (Dark Theme Container)
     function createDarkSpotCardHtml(spot) {
       const slug = createSlug(spot.name);
       const imageUrl = spot.image_url || spot.image || 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=300&q=80';
@@ -500,7 +502,7 @@
       document.getElementById('spotRating').innerText = `★ ${avgRating} (${reviews.length})`;
 
       const latestReviewWithPhoto = reviews.find(r => r.photo_url);
-      if (latestReviewWithPhoto) {
+      if (latestReviewWithPhoto && !isAccommodationSpot) {
         document.getElementById('contributorName').innerText = latestReviewWithPhoto.user_name;
         document.getElementById('contributorBadge').classList.remove('hidden');
       }
@@ -539,7 +541,7 @@
       }
 
       const btn = document.getElementById('submitReviewBtn');
-      btn.innerText = 'Uploading...';
+      btn.innerText = 'Submitting...';
       btn.disabled = true;
 
       const name = document.getElementById('reviewerName').value;
@@ -549,7 +551,8 @@
       let uploadedPhotoUrl = null;
 
       try {
-        if (fileInput.files && fileInput.files[0]) {
+        // Jika bukan kategori akomodasi, izinkan upload foto & ganti cover
+        if (!isAccommodationSpot && fileInput && fileInput.files && fileInput.files[0]) {
           const file = fileInput.files[0];
           const fileName = `review_${Date.now()}_${Math.random().toString(36).substring(2,6)}.jpg`;
 
@@ -577,7 +580,8 @@
 
         if (insertError) throw insertError;
 
-        if (uploadedPhotoUrl) {
+        // Hanya update cover utama jika bukan akomodasi dan ada foto yang di-upload
+        if (!isAccommodationSpot && uploadedPhotoUrl) {
           await clientSupabase
             .from('places')
             .update({ image_url: uploadedPhotoUrl })
@@ -590,13 +594,13 @@
 
         alert('Review submitted successfully!');
         document.getElementById('reviewerComment').value = '';
-        document.getElementById('reviewPhoto').value = '';
+        if (fileInput) fileInput.value = '';
         loadReviews();
 
       } catch (err) {
         alert('Failed to submit review: ' + err.message);
       } finally {
-        btn.innerText = 'Submit Review & Photo';
+        btn.innerText = isAccommodationSpot ? 'Submit Review' : 'Submit Review & Photo';
         btn.disabled = false;
       }
     }
