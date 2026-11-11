@@ -325,40 +325,45 @@
         </div>
       </section>
 
-      <!-- GROUP 5: Community & Social Hub (Singular Wide Horizontal Banner Button) -->
+      <!-- GROUP 5: Community & Social Hub (Full Gradient, Centered Title & Description Outside) -->
       <section class="space-y-3">
-        <h2 class="text-xs font-black uppercase tracking-widest text-slate-500 px-1 flex items-center gap-2">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Community & Social
-        </h2>
+        <div class="text-center px-1">
+          <h2 class="text-xs font-black uppercase tracking-widest text-slate-500 inline-flex items-center gap-2">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Community & Social
+          </h2>
+        </div>
         
-        <!-- TOMBOL BESAR PIPIH (HORIZONTAL) -->
-        <a href="./community.html" class="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-sm hover:shadow-md transition group block relative overflow-hidden">
-          <div class="absolute right-0 top-0 bottom-0 w-2 bg-gradient-to-b from-emerald-500 to-sky-500 group-hover:w-3 transition-all"></div>
-          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            
-            <div class="flex items-center gap-4">
-              <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500/10 to-sky-500/10 text-emerald-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition">
-                <i data-lucide="globe-2" class="w-7 h-7"></i>
-              </div>
-              <div class="space-y-1">
-                <div class="flex items-center gap-2">
-                  <h3 class="font-black text-base text-slate-900 group-hover:text-emerald-600 transition">Community & Social Hub</h3>
-                  <span class="text-[10px] font-black uppercase bg-emerald-500/10 text-emerald-600 px-2 py-0.5 rounded-full">Active</span>
-                </div>
-                <p class="text-xs text-slate-500 leading-relaxed max-w-xl">
-                  Your central gateway to connect with fellow travelers and island visitors. Access the <strong>Global Chat</strong> to connect instantly with guests across all of Bali, discover weekly meetups, and join surf buddies for daily wave sessions.
-                </p>
-              </div>
-            </div>
+        <!-- KETERANGAN DI LUAR TOMBOL -->
+        <p class="text-xs text-slate-500 px-1 leading-relaxed text-center">
+          Your central gateway to connect with fellow travelers and island visitors. Access the <strong>Global Chat</strong> to connect instantly with guests across all of Bali, discover weekly meetups, and join surf buddies for daily wave sessions.
+        </p>
 
-            <div class="shrink-0 self-end sm:self-center">
-              <span class="px-4 py-2.5 bg-slate-900 text-white font-extrabold text-xs rounded-xl group-hover:bg-emerald-600 transition flex items-center gap-1.5 shadow-sm">
-                <span>Explore Hub</span>
-                <i data-lucide="arrow-right" class="w-4 h-4"></i>
-              </span>
-            </div>
+        <!-- TOMBOL FULL GRADASI TANPA KOTAK PUTIH DI DALAM -->
+        <a href="./community.html" class="relative overflow-hidden flex flex-col sm:flex-row items-center justify-between p-6 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 text-white rounded-3xl shadow-xl shadow-teal-600/25 group hover:scale-[1.01] transition-all duration-300 border border-emerald-400/40 gap-4">
+          
+          <!-- Efek Cahaya Latar Belakang -->
+          <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-150 transition-transform"></div>
 
+          <div class="flex items-center gap-4 relative z-10 w-full sm:w-auto">
+            <div class="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-md text-white flex items-center justify-center shrink-0 group-hover:rotate-12 transition-transform shadow-inner">
+              <i data-lucide="globe-2" class="w-7 h-7"></i>
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <h3 class="font-black text-base text-white tracking-tight">Community & Social Hub</h3>
+                <span class="text-[9px] font-black uppercase bg-amber-400 text-slate-950 px-2 py-0.5 rounded-full shadow">Active</span>
+              </div>
+              <p class="text-[11px] text-emerald-100 font-medium mt-0.5">Real-time Global Chat, Meetups & Surf Sessions across Bali</p>
+            </div>
           </div>
+
+          <div class="shrink-0 relative z-10 w-full sm:w-auto text-center sm:text-right">
+            <span class="inline-flex items-center justify-center w-full sm:w-auto px-5 py-3 bg-slate-950 text-white font-extrabold text-xs rounded-2xl group-hover:bg-white group-hover:text-slate-950 transition shadow-lg gap-2">
+              <span>Explore Hub</span>
+              <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </span>
+          </div>
+
         </a>
       </section>
 
