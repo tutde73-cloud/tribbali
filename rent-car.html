@@ -78,14 +78,13 @@
     </main>
   </div>
 
-  <!-- SUPABASE SCRIPT DENGAN MASTER FOTO OTOMATIS BERDASARKAN NAMA MOBIL -->
+  <!-- SUPABASE SCRIPT -->
   <script>
     const SUPABASE_URL = 'https://riyupzmllltjrelqytwi.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_df32CqJ5bqDNCHU4OKGRPQ_7LiJvWV0';
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // MASTER FOTO UTAMA BERDASARKAN KATA KUNCI NAMA MOBIL
-    const masterCarPhotos = {
+    const defaultCarImages = {
       'alphard': 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=600&q=80',
       'innova': 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=600&q=80',
       'hiace': 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&w=600&q=80',
@@ -94,14 +93,14 @@
       'default': 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=600&q=80'
     };
 
-    function getMasterPhoto(modelName) {
+    function getCarImage(modelName, rows) {
+      const found = rows.find(r => r.image_url && r.image_url.trim() !== '');
+      if (found) return found.image_url;
       const lower = (modelName || '').toLowerCase();
-      for (const [keyword, url] of Object.entries(masterCarPhotos)) {
-        if (lower.includes(keyword)) {
-          return url;
-        }
+      for (const [key, url] of Object.entries(defaultCarImages)) {
+        if (lower.includes(key)) return url;
       }
-      return masterCarPhotos['default'];
+      return defaultCarImages['default'];
     }
 
     async function fetchCarTransports() {
@@ -153,8 +152,7 @@
 
           for (const [modelName, subRows] of Object.entries(models)) {
             const cap = subRows[0].capacity || 'Max 7 pax';
-            // Otomatis mengambil foto master berdasarkan nama model mobil
-            const carImg = getMasterPhoto(modelName);
+            const carImg = getCarImage(modelName, subRows);
 
             htmlOutput += `
               <div class="bg-white rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden flex flex-col justify-between group">
@@ -172,7 +170,7 @@
             `;
 
             subRows.forEach(sr => {
-              const label = sr.route_or_area ? `${sr.route_or_area} (${sr.duration_note || ''})` : (sr.duration_note || 'Standard Package');
+              const label = sr.route_or_area ? `${sr.route_or_area}` : 'Standard Package';
               const formattedPrice = Number(sr.price).toLocaleString('id-ID');
               htmlOutput += `
                 <div class="flex justify-between pt-2"><span class="text-slate-500 font-medium pr-2">${escapeHtml(label)}</span><span class="font-extrabold text-slate-900 whitespace-nowrap">IDR ${formattedPrice}</span></div>
@@ -202,7 +200,7 @@
         contentEl.innerHTML = htmlOutput;
         lucide.createIcons();
 
-      } object (err) {
+      } catch (err) {
         console.error('Error fetching car transports:', err);
         loadingEl.innerText = 'Failed to load transport rates from database. Please check connection.';
       }
