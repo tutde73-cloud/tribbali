@@ -216,9 +216,6 @@
     let currentUser = null;
     let isAccommodationSpot = false;
 
-    // URL Link Afiliasi Traveloka Utama
-    const TRAVELOKA_AFFILIATE_URL = "https://trv.lk/b44d3d8d";
-
     function createSlug(text) {
       return String(text || '')
         .toLowerCase()
@@ -304,7 +301,7 @@
       document.getElementById('spotCategoryBadge').innerText = spot.category;
       document.getElementById('spotLocation').innerText = '📍 ' + (spot.area || spot.regency || 'Bali');
       
-      // RENDER PRICE BOX DINAMIS
+      // RENDER PRICE BOX DINAMIS (MURNI DARI DATABASE)
       renderDynamicPriceBox(spot);
 
       // Update SEO & Dynamic Open Graph Tags
@@ -351,28 +348,39 @@
       loadReviews();
     }
 
-    // RENDER DINAMIS BOX PRICE / TOMBOL TRAVELOKA KHUSUS AKOMODASI
+    // RENDER DINAMIS BOX PRICE / TOMBOL TRAVELOKA MURNI DARI DATABASE (TANPA DEFAULT FALLBACK)
     function renderDynamicPriceBox(spot) {
       const container = document.getElementById('priceBoxContainer');
       if (!container) return;
 
       if (isAccommodationSpot) {
-        const bookingUrl = spot.affiliate_url || spot.traveloka_url || TRAVELOKA_AFFILIATE_URL;
+        const bookingUrl = spot.affiliate_url || spot.traveloka_url;
 
-        container.innerHTML = `
-          <a href="${bookingUrl}" target="_blank" rel="noopener noreferrer" 
-             class="relative overflow-hidden flex flex-col items-center justify-center p-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-2xl shadow-md shadow-emerald-600/20 transition-all duration-300 transform hover:scale-[1.02] border border-emerald-400/40 group text-center h-full">
-            
-            <span class="absolute top-1 right-1.5 px-1.5 py-0.2 text-[7px] font-black bg-amber-400 text-slate-950 rounded-full shadow uppercase">
-              PROMO 🔥
-            </span>
+        if (bookingUrl && bookingUrl.trim() !== '') {
+          // JIKA LINK DI DATABASE ADA: Tampilkan tombol promo aktif
+          container.innerHTML = `
+            <a href="${bookingUrl.trim()}" target="_blank" rel="noopener noreferrer" 
+               class="relative overflow-hidden flex flex-col items-center justify-center p-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-2xl shadow-md shadow-emerald-600/20 transition-all duration-300 transform hover:scale-[1.02] border border-emerald-400/40 group text-center h-full">
+              
+              <span class="absolute top-1 right-1.5 px-1.5 py-0.2 text-[7px] font-black bg-amber-400 text-slate-950 rounded-full shadow uppercase">
+                PROMO 🔥
+              </span>
 
-            <span class="text-[9px] font-bold text-emerald-100 uppercase tracking-wider block">PRICE & BOOKING</span>
-            <div class="flex items-center justify-center gap-1 mt-0.5">
-              <span class="text-[11px] font-black text-white group-hover:underline leading-tight">Check Rates & Deals</span>
+              <span class="text-[9px] font-bold text-emerald-100 uppercase tracking-wider block">PRICE & BOOKING</span>
+              <div class="flex items-center justify-center gap-1 mt-0.5">
+                <span class="text-[11px] font-black text-white group-hover:underline leading-tight">Check Rates & Deals</span>
+              </div>
+            </a>
+          `;
+        } else {
+          // JIKA LINK DI DATABASE KOSONG/NULL: Tampilkan box hampa yang tidak bisa ditekan
+          container.innerHTML = `
+            <div class="bg-slate-100 p-2.5 rounded-2xl border border-slate-200 text-center shadow-sm h-full flex flex-col justify-center opacity-70 cursor-not-allowed">
+              <span class="text-[9px] text-slate-400 uppercase font-bold block">PRICE & BOOKING</span>
+              <span class="text-[11px] font-bold text-slate-400 truncate block mt-0.5">Rates Unavailable</span>
             </div>
-          </a>
-        `;
+          `;
+        }
       } else {
         container.innerHTML = `
           <div class="bg-white p-3 rounded-2xl border border-slate-200 text-center shadow-sm h-full flex flex-col justify-center">
@@ -551,7 +559,6 @@
       let uploadedPhotoUrl = null;
 
       try {
-        // Jika bukan kategori akomodasi, izinkan upload foto & ganti cover
         if (!isAccommodationSpot && fileInput && fileInput.files && fileInput.files[0]) {
           const file = fileInput.files[0];
           const fileName = `review_${Date.now()}_${Math.random().toString(36).substring(2,6)}.jpg`;
@@ -580,7 +587,6 @@
 
         if (insertError) throw insertError;
 
-        // Hanya update cover utama jika bukan akomodasi dan ada foto yang di-upload
         if (!isAccommodationSpot && uploadedPhotoUrl) {
           await clientSupabase
             .from('places')
