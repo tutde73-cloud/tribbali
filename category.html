@@ -44,8 +44,8 @@
     <!-- CONTENT CONTAINER -->
     <main class="max-w-4xl mx-auto px-6 py-8 w-full">
 
-      <!-- BANNER EYE-CATCHING & ELEGAN -->
-      <div class="mb-8 p-6 rounded-3xl bg-gradient-to-br from-slate-900 via-slate-900 to-emerald-950 border border-emerald-500/30 shadow-xl relative overflow-hidden">
+      <!-- BANNER COMMUNITY CHALLENGE (DISEMBUNYIKAN KHUSUS UNTUK AKOMODASI: VILLAS, COLIVING, HOTEL) -->
+      <div id="communityBanner" class="mb-8 p-6 rounded-3xl bg-gradient-to-br from-slate-900 via-slate-900 to-emerald-950 border border-emerald-500/30 shadow-xl relative overflow-hidden">
         <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none"></div>
 
         <div class="relative z-10 flex flex-col sm:flex-row items-start sm:items-center gap-4">
@@ -151,12 +151,20 @@
     const clientSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     const urlParams = new URLSearchParams(window.location.search);
-    const categoryType = urlParams.get('type');
+    const categoryType = urlParams.get('type') || '';
     const searchQuery = urlParams.get('q');
 
     let currentPage = 1;
     const pageSize = 20;
     let allPlacesData = [];
+
+    // Cek apakah kategori saat ini termasuk Akomodasi & Living (villas, coliving, hotel)
+    const lowerCategory = categoryType.toLowerCase();
+    const isAccommodationCategory = ['villa', 'villas', 'coliving', 'hotel', 'hotels'].some(c => lowerCategory.includes(c));
+
+    if (isAccommodationCategory) {
+      document.getElementById('communityBanner').style.display = 'none';
+    }
 
     function createSlug(text) {
       return String(text || '')
@@ -214,20 +222,27 @@
       document.getElementById('ogUrl').setAttribute('content', window.location.href);
 
       try {
-        let queryBuilder = clientSupabase.from('places').select('*');
-
-        if (categoryType) {
-          queryBuilder = queryBuilder.eq('category', categoryType);
-        } else if (searchQuery) {
-          queryBuilder = queryBuilder.ilike('name', `%${searchQuery}%`);
-        }
+        let queryBuilder = clientSupabase.from('places').select('*').range(0, 1999);
 
         const { data: places, error } = await queryBuilder;
 
         if (error) throw error;
 
+        let filteredPlaces = places || [];
+
+        if (categoryType) {
+          const targetCat = categoryType.toLowerCase();
+          filteredPlaces = filteredPlaces.filter(p => {
+            const pCat = (p.category || '').toLowerCase();
+            return pCat.includes(targetCat) || targetCat.includes(pCat);
+          });
+        } else if (searchQuery) {
+          const q = searchQuery.toLowerCase();
+          filteredPlaces = filteredPlaces.filter(p => (p.name || '').toLowerCase().includes(q));
+        }
+
         loadingEl.style.display = 'none';
-        allPlacesData = places || [];
+        allPlacesData = filteredPlaces;
 
         if (allPlacesData.length === 0) {
           document.getElementById('spotsContainer').innerHTML = `
