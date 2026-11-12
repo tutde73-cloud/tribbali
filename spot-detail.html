@@ -346,7 +346,7 @@
       loadReviews();
     }
 
-    // RENDER DINAMIS WIDGET KLOOK / PRICE BOX (LEBIH LEBAR)
+    // RENDER DINAMIS WIDGET KLOOK / PRICE BOX (DENGAN ID UNIK PER SPOT AGAR TIDAK TERTUKAR)
     function renderDynamicPriceBox(spot) {
       const container = document.getElementById('priceBoxContainer');
       if (!container) return;
@@ -358,8 +358,10 @@
           const trimmedCode = String(widgetCode).trim();
           
           if (trimmedCode.includes('<ins') || trimmedCode.includes('<script')) {
+            const uniqueWidgetId = `klook-widget-${spot.id}`;
+            
             container.innerHTML = `
-              <div class="w-full flex items-center justify-center overflow-hidden rounded-3xl bg-white border border-slate-200 shadow-sm p-3">
+              <div id="${uniqueWidgetId}" class="w-full flex items-center justify-center overflow-hidden rounded-3xl bg-white border border-slate-200 shadow-sm p-3">
                 <div class="w-full flex justify-center">
                   ${trimmedCode}
                 </div>
@@ -367,14 +369,21 @@
             `;
             
             setTimeout(() => {
-              const scripts = container.querySelectorAll('script');
+              const targetContainer = document.getElementById(uniqueWidgetId);
+              if (!targetContainer) return;
+
+              const scripts = targetContainer.querySelectorAll('script');
               scripts.forEach(oldScript => {
                 const newScript = document.createElement('script');
                 Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
-                newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+                if (oldScript.src) {
+                  newScript.src = oldScript.src;
+                } else {
+                  newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+                }
                 oldScript.parentNode.replaceChild(newScript, oldScript);
               });
-            }, 100);
+            }, 150);
 
           } else {
             container.innerHTML = `
