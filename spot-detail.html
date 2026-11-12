@@ -66,7 +66,7 @@
         <span id="spotRating" class="text-sm font-extrabold text-amber-500">★ --</span>
       </div>
       
-      <!-- DYNAMIC PRICE / TRAVELOKA AFFILIATE BOX -->
+      <!-- DYNAMIC PRICE / WIDGET KLOOK AFFILIATE BOX -->
       <div id="priceBoxContainer">
         <div class="bg-white p-3 rounded-2xl border border-slate-200 text-center shadow-sm">
           <span class="text-[10px] text-slate-400 uppercase font-bold block">Price</span>
@@ -309,7 +309,7 @@
         document.getElementById('backButton').innerText = `← Back to ${spot.category}s`;
       }
 
-      // RENDER PRICE BOX DINAMIS (MURNI DARI DATABASE)
+      // RENDER DINAMIS WIDGET / PRICE BOX DARI KOLOM SUPABASE
       renderDynamicPriceBox(spot);
 
       // Update SEO & Dynamic Open Graph Tags
@@ -354,32 +354,54 @@
       loadReviews();
     }
 
-    // RENDER DINAMIS BOX PRICE / TOMBOL TRAVELOKA MURNI DARI DATABASE
+    // RENDER DINAMIS WIDGET KLOOK / PRICE BOX DARI KOLOM SUPABASE
     function renderDynamicPriceBox(spot) {
       const container = document.getElementById('priceBoxContainer');
       if (!container) return;
 
       if (isAccommodationSpot) {
-        const bookingUrl = spot.affiliate_url || spot.traveloka_url;
+        // Mengambil kode widget atau link dari kolom affiliate_widget di tabel places
+        const widgetCode = spot.affiliate_widget || spot.affiliate_url || spot.traveloka_url;
 
-        if (bookingUrl && String(bookingUrl).trim() !== '' && String(bookingUrl).trim().toLowerCase() !== 'null') {
-          // JIKA LINK DI DATABASE ADA: Tampilkan tombol promo aktif
-          container.innerHTML = `
-            <a href="${String(bookingUrl).trim()}" target="_blank" rel="noopener noreferrer" 
-               class="relative overflow-hidden flex flex-col items-center justify-center p-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-2xl shadow-md shadow-emerald-600/20 transition-all duration-300 transform hover:scale-[1.02] border border-emerald-400/40 group text-center h-full">
-              
-              <span class="absolute top-1 right-1.5 px-1.5 py-0.2 text-[7px] font-black bg-amber-400 text-slate-950 rounded-full shadow uppercase">
-                PROMO 🔥
-              </span>
-
-              <span class="text-[9px] font-bold text-emerald-100 uppercase tracking-wider block">PRICE & BOOKING</span>
-              <div class="flex items-center justify-center gap-1 mt-0.5">
-                <span class="text-[11px] font-black text-white group-hover:underline leading-tight">Check Rates & Deals</span>
+        if (widgetCode && String(widgetCode).trim() !== '' && String(widgetCode).trim().toLowerCase() !== 'null') {
+          const trimmedCode = String(widgetCode).trim();
+          
+          // Cek apakah isi database berupa kode HTML widget (mengandung tag <ins> atau <script>)
+          if (trimmedCode.includes('<ins') || trimmedCode.includes('<script')) {
+            container.innerHTML = `
+              <div class="w-full overflow-hidden rounded-2xl bg-white border border-slate-200 shadow-sm">
+                ${trimmedCode}
               </div>
-            </a>
-          `;
+            `;
+            
+            // Eksekusi ulang script widget Klook agar iframe-nya ter-render dengan benar
+            setTimeout(() => {
+              const scripts = container.querySelectorAll('script');
+              scripts.forEach(oldScript => {
+                const newScript = document.createElement('script');
+                Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+                oldScript.parentNode.replaceChild(newScript, oldScript);
+              });
+            }, 100);
+
+          } else {
+            // Jika isinya berupa link URL biasa (.tp.st atau https://...)
+            container.innerHTML = `
+              <a href="${trimmedCode}" target="_blank" rel="noopener noreferrer" 
+                 class="relative overflow-hidden flex flex-col items-center justify-center p-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-2xl shadow-md shadow-emerald-600/20 transition-all duration-300 transform hover:scale-[1.02] border border-emerald-400/40 group text-center h-full">
+                <span class="absolute top-1 right-1.5 px-1.5 py-0.2 text-[7px] font-black bg-amber-400 text-slate-950 rounded-full shadow uppercase">
+                  PROMO 🔥
+                </span>
+                <span class="text-[9px] font-bold text-emerald-100 uppercase tracking-wider block">PRICE & BOOKING</span>
+                <div class="flex items-center justify-center gap-1 mt-0.5">
+                  <span class="text-[11px] font-black text-white group-hover:underline leading-tight">Check Rates & Deals</span>
+                </div>
+              </a>
+            `;
+          }
         } else {
-          // JIKA LINK DI DATABASE KOSONG/NULL: Tampilkan box hampa yang tidak bisa ditekan
+          // JIKA KOSONG: Tampilkan box hampa
           container.innerHTML = `
             <div class="bg-slate-100 p-2.5 rounded-2xl border border-slate-200 text-center shadow-sm h-full flex flex-col justify-center opacity-70 cursor-not-allowed">
               <span class="text-[9px] text-slate-400 uppercase font-bold block">PRICE & BOOKING</span>
