@@ -56,7 +56,7 @@
 
         <div>
           <label class="block text-xs font-semibold text-slate-600 mb-1">Spot Name</label>
-          <input type="text" id="spotName" required placeholder="e.g. Flamingo Black Sand Dayclub" class="w-full text-sm border border-slate-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-sky-500">
+          <input type="text" id="spotName" required placeholder="e.g. InterContinental Bali Resort" class="w-full text-sm border border-slate-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-sky-500">
         </div>
 
         <div>
@@ -83,7 +83,7 @@
 
         <div>
           <label class="block text-xs font-semibold text-slate-600 mb-1">Area / Location</label>
-          <input type="text" id="spotArea" required placeholder="e.g. Gianyar / Canggu / Uluwatu" class="w-full text-sm border border-slate-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-sky-500">
+          <input type="text" id="spotArea" required placeholder="e.g. Jimbaran / Canggu / Uluwatu" class="w-full text-sm border border-slate-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-sky-500">
         </div>
 
         <div>
@@ -100,7 +100,7 @@
         <div>
           <label class="block text-xs font-semibold text-slate-600 mb-1">Google Maps URL / Share Link / Embed</label>
           <input type="text" id="spotMapUrl" placeholder="https://maps.app.goo.gl/... atau URL Embed" class="w-full text-sm border border-slate-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-sky-500">
-          <p class="text-[10px] text-slate-400 mt-1 italic">Bisa diisi link pendek Google Maps (maps.app.goo.gl) atau link embed.</p>
+          <p class="text-[10px] text-slate-400 mt-1 italic">Bisa diisi link pendek Google Maps atau link embed.</p>
         </div>
 
         <!-- UPLOAD FILE + AUTO COMPRESS -->
@@ -108,12 +108,19 @@
           <label class="block text-xs font-semibold text-slate-600 mb-1">Upload Foto Utama (Auto-Compress)</label>
           <input type="file" id="spotImageFile" accept="image/*" class="w-full text-sm border border-slate-200 rounded-xl px-2 py-1.5 bg-slate-50 file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-sky-50 file:text-sky-700 hover:file:bg-sky-100 cursor-pointer">
           <input type="hidden" id="existingImageUrl">
-          <p id="compressStatus" class="text-[10px] text-slate-400 mt-1 italic">Gambar otomatis dikompres ke max 1200px (kualitas 80%) sebelum di-upload.</p>
+          <p id="compressStatus" class="text-[10px] text-slate-400 mt-1 italic">Gambar otomatis dikompres ke max 1200px sebelum di-upload.</p>
+        </div>
+
+        <!-- KOTAK KHUSUS KLOOK WIDGET / AFFILIATE -->
+        <div class="sm:col-span-2 bg-emerald-50/60 p-4 rounded-2xl border border-emerald-200 space-y-2">
+          <label class="block text-xs font-extrabold text-emerald-900 uppercase tracking-wide">🏷️ Klook Affiliate Widget / Booking Link (<code class="text-emerald-700">affiliate_widget</code>)</label>
+          <p class="text-[11px] text-slate-600">Paste kode HTML widget Klook (<code class="text-slate-700">&lt;ins class="kik-aff-widget" ...&gt;&lt;/ins&gt;</code>) atau link afiliasi biasa di sini untuk otomatis mengubah tombol Price &amp; Booking.</p>
+          <textarea id="spotAffiliateWidget" rows="3" placeholder="Paste Klook HTML code here..." class="w-full text-xs font-mono bg-white border border-emerald-300 rounded-xl p-3 focus:outline-none focus:border-emerald-600 shadow-inner"></textarea>
         </div>
 
         <div class="sm:col-span-2">
           <label class="block text-xs font-semibold text-slate-600 mb-1">Amenities / Facilities (Gunakan pemisah titik • atau koma)</label>
-          <input type="text" id="spotAmenity" placeholder="Infinity Pool • Ocean View • Daybed Reservation" class="w-full text-sm border border-slate-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-sky-500">
+          <input type="text" id="spotAmenity" placeholder="Infinity Pool • Ocean View • Executive Lounge" class="w-full text-sm border border-slate-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-sky-500">
         </div>
 
         <!-- ARTIKEL PANJANG & FITUR AUTO-CONVERT HTML -->
@@ -124,8 +131,7 @@
               <span>✨ Auto-Convert to HTML</span>
             </button>
           </div>
-          <p class="text-[10px] text-slate-400 italic">Ketik teks artikel biasa Anda di bawah, lalu klik tombol "Auto-Convert to HTML" di atas untuk otomatis membungkusnya ke dalam tag paragraf (&lt;p&gt;).</p>
-          <textarea id="spotDescription" rows="6" placeholder="Tulis atau paste artikel panjang penjelasan tempat di sini..." class="w-full text-xs font-mono border border-slate-200 rounded-2xl p-3 focus:outline-none focus:border-sky-500 bg-slate-50/50 leading-relaxed"></textarea>
+          <textarea id="spotDescription" rows="6" placeholder="Tulis atau paste artikel penjelasan tempat di sini..." class="w-full text-xs font-mono border border-slate-200 rounded-2xl p-3 focus:outline-none focus:border-sky-500 bg-slate-50/50 leading-relaxed"></textarea>
         </div>
 
         <div class="sm:col-span-2 flex justify-end gap-2 pt-2">
@@ -186,7 +192,6 @@
   <script>
     const CORRECT_PASSWORD = "Tutde227394";
 
-    // Cek apakah sudah pernah login di sesi ini
     if (sessionStorage.getItem("spottribe_admin_auth") === "true") {
       document.getElementById("passwordModal").style.display = "none";
     }
@@ -247,7 +252,7 @@
             </div>
           </div>
           <div class="flex items-center gap-2 flex-shrink-0">
-            <button onclick="editSpot(${spot.id}, '${escapeHtml(spot.name)}', '${escapeHtml(spot.category)}', '${escapeHtml(spot.area || spot.regency || '')}', '${spot.rating || 4.5}', '${escapeHtml(spot.price_label || spot.price || '')}', '${escapeHtml(spot.image_url || '')}', '${escapeHtml(spot.amenity || '')}', '${escapeHtml(spot.map_url || '')}', encodeURIComponent(\`${escapeHtml(spot.description || '')}\`))" class="bg-sky-50 hover:bg-sky-100 text-sky-700 text-xs font-bold px-3 py-1.5 rounded-xl transition cursor-pointer">
+            <button onclick="editSpot(${spot.id}, '${escapeHtml(spot.name)}', '${escapeHtml(spot.category)}', '${escapeHtml(spot.area || spot.regency || '')}', '${spot.rating || 4.5}', '${escapeHtml(spot.price_label || spot.price || '')}', '${escapeHtml(spot.image_url || '')}', '${escapeHtml(spot.amenity || '')}', '${escapeHtml(spot.map_url || '')}', encodeURIComponent(\`${escapeHtml(spot.description || '')}\`), encodeURIComponent(\`${escapeHtml(spot.affiliate_widget || '')}\`))" class="bg-sky-50 hover:bg-sky-100 text-sky-700 text-xs font-bold px-3 py-1.5 rounded-xl transition cursor-pointer">
               Edit
             </button>
             <button onclick="deleteSpot(${spot.id})" class="bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold px-3 py-1.5 rounded-xl transition cursor-pointer">
@@ -258,7 +263,6 @@
       `).join('');
     }
 
-    // FUNGSI AUTO-CONVERT TEKS BIASA KE HTML PARAGRAF
     function convertToHtml() {
       const textarea = document.getElementById('spotDescription');
       let text = textarea.value.trim();
@@ -266,11 +270,9 @@
 
       const paragraphs = text.split(/\n+/);
       const htmlResult = paragraphs.map(p => `<p class="mb-3">${p.trim()}</p>`).join('\n');
-      
       textarea.value = htmlResult;
     }
 
-    // Fungsi Kompres Gambar Otomatis via Canvas HTML5
     function compressImage(file, maxWidth = 1200, quality = 0.8) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -337,8 +339,7 @@
           const originalFile = fileInput.files[0];
           const compressedFile = await compressImage(originalFile, 1200, 0.8);
           
-          const fileExt = 'jpg';
-          const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 7)}.${fileExt}`;
+          const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 7)}.jpg`;
 
           const { data: uploadData, error: uploadError } = await clientSupabase.storage
             .from('spot-images')
@@ -373,7 +374,8 @@
         image_url: imageUrl,
         amenity: document.getElementById('spotAmenity').value,
         description: document.getElementById('spotDescription').value,
-        map_url: rawMapUrl
+        map_url: rawMapUrl,
+        affiliate_widget: document.getElementById('spotAffiliateWidget').value.trim()
       };
 
       if (id) {
@@ -394,7 +396,7 @@
       fetchAdminSpots();
     }
 
-    function editSpot(id, name, category, area, rating, price, imageUrl, amenity, mapUrl, encodedDesc) {
+    function editSpot(id, name, category, area, rating, price, imageUrl, amenity, mapUrl, encodedDesc, encodedWidget) {
       document.getElementById('spotId').value = id;
       document.getElementById('spotName').value = name;
       document.getElementById('spotCategory').value = category;
@@ -405,6 +407,7 @@
       document.getElementById('spotAmenity').value = amenity;
       document.getElementById('spotMapUrl').value = mapUrl || '';
       document.getElementById('spotDescription').value = encodedDesc ? decodeURIComponent(encodedDesc) : '';
+      document.getElementById('spotAffiliateWidget').value = encodedWidget ? decodeURIComponent(encodedWidget) : '';
 
       document.getElementById('formTitle').innerText = "✏️ Edit Spot ID: " + id;
       document.getElementById('cancelEditBtn').classList.remove('hidden');
@@ -417,6 +420,7 @@
       document.getElementById('existingImageUrl').value = '';
       document.getElementById('spotMapUrl').value = '';
       document.getElementById('spotDescription').value = '';
+      document.getElementById('spotAffiliateWidget').value = '';
       document.getElementById('formTitle').innerText = "➕ Add New Curated Spot";
       document.getElementById('cancelEditBtn').classList.add('hidden');
     }
@@ -436,7 +440,6 @@
         .replace(/"/g, '&quot;');
     }
 
-    // Jika sudah unlocked via session, langsung muat data
     if (sessionStorage.getItem("spottribe_admin_auth") === "true") {
       fetchAdminSpots();
     }
