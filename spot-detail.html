@@ -32,7 +32,7 @@
 
   <!-- TOP BAR -->
   <header class="sticky top-0 z-50 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-4 h-14 flex items-center justify-between text-white">
-    <a href="./category.html" class="flex items-center gap-2 text-xs font-bold text-slate-300 hover:text-white transition">
+    <a id="backButton" href="./category.html" class="flex items-center gap-2 text-xs font-bold text-slate-300 hover:text-white transition">
       ← Back to Categories
     </a>
     <span class="text-xs font-extrabold tracking-wider text-emerald-400 uppercase">SpotTribe Bali</span>
@@ -303,6 +303,12 @@
       document.getElementById('spotCategoryBadge').innerText = spot.category;
       document.getElementById('spotLocation').innerText = '📍 ' + (spot.area || spot.regency || 'Bali');
       
+      // UPDATE TOMBOL BACK KEMBALI KE KATEGORI YANG TEPAT SECARA DINAMIS
+      if (spot.category) {
+        document.getElementById('backButton').href = `./category.html?type=${encodeURIComponent(spot.category)}`;
+        document.getElementById('backButton').innerText = `← Back to ${spot.category}s`;
+      }
+
       // RENDER PRICE BOX DINAMIS (MURNI DARI DATABASE)
       renderDynamicPriceBox(spot);
 
