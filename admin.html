@@ -378,13 +378,23 @@
         affiliate_widget: document.getElementById('spotAffiliateWidget').value.trim()
       };
 
-      if (id) {
-        const { error } = await clientSupabase.from('places').update(payload).eq('id', id);
-        if (error) { alert("Error updating: " + error.message); saveBtn.innerText = "Save Spot to Database"; saveBtn.disabled = false; return; }
+      if (id && id !== "") {
+        const { error } = await clientSupabase.from('places').update(payload).eq('id', parseInt(id));
+        if (error) { 
+          alert("Error updating: " + error.message); 
+          saveBtn.innerText = "Save Spot to Database"; 
+          saveBtn.disabled = false; 
+          return; 
+        }
         alert("Spot updated successfully!");
       } else {
         const { error } = await clientSupabase.from('places').insert([payload]);
-        if (error) { alert("Error inserting: " + error.message); saveBtn.innerText = "Save Spot to Database"; saveBtn.disabled = false; return; }
+        if (error) { 
+          alert("Error inserting: " + error.message); 
+          saveBtn.innerText = "Save Spot to Database"; 
+          saveBtn.disabled = false; 
+          return; 
+        }
         alert("Spot added successfully!");
       }
 
