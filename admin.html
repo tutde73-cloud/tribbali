@@ -1,441 +1,642 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>SpotTribe Bali — Admin Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  
+  <!-- SEO & Open Graph Meta Tags (Dynamic based on Slug) -->
+  <title id="metaTitle">Spot Detail — SpotTribe Bali</title>
+  <meta id="metaDesc" name="description" content="Explore curated luxury villas, cozy cafés, and hidden gems across Bali with SpotTribe Bali.">
+  <link id="canonicalLink" rel="canonical" href="https://spottribebali.com/spot-detail.html">
 
-  <!-- Tailwind CSS & Supabase -->
+  <meta property="og:type" content="website">
+  <meta id="ogUrl" property="og:url" content="https://spottribebali.com/spot-detail.html">
+  <meta id="ogTitle" property="og:title" content="Spot Detail — SpotTribe Bali">
+  <meta id="ogDesc" property="og:description" content="Explore verified island spots, luxury living, and hidden gems across Bali.">
+  <meta id="ogImage" property="og:image" content="https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=1200&q=80">
+
+  <!-- Tailwind CSS, Lucide Icons & Supabase -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <style>
+    /* Mencegah efek pull-to-refresh / overscroll bounce di mobile & iPad */
+    body {
+      overscroll-behavior-y: none;
+      -webkit-overflow-scrolling: touch;
+    }
+  </style>
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen pb-20">
 
-  <!-- PASSWORD GATE OVERLAY -->
-  <div id="passwordModal" class="fixed inset-0 z-[9999] bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl border border-slate-200 text-center space-y-6">
-      <div class="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-2xl mx-auto flex items-center justify-center text-2xl shadow-inner">
-        🔒
-      </div>
+  <!-- TOP BAR -->
+  <header class="sticky top-0 z-50 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-4 h-14 flex items-center justify-between text-white">
+    <a id="backButton" href="./category.html" class="flex items-center gap-2 text-xs font-bold text-slate-300 hover:text-white transition">
+      ← Back to Categories
+    </a>
+    <span class="text-xs font-extrabold tracking-wider text-emerald-400 uppercase">SpotTribe Bali</span>
+  </header>
+
+  <!-- HERO COVER PHOTO -->
+  <div class="relative w-full h-64 sm:h-80 bg-slate-900 overflow-hidden">
+    <img id="spotCover" src="" alt="Spot Cover" class="w-full h-full object-cover">
+    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent"></div>
+    <div class="absolute bottom-4 left-4 right-4 max-w-2xl mx-auto flex items-end justify-between">
       <div>
-        <h2 class="text-base font-extrabold text-slate-900">Restricted Admin Access</h2>
-        <p class="text-xs text-slate-500 mt-1">Please enter your password to access the SpotTribe management panel.</p>
+        <span id="spotCategoryBadge" class="inline-block px-3 py-1 rounded-full text-[10px] font-bold bg-emerald-500/80 text-white uppercase tracking-wider mb-2">Category</span>
+        <h1 id="spotTitle" class="text-2xl sm:text-3xl font-black text-white leading-tight">Loading Spot...</h1>
+        <p id="spotLocation" class="text-xs text-slate-300 font-medium mt-1">📍 Loading location...</p>
       </div>
-      <form onsubmit="handleUnlock(event)" class="space-y-3">
-        <input type="password" id="adminPasswordInput" placeholder="Enter password..." required class="w-full text-sm text-center tracking-widest border border-slate-300 rounded-xl px-4 py-3 focus:outline-none focus:border-emerald-600 font-bold bg-slate-50">
-        <button type="submit" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl shadow-lg shadow-emerald-600/20 transition cursor-pointer">
-          Unlock Panel 🚀
-        </button>
-      </form>
-      <p id="errorMsg" class="text-rose-500 text-[11px] font-bold hidden">Incorrect password. Please try again.</p>
+      <!-- CONTRIBUTOR BADGE -->
+      <div id="contributorBadge" class="hidden bg-black/60 backdrop-blur-md border border-white/20 px-3 py-1.5 rounded-xl text-right">
+        <span class="text-[9px] uppercase tracking-widest text-emerald-400 font-extrabold block">Captured by</span>
+        <span id="contributorName" class="text-xs font-bold text-white">Nomad Explorer</span>
+      </div>
     </div>
   </div>
 
-  <!-- HEADER NAVBAR -->
-  <header class="bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-50">
-    <div class="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <span class="text-2xl">⚡</span>
-        <h1 class="font-extrabold text-base tracking-tight">SpotTribe Admin Panel</h1>
-      </div>
-      <a href="./index.html" class="text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 px-4 py-2 rounded-xl transition">
-        ← Back to App
-      </a>
-    </div>
-  </header>
-
-  <!-- MAIN CONTENT -->
-  <main class="max-w-5xl mx-auto px-6 py-8 flex-grow w-full space-y-8">
+  <!-- ARTICLE CONTENT & DETAILS -->
+  <main class="max-w-2xl mx-auto px-4 py-6 space-y-8">
     
-    <!-- SECTION: FORM TAMBAH / EDIT SPOT -->
-    <div class="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
-      <h2 id="formTitle" class="font-bold text-lg text-slate-900 mb-4">➕ Add New Curated Spot</h2>
+    <!-- INFO CARDS -->
+    <div class="grid grid-cols-2 gap-3">
+      <div class="bg-white p-3 rounded-2xl border border-slate-200 text-center shadow-sm">
+        <span class="text-[10px] text-slate-400 uppercase font-bold block">Rating</span>
+        <span id="spotRating" class="text-sm font-extrabold text-amber-500">★ --</span>
+      </div>
       
-      <form id="adminSpotForm" onsubmit="handleSaveSpot(event)" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <input type="hidden" id="spotId">
-
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Spot Name</label>
-          <input type="text" id="spotName" required placeholder="e.g. Flamingo Black Sand Dayclub" class="w-full text-sm border border-slate-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-sky-500">
+      <!-- DYNAMIC PRICE / WIDGET KLOOK AFFILIATE BOX -->
+      <div id="priceBoxContainer">
+        <div class="bg-white p-3 rounded-2xl border border-slate-200 text-center shadow-sm">
+          <span class="text-[10px] text-slate-400 uppercase font-bold block">Price</span>
+          <span id="spotPrice" class="text-xs font-bold text-slate-700 truncate block">Inquiry</span>
         </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Category (Sinkron dengan Index)</label>
-          <select id="spotCategory" required class="w-full text-sm border border-slate-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-sky-500 bg-white font-medium">
-            <option value="villas">Villas & Houses (villas)</option>
-            <option value="coliving">Coliving Hubs (coliving)</option>
-            <option value="hotel">Hotels & Resorts (hotel)</option>
-            <option value="waterfall">Waterfall (waterfall)</option>
-            <option value="beach">Beach & Surf (beach)</option>
-            <option value="volcano">Volcano Trek (volcano)</option>
-            <option value="wildlife">Wildlife (wildlife)</option>
-            <option value="vehicle">Rent Vehicle (vehicle)</option>
-            <option value="cafe">Cafés & Brunch (cafe)</option>
-            <option value="coworking">Coworking (coworking)</option>
-            <option value="visa">Visa Agency (visa)</option>
-            <option value="medical">Medical / Clinic (medical)</option>
-            <option value="nightclub">Nightclub (nightclub)</option>
-            <option value="beachclub">Beach Clubs (beachclub)</option>
-            <option value="temple">Temples (temple)</option>
-            <option value="wellness">Yoga & Spa (wellness)</option>
-          </select>
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Area / Location</label>
-          <input type="text" id="spotArea" required placeholder="e.g. Gianyar / Canggu / Uluwatu" class="w-full text-sm border border-slate-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-sky-500">
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Rating</label>
-          <input type="text" id="spotRating" value="4.5" required class="w-full text-sm border border-slate-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-sky-500">
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Price Label</label>
-          <input type="text" id="spotPrice" value="Contact for Rates" required class="w-full text-sm border border-slate-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-sky-500">
-        </div>
-
-        <!-- TRAVELOKA AFFILIATE URL KHUSUS AKOMODASI -->
-        <div>
-          <label class="block text-xs font-semibold text-emerald-700 mb-1">🔗 Traveloka Affiliate URL (Khusus Hotel/Villa)</label>
-          <input type="text" id="spotAffiliateUrl" placeholder="https://trv.lk/..." class="w-full text-sm border border-emerald-300 bg-emerald-50/30 rounded-xl px-3 py-2.5 focus:outline-none focus:border-emerald-500">
-          <p class="text-[10px] text-slate-400 mt-1 italic">Kosongkan jika ingin menggunakan link afiliasi default.</p>
-        </div>
-
-        <!-- GOOGLE MAPS URL -->
-        <div class="sm:col-span-2">
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Google Maps URL / Share Link / Embed</label>
-          <input type="text" id="spotMapUrl" placeholder="https://maps.app.goo.gl/... atau URL Embed" class="w-full text-sm border border-slate-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-sky-500">
-          <p class="text-[10px] text-slate-400 mt-1 italic">Bisa diisi link pendek Google Maps (maps.app.goo.gl) atau link embed.</p>
-        </div>
-
-        <!-- UPLOAD FILE + AUTO COMPRESS -->
-        <div class="sm:col-span-2">
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Upload Foto Utama (Auto-Compress)</label>
-          <input type="file" id="spotImageFile" accept="image/*" class="w-full text-sm border border-slate-200 rounded-xl px-2 py-1.5 bg-slate-50 file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-sky-50 file:text-sky-700 hover:file:bg-sky-100 cursor-pointer">
-          <input type="hidden" id="existingImageUrl">
-          <p id="compressStatus" class="text-[10px] text-slate-400 mt-1 italic">Gambar otomatis dikompres ke max 1200px (kualitas 80%) sebelum di-upload.</p>
-        </div>
-
-        <div class="sm:col-span-2">
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Amenities / Facilities (Gunakan pemisah titik • atau koma)</label>
-          <input type="text" id="spotAmenity" placeholder="Infinity Pool • Ocean View • Daybed Reservation" class="w-full text-sm border border-slate-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-sky-500">
-        </div>
-
-        <!-- ARTIKEL PANJANG & FITUR AUTO-CONVERT HTML -->
-        <div class="sm:col-span-2 space-y-2 pt-2 border-t border-slate-100">
-          <div class="flex items-center justify-between">
-            <label class="block text-xs font-bold text-slate-700">Long Description / Article (Support HTML)</label>
-            <button type="button" onclick="convertToHtml()" class="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold text-xs rounded-xl transition flex items-center gap-1.5 border border-emerald-200 cursor-pointer">
-              <span>✨ Auto-Convert to HTML</span>
-            </button>
-          </div>
-          <p class="text-[10px] text-slate-400 italic">Ketik teks artikel biasa Anda di bawah, lalu klik tombol "Auto-Convert to HTML" di atas untuk otomatis membungkusnya ke dalam tag paragraf (&lt;p&gt;).</p>
-          <textarea id="spotDescription" rows="6" placeholder="Tulis atau paste artikel panjang penjelasan tempat di sini..." class="w-full text-xs font-mono border border-slate-200 rounded-2xl p-3 focus:outline-none focus:border-sky-500 bg-slate-50/50 leading-relaxed"></textarea>
-        </div>
-
-        <div class="sm:col-span-2 flex justify-end gap-2 pt-2">
-          <button type="button" id="cancelEditBtn" onclick="resetForm()" class="hidden px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition cursor-pointer">Cancel Edit</button>
-          <button type="submit" id="saveBtn" class="px-6 py-2.5 text-xs font-bold text-white bg-sky-600 hover:bg-sky-700 rounded-xl transition shadow-md shadow-sky-600/20 cursor-pointer">Save Spot to Database</button>
-        </div>
-      </form>
+      </div>
     </div>
 
-    <!-- SECTION: LIST DATA SPOTS WITH CATEGORY FILTER & SEARCH -->
-    <div class="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm space-y-4">
-      <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-3 border-b border-slate-100">
-        <div>
-          <h2 class="font-bold text-lg text-slate-900">📁 Managed Places Directory</h2>
-          <p class="text-xs text-slate-500">Filter and edit database entries by category or search term.</p>
-        </div>
-        
-        <!-- SEARCH & CATEGORY FILTER AREA -->
-        <div class="flex flex-wrap items-center gap-2">
-          <div class="relative">
-            <input type="text" id="directorySearch" oninput="fetchAdminSpots()" placeholder="🔍 Search spot name..." class="text-xs border border-slate-300 rounded-xl pl-8 pr-3 py-2 bg-slate-50 text-slate-800 focus:outline-none focus:border-sky-500 focus:bg-white w-48 transition">
-            <span class="absolute left-2.5 top-2 text-xs text-slate-400 pointer-events-none">🔍</span>
-          </div>
+    <!-- INTERACTIVE EMBED MAP SECTION -->
+    <div class="bg-white border border-slate-200 shadow-sm rounded-3xl p-4 sm:p-5 space-y-3">
+      <div class="flex items-center justify-between">
+        <h2 class="text-xs font-black uppercase tracking-widest text-slate-500 flex items-center gap-2">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Location Map & Navigation
+        </h2>
+        <a id="externalMapLink" href="#" target="_blank" class="text-[11px] font-bold text-emerald-600 hover:underline flex items-center gap-1">
+          Open in Google Maps ↗
+        </a>
+      </div>
+      <div class="w-full h-48 sm:h-56 rounded-2xl overflow-hidden border border-slate-200 shadow-inner bg-slate-100">
+        <iframe 
+          id="spotMapIframe"
+          width="100%" 
+          height="100%" 
+          style="border:0;" 
+          allowfullscreen="" 
+          loading="lazy" 
+          referrerpolicy="no-referrer-when-downgrade"
+          src="about:blank">
+        </iframe>
+      </div>
+    </div>
 
-          <div class="flex items-center gap-1.5">
-            <label for="directoryFilter" class="text-xs font-bold text-slate-600">Filter:</label>
-            <select id="directoryFilter" onchange="fetchAdminSpots()" class="text-xs border border-slate-300 rounded-xl px-3 py-2 bg-slate-50 font-bold text-slate-800 focus:outline-none focus:border-sky-500">
-              <option value="all">ALL Categories</option>
-              <option value="villas">Villas & Houses</option>
-              <option value="coliving">Coliving Hubs</option>
-              <option value="hotel">Hotels & Resorts</option>
-              <option value="waterfall">Waterfall</option>
-              <option value="beach">Beach & Surf</option>
-              <option value="volcano">Volcano Trek</option>
-              <option value="wildlife">Wildlife</option>
-              <option value="vehicle">Rent Vehicle</option>
-              <option value="cafe">Cafés & Brunch</option>
-              <option value="coworking">Coworking</option>
-              <option value="visa">Visa Agency</option>
-              <option value="medical">Medical / Clinic</option>
-              <option value="nightclub">Nightclub</option>
-              <option value="beachclub">Beach Clubs</option>
-              <option value="temple">Temples</option>
-              <option value="wellness">Yoga & Spa</option>
+    <!-- ARTICLE DESCRIPTION -->
+    <article class="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm space-y-3">
+      <h2 class="font-extrabold text-base text-slate-900">About this Sanctuary</h2>
+      <div id="spotDescription" class="text-xs leading-relaxed text-slate-600 font-medium space-y-2">
+        Loading article description...
+      </div>
+      
+      <div class="pt-3 border-t border-slate-100">
+        <h3 class="text-xs font-bold text-slate-800 mb-2">Highlights & Amenities</h3>
+        <div id="spotAmenities" class="flex flex-wrap gap-2">
+          <!-- Amenities chips -->
+        </div>
+      </div>
+    </article>
+
+    <!-- SMART ROLLING RELATED SPOTS (INTERNAL LINKING SECTION) -->
+    <section class="space-y-6 pt-2">
+      
+      <!-- SECTION 1: Similar Category Recommendations (2 Links) -->
+      <div class="space-y-3">
+        <h3 id="sameCategoryTitle" class="text-xs font-black uppercase tracking-widest text-slate-500 flex items-center gap-2">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> More Similar Spots
+        </h3>
+        <div id="sameCategoryContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <!-- Populated via Javascript -->
+        </div>
+      </div>
+
+      <!-- SECTION 2: Cross-Category Recommendations (3 Rolling Links) -->
+      <div class="bg-slate-900 text-white p-5 rounded-3xl space-y-3 shadow-lg">
+        <div class="flex items-center justify-between">
+          <h3 id="crossCategoryPrompt" class="text-xs font-bold uppercase tracking-widest text-emerald-400 flex items-center gap-2">
+            <span>✨</span> Looking for a great cafe, dining, or a different vibe?
+          </h3>
+        </div>
+        <div id="crossCategoryContainer" class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <!-- Populated via Javascript (3 randomized rolling links) -->
+        </div>
+      </div>
+
+    </section>
+
+    <!-- REVIEWS & COMMUNITY SECTION -->
+    <section class="space-y-6 pt-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h3 class="font-extrabold text-lg text-slate-900">Community Reviews & Photos</h3>
+          <p class="text-xs text-slate-500">Real experiences uploaded by Tribe Explorers</p>
+        </div>
+      </div>
+
+      <!-- FORM UPLOAD REVIEW -->
+      <div class="bg-white p-5 rounded-3xl border border-emerald-200 shadow-sm space-y-4">
+        <h4 id="reviewFormTitle" class="font-bold text-sm text-slate-900 flex items-center gap-2">
+          <span>📸</span> Share Your Experience & Update Spot Cover
+        </h4>
+
+        <!-- LOGIN NOTICE BOX -->
+        <div id="loginNotice" class="hidden bg-slate-900 text-white p-4 rounded-2xl text-center space-y-2">
+          <p class="text-xs font-medium text-slate-300">Sign in with your Google account to submit reviews.</p>
+          <button onclick="signInWithGoogle()" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-extrabold text-xs rounded-xl transition shadow-md inline-flex items-center gap-2">
+            <span>Continue with Google</span>
+          </button>
+        </div>
+
+        <form id="reviewForm" onsubmit="handleReviewSubmit(event)" class="space-y-3">
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <label class="block text-xs font-bold text-slate-600">Your Name / Nomad Handle</label>
+              <span id="verifiedBadge" class="hidden text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">✓ Google Account</span>
+            </div>
+            <input type="text" id="reviewerName" required placeholder="e.g. Alex (Germany)" class="w-full text-xs border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:border-emerald-500 bg-slate-50 font-bold text-slate-700">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-600 mb-1">Rating</label>
+            <select id="reviewerRating" class="w-full text-xs border border-slate-200 rounded-xl px-3 py-2 bg-white font-bold text-slate-700">
+              <option value="5">★★★★★ (5.0 - Incredible)</option>
+              <option value="4">★★★★☆ (4.0 - Great Spot)</option>
+              <option value="3">★★★☆☆ (3.0 - Average)</option>
+              <option value="2">★★☆☆☆ (2.0 - Below Expectations)</option>
+              <option value="1">★☆☆☆☆ (1.0 - Poor)</option>
             </select>
           </div>
-        </div>
+          <div id="photoUploadContainer">
+            <label id="photoLabel" class="block text-xs font-bold text-slate-600 mb-1">Upload Photo (Will become main cover if first!)</label>
+            <input type="file" id="reviewPhoto" accept="image/*" class="w-full text-xs border border-slate-200 rounded-xl p-1 bg-slate-50 cursor-pointer">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-600 mb-1">Your Review / Tips for others</label>
+            <textarea id="reviewerComment" rows="3" required placeholder="How was the vibe, wifi, or food? Any insider tips?" class="w-full text-xs border border-slate-200 rounded-xl p-3 focus:outline-none focus:border-emerald-500"></textarea>
+          </div>
+          <button type="submit" id="submitReviewBtn" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl transition shadow-md shadow-emerald-600/20">
+            Submit Review
+          </button>
+        </form>
       </div>
 
-      <div id="adminSpotsContainer" class="space-y-3">
-        <p class="text-slate-400 text-xs italic text-center py-6">Loading spots data...</p>
+      <!-- LIST REVIEWS -->
+      <div id="reviewsListContainer" class="space-y-4">
+        <p class="text-xs text-slate-400 italic text-center py-4">Loading reviews...</p>
       </div>
-    </div>
+    </section>
 
   </main>
 
-  <!-- SCRIPT ADMIN & AUTH -->
+  <!-- SUPABASE & PAGE SCRIPT -->
   <script>
-    const CORRECT_PASSWORD = "Tutde227394";
-
-    // Cek apakah sudah pernah login di sesi ini
-    if (sessionStorage.getItem("spottribe_admin_auth") === "true") {
-      document.getElementById("passwordModal").style.display = "none";
-    }
-
-    function handleUnlock(event) {
-      event.preventDefault();
-      const enteredPass = document.getElementById("adminPasswordInput").value;
-      const errorMsg = document.getElementById("errorMsg");
-
-      if (enteredPass === CORRECT_PASSWORD) {
-        sessionStorage.setItem("spottribe_admin_auth", "true");
-        document.getElementById("passwordModal").style.display = "none";
-        fetchAdminSpots();
-      } else {
-        errorMsg.classList.remove("hidden");
-        document.getElementById("adminPasswordInput").value = "";
-      }
-    }
-
     const SUPABASE_URL = 'https://riyupzmllltjrelqytwi.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_df32CqJ5bqDNCHU4OKGRPQ_7LiJvWV0';
     const clientSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    async function fetchAdminSpots() {
-      const container = document.getElementById('adminSpotsContainer');
-      const selectedCategory = document.getElementById('directoryFilter').value;
-      const searchQuery = document.getElementById('directorySearch').value.trim();
+    const urlParams = new URLSearchParams(window.location.search);
+    const spotSlug = urlParams.get('slug');
+    let currentPlaceId = null;
+    let currentUser = null;
+    let isAccommodationSpot = false;
 
-      let query = clientSupabase.from('places').select('*').order('id', { ascending: false });
+    function createSlug(text) {
+      return String(text || '')
+        .toLowerCase()
+        .trim()
+        .replace(/[^\w\s-]/g, '')
+        .replace(/[\s_-]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+    }
+
+    async function checkAuthUser() {
+      const { data: { user } } = await clientSupabase.auth.getUser();
+      const reviewForm = document.getElementById('reviewForm');
+      const loginNotice = document.getElementById('loginNotice');
+      const nameInput = document.getElementById('reviewerName');
+      const verifiedBadge = document.getElementById('verifiedBadge');
+
+      if (user) {
+        currentUser = user;
+        const displayName = user.user_metadata?.full_name || user.user_metadata?.name || user.email.split('@')[0];
+        nameInput.value = displayName;
+        nameInput.readOnly = true;
+        verifiedBadge.classList.remove('hidden');
+        loginNotice.classList.add('hidden');
+        reviewForm.classList.remove('hidden');
+      } else {
+        currentUser = null;
+        verifiedBadge.classList.add('hidden');
+        loginNotice.classList.remove('hidden');
+        reviewForm.classList.add('hidden');
+      }
+    }
+
+    async function signInWithGoogle() {
+      await clientSupabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: window.location.href
+        }
+      });
+    }
+
+    async function loadSpotDetail() {
+      if (!spotSlug) {
+        alert('Invalid spot URL');
+        window.location.href = './index.html';
+        return;
+      }
+
+      await checkAuthUser();
+
+      // Ambil data dengan range besar hingga 1999 baris
+      const { data: places, error } = await clientSupabase
+        .from('places')
+        .select('*')
+        .range(0, 1999);
+
+      if (error || !places) {
+        document.getElementById('spotTitle').innerText = 'Spot Not Found';
+        return;
+      }
+
+      const spot = places.find(p => createSlug(p.name) === spotSlug);
+
+      if (!spot) {
+        document.getElementById('spotTitle').innerText = 'Spot Not Found';
+        document.getElementById('spotDescription').innerText = 'The requested place could not be found or has been removed.';
+        return;
+      }
+
+      currentPlaceId = spot.id;
+
+      // DETEKSI KATEGORI AKOMODASI YANG LEBIH LUAS & FLEKSIBEL (Mendukung villas, hotel, resort, coliving, dll)
+      const category = (spot.category || '').toLowerCase();
+      isAccommodationSpot = ['villa', 'coliving', 'hotel', 'resort', 'stay', 'accommodation'].some(cat => category.includes(cat));
+
+      // Jika kategori akomodasi, kunci form foto agar tidak bisa mengganti cover utama
+      if (isAccommodationSpot) {
+        document.getElementById('reviewFormTitle').innerHTML = `<span>📸</span> Share Your Experience & Review`;
+        document.getElementById('photoUploadContainer').style.display = 'none';
+      }
+
+      // Update DOM Text & Media
+      document.getElementById('spotCover').src = spot.image_url || 'https://images.unsplash.com/photo-1537996194471-e657df975ab4';
+      document.getElementById('spotTitle').innerText = spot.name;
+      document.getElementById('spotCategoryBadge').innerText = spot.category;
+      document.getElementById('spotLocation').innerText = '📍 ' + (spot.area || spot.regency || 'Bali');
       
-      if (selectedCategory !== 'all') {
-        query = query.eq('category', selectedCategory);
+      // UPDATE TOMBOL BACK KEMBALI KE KATEGORI YANG TEPAT SECARA DINAMIS
+      if (spot.category) {
+        document.getElementById('backButton').href = `./category.html?type=${encodeURIComponent(spot.category)}`;
+        document.getElementById('backButton').innerText = `← Back to ${spot.category}s`;
       }
 
-      if (searchQuery) {
-        query = query.ilike('name', `%${searchQuery}%`);
+      // RENDER DINAMIS WIDGET / PRICE BOX DARI KOLOM SUPABASE
+      renderDynamicPriceBox(spot);
+
+      // Update SEO & Dynamic Open Graph Tags
+      const spotTitleText = `${spot.name} — SpotTribe Bali`;
+      const cleanDesc = (spot.description || spot.amenity || `Explore ${spot.name} in ${spot.area || 'Bali'}.`).replace(/<[^>]*>?/gm, '').substring(0, 130) + '...';
+      const canonicalPath = `https://spottribebali.com/spot-detail.html?slug=${createSlug(spot.name)}`;
+
+      document.title = spotTitleText;
+      document.getElementById('metaTitle').innerText = spotTitleText;
+      document.getElementById('metaDesc').setAttribute('content', cleanDesc);
+      document.getElementById('ogTitle').setAttribute('content', spotTitleText);
+      document.getElementById('ogDesc').setAttribute('content', cleanDesc);
+      document.getElementById('canonicalLink').setAttribute('href', canonicalPath);
+      document.getElementById('ogUrl').setAttribute('content', canonicalPath);
+
+      if (spot.image_url) {
+        document.getElementById('ogImage').setAttribute('content', spot.image_url);
       }
 
-      const { data, error } = await query;
+      const rawDescription = spot.description || spot.amenity || 'Enjoy authentic island vibes at ' + spot.name + '.';
+      document.getElementById('spotDescription').innerHTML = rawDescription;
+      
+      // MAP EMBED & EXTERNAL URL
+      const querySearch = encodeURIComponent(spot.name + ' ' + (spot.area || 'Bali'));
+      document.getElementById('spotMapIframe').src = `https://maps.google.com/maps?q=${querySearch}&z=16&output=embed`;
+      document.getElementById('externalMapLink').href = `https://www.google.com/maps/search/?api=1&query=${querySearch}`;
 
-      if (error) {
-        container.innerHTML = `<p class="text-rose-500 text-xs text-center">Failed to load places.</p>`;
-        return;
+      // Render amenities chips
+      const amenitiesContainer = document.getElementById('spotAmenities');
+      const items = (spot.amenity || '').split(/[•,]/).filter(i => i.trim());
+      if (items.length > 0) {
+        amenitiesContainer.innerHTML = items.map(item => `
+          <span class="text-[10px] font-bold text-slate-700 bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200">
+            ${item.trim()}
+          </span>
+        `).join('');
+      } else {
+        amenitiesContainer.innerHTML = `<span class="text-xs text-slate-400 italic">No specific facilities listed.</span>`;
       }
 
-      if (!data || data.length === 0) {
-        container.innerHTML = `<p class="text-slate-400 text-xs italic text-center py-6">No places found matching your search/filter criteria.</p>`;
-        return;
-      }
+      renderSmartRelatedSpots(spot, places);
+      loadReviews();
+    }
 
-      container.innerHTML = data.map(spot => `
-        <div class="flex items-center justify-between p-4 rounded-2xl border border-slate-100 bg-slate-50/50 hover:bg-slate-50 transition gap-4">
-          <div class="flex items-center gap-3 min-w-0">
-            <img src="${spot.image_url || 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=150&q=80'}" class="w-12 h-12 rounded-xl object-cover flex-shrink-0 border border-slate-200" />
-            <div class="min-w-0">
-              <h4 class="font-bold text-slate-900 text-sm truncate">${escapeHtml(spot.name)}</h4>
-              <p class="text-[11px] text-slate-500 font-medium">📂 <strong class="text-slate-700">${escapeHtml(spot.category)}</strong> • 📍 ${escapeHtml(spot.area || spot.regency || 'Bali')}</p>
+    // RENDER DINAMIS WIDGET KLOOK / PRICE BOX DARI KOLOM SUPABASE
+    function renderDynamicPriceBox(spot) {
+      const container = document.getElementById('priceBoxContainer');
+      if (!container) return;
+
+      if (isAccommodationSpot) {
+        // Mengambil kode widget atau link dari kolom affiliate_widget di tabel places
+        const widgetCode = spot.affiliate_widget || spot.affiliate_url || spot.traveloka_url;
+
+        if (widgetCode && String(widgetCode).trim() !== '' && String(widgetCode).trim().toLowerCase() !== 'null') {
+          const trimmedCode = String(widgetCode).trim();
+          
+          // Cek apakah isi database berupa kode HTML widget (mengandung tag <ins> atau <script>)
+          if (trimmedCode.includes('<ins') || trimmedCode.includes('<script')) {
+            container.innerHTML = `
+              <div class="w-full overflow-hidden rounded-2xl bg-white border border-slate-200 shadow-sm">
+                ${trimmedCode}
+              </div>
+            `;
+            
+            // Eksekusi ulang script widget Klook agar iframe-nya ter-render dengan benar
+            setTimeout(() => {
+              const scripts = container.querySelectorAll('script');
+              scripts.forEach(oldScript => {
+                const newScript = document.createElement('script');
+                Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+                oldScript.parentNode.replaceChild(newScript, oldScript);
+              });
+            }, 100);
+
+          } else {
+            // Jika isinya berupa link URL biasa (.tp.st atau https://...)
+            container.innerHTML = `
+              <a href="${trimmedCode}" target="_blank" rel="noopener noreferrer" 
+                 class="relative overflow-hidden flex flex-col items-center justify-center p-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-2xl shadow-md shadow-emerald-600/20 transition-all duration-300 transform hover:scale-[1.02] border border-emerald-400/40 group text-center h-full">
+                <span class="absolute top-1 right-1.5 px-1.5 py-0.2 text-[7px] font-black bg-amber-400 text-slate-950 rounded-full shadow uppercase">
+                  PROMO 🔥
+                </span>
+                <span class="text-[9px] font-bold text-emerald-100 uppercase tracking-wider block">PRICE & BOOKING</span>
+                <div class="flex items-center justify-center gap-1 mt-0.5">
+                  <span class="text-[11px] font-black text-white group-hover:underline leading-tight">Check Rates & Deals</span>
+                </div>
+              </a>
+            `;
+          }
+        } else {
+          // JIKA KOSONG: Tampilkan box hampa
+          container.innerHTML = `
+            <div class="bg-slate-100 p-2.5 rounded-2xl border border-slate-200 text-center shadow-sm h-full flex flex-col justify-center opacity-70 cursor-not-allowed">
+              <span class="text-[9px] text-slate-400 uppercase font-bold block">PRICE & BOOKING</span>
+              <span class="text-[11px] font-bold text-slate-400 truncate block mt-0.5">Rates Unavailable</span>
             </div>
+          `;
+        }
+      } else {
+        container.innerHTML = `
+          <div class="bg-white p-3 rounded-2xl border border-slate-200 text-center shadow-sm h-full flex flex-col justify-center">
+            <span class="text-[10px] text-slate-400 uppercase font-bold block">Price</span>
+            <span id="spotPrice" class="text-xs font-bold text-slate-700 truncate block">${escapeHtml(spot.price_label || spot.price || 'Contact for Rates')}</span>
           </div>
-          <div class="flex items-center gap-2 flex-shrink-0">
-            <button onclick="editSpot(${spot.id}, '${escapeHtml(spot.name)}', '${escapeHtml(spot.category)}', '${escapeHtml(spot.area || spot.regency || '')}', '${spot.rating || 4.5}', '${escapeHtml(spot.price_label || spot.price || '')}', '${escapeHtml(spot.image_url || '')}', '${escapeHtml(spot.amenity || '')}', '${escapeHtml(spot.map_url || '')}', '${escapeHtml(spot.affiliate_url || '')}', encodeURIComponent(\`${escapeHtml(spot.description || '')}\`))" class="bg-sky-50 hover:bg-sky-100 text-sky-700 text-xs font-bold px-3 py-1.5 rounded-xl transition cursor-pointer">
-              Edit
-            </button>
-            <button onclick="deleteSpot(${spot.id})" class="bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold px-3 py-1.5 rounded-xl transition cursor-pointer">
-              Delete
-            </button>
+        `;
+      }
+    }
+
+    // SMART ROLLING & RANDOMIZER LOGIC
+    function renderSmartRelatedSpots(currentSpot, allPlaces) {
+      const otherPlaces = allPlaces.filter(p => p.id !== currentSpot.id);
+
+      // 1. SECTION 1: Same Category Recommendations
+      const sameCatPlaces = otherPlaces.filter(p => 
+        (p.category || '').toLowerCase() === (currentSpot.category || '').toLowerCase()
+      );
+      shuffleArray(sameCatPlaces);
+      const selectedSameCat = sameCatPlaces.slice(0, 2);
+
+      if (currentSpot.category) {
+        document.getElementById('sameCategoryTitle').innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> More ${currentSpot.category}s in Bali`;
+      }
+
+      const sameCatContainer = document.getElementById('sameCategoryContainer');
+      if (selectedSameCat.length > 0) {
+        sameCatContainer.innerHTML = selectedSameCat.map(spot => createSpotCardHtml(spot)).join('');
+      } else {
+        shuffleArray(otherPlaces);
+        const fallback = otherPlaces.slice(0, 2);
+        sameCatContainer.innerHTML = fallback.map(spot => createSpotCardHtml(spot)).join('');
+      }
+
+      // 2. SECTION 2: Cross-Category Recommendations
+      const crossCatPlaces = otherPlaces.filter(p => 
+        (p.category || '').toLowerCase() !== (currentSpot.category || '').toLowerCase()
+      );
+      shuffleArray(crossCatPlaces);
+      const selectedCrossCat = crossCatPlaces.slice(0, 3);
+
+      const prompts = [
+        "✨ Looking for great cafes, dining, or a different vibe?",
+        "🌴 Want to explore scenic beaches or hidden natural destinations?",
+        "💡 Need recommendations for hangout spots or exciting activities?",
+        "🌊 Check out these other must-visit spots around Bali:"
+      ];
+      const randomPrompt = prompts[Math.floor(Math.random() * prompts.length)];
+      document.getElementById('crossCategoryPrompt').innerHTML = `<span>✨</span> ${randomPrompt}`;
+
+      const crossCatContainer = document.getElementById('crossCategoryContainer');
+      if (selectedCrossCat.length > 0) {
+        crossCatContainer.innerHTML = selectedCrossCat.map(spot => createDarkSpotCardHtml(spot)).join('');
+      } else {
+        crossCatContainer.innerHTML = `<p class="text-xs text-slate-400 italic">Explore more amazing spots on the home map.</p>`;
+      }
+    }
+
+    function shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    function createSpotCardHtml(spot) {
+      const slug = createSlug(spot.name);
+      const imageUrl = spot.image_url || spot.image || 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=300&q=80';
+      const name = escapeHtml(spot.name);
+      const area = escapeHtml(spot.area || spot.location || 'Bali');
+      const category = escapeHtml(spot.category || 'Spot');
+      const rating = spot.rating || '4.5';
+
+      return `
+        <a href="./spot-detail.html?slug=${slug}" class="flex items-center gap-3 p-3 bg-white rounded-2xl border border-slate-200/90 shadow-sm hover:shadow-md transition group">
+          <img src="${imageUrl}" class="w-16 h-16 rounded-xl object-cover shrink-0 group-hover:scale-105 transition" />
+          <div class="min-w-0 flex-1">
+            <span class="text-[9px] font-extrabold text-emerald-600 uppercase tracking-wider block">${category}</span>
+            <h4 class="text-xs font-bold text-slate-900 truncate group-hover:text-emerald-600 transition">${name}</h4>
+            <p class="text-[10px] text-slate-500 truncate mt-0.5">📍 ${area}</p>
+            <span class="text-[10px] font-bold text-amber-500 mt-1 inline-block">★ ${rating}</span>
           </div>
+        </a>
+      `;
+    }
+
+    function createDarkSpotCardHtml(spot) {
+      const slug = createSlug(spot.name);
+      const imageUrl = spot.image_url || spot.image || 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=300&q=80';
+      const name = escapeHtml(spot.name);
+      const area = escapeHtml(spot.area || spot.location || 'Bali');
+      const category = escapeHtml(spot.category || 'Spot');
+
+      return `
+        <a href="./spot-detail.html?slug=${slug}" class="flex flex-col bg-slate-800/80 hover:bg-slate-800 p-2.5 rounded-2xl border border-slate-700/80 transition group shadow-sm">
+          <img src="${imageUrl}" class="w-full h-24 rounded-xl object-cover mb-2 group-hover:scale-[1.02] transition" />
+          <span class="text-[9px] font-bold text-emerald-400 uppercase tracking-wider">${category}</span>
+          <h4 class="text-xs font-bold text-white truncate group-hover:text-emerald-300 transition mt-0.5">${name}</h4>
+          <span class="text-[10px] text-slate-400 truncate mt-1">📍 ${area}</span>
+        </a>
+      `;
+    }
+
+    async function loadReviews() {
+      if (!currentPlaceId) return;
+      const container = document.getElementById('reviewsListContainer');
+      const { data: reviews, error } = await clientSupabase
+        .from('reviews')
+        .select('*')
+        .eq('place_id', currentPlaceId)
+        .order('id', { ascending: false });
+
+      if (error || !reviews || reviews.length === 0) {
+        document.getElementById('spotRating').innerText = '★ New';
+        container.innerHTML = `
+          <div class="bg-white p-6 rounded-2xl border border-slate-200 text-center space-y-1 shadow-sm">
+            <p class="text-xs font-bold text-slate-700">No reviews yet!</p>
+            <p class="text-[11px] text-slate-400">Be the first nomad to upload a photo and review this spot.</p>
+          </div>
+        `;
+        return;
+      }
+
+      const totalRating = reviews.reduce((sum, rev) => sum + (parseFloat(rev.rating) || 0), 0);
+      const avgRating = (totalRating / reviews.length).toFixed(1);
+      document.getElementById('spotRating').innerText = `★ ${avgRating} (${reviews.length})`;
+
+      const latestReviewWithPhoto = reviews.find(r => r.photo_url);
+      if (latestReviewWithPhoto && !isAccommodationSpot) {
+        document.getElementById('contributorName').innerText = latestReviewWithPhoto.user_name;
+        document.getElementById('contributorBadge').classList.remove('hidden');
+      }
+
+      container.innerHTML = reviews.map(rev => `
+        <div class="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-sm space-y-3">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center text-xs font-bold">
+                ${rev.user_name.charAt(0).toUpperCase()}
+              </div>
+              <div>
+                <h5 class="text-xs font-bold text-slate-900">${escapeHtml(rev.user_name)}</h5>
+                <span class="text-[10px] text-amber-500 font-bold">★ ${rev.rating}.0</span>
+              </div>
+            </div>
+            <span class="text-[10px] text-slate-400 font-medium">${new Date(rev.created_at).toLocaleDateString()}</span>
+          </div>
+          
+          <p class="text-xs text-slate-600 leading-relaxed font-medium">${escapeHtml(rev.comment)}</p>
+
+          ${rev.photo_url ? `
+            <img src="${rev.photo_url}" class="w-full h-44 object-cover rounded-xl border border-slate-100" />
+          ` : ''}
         </div>
       `).join('');
     }
 
-    // FUNGSI AUTO-CONVERT TEKS BIASA KE HTML PARAGRAF
-    function convertToHtml() {
-      const textarea = document.getElementById('spotDescription');
-      let text = textarea.value.trim();
-      if (!text) return;
-
-      const paragraphs = text.split(/\n+/);
-      const htmlResult = paragraphs.map(p => `<p class="mb-3">${p.trim()}</p>`).join('\n');
+    async function handleReviewSubmit(e) {
+      e.preventDefault();
       
-      textarea.value = htmlResult;
-    }
-
-    // Fungsi Kompres Gambar Otomatis via Canvas HTML5
-    function compressImage(file, maxWidth = 1200, quality = 0.8) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = (event) => {
-          const img = new Image();
-          img.src = event.target.result;
-          img.onload = () => {
-            let width = img.width;
-            let height = img.height;
-
-            if (width > maxWidth) {
-              height = Math.round((height * maxWidth) / width);
-              width = maxWidth;
-            }
-
-            const canvas = document.createElement('canvas');
-            canvas.width = width;
-            canvas.height = height;
-
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, width, height);
-
-            canvas.toBlob((blob) => {
-              if (!blob) {
-                reject(new Error('Gagal melakukan kompresi gambar.'));
-                return;
-              }
-              const compressedFile = new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".jpg", {
-                type: 'image/jpeg',
-                lastModified: Date.now()
-              });
-              resolve(compressedFile);
-            }, 'image/jpeg', quality);
-          };
-          img.onerror = (error) => reject(error);
-        };
-        reader.onerror = (error) => reject(error);
-      });
-    }
-
-    async function handleSaveSpot(event) {
-      event.preventDefault();
-      const id = document.getElementById('spotId').value;
-      const categoryValue = document.getElementById('spotCategory').value;
-      const fileInput = document.getElementById('spotImageFile');
-      const saveBtn = document.getElementById('saveBtn');
-      
-      let imageUrl = document.getElementById('existingImageUrl').value;
-      let rawMapUrl = document.getElementById('spotMapUrl').value.trim();
-
-      if (rawMapUrl.includes('<iframe')) {
-        const match = rawMapUrl.match(/src="([^"]+)"/);
-        if (match && match[1]) {
-          rawMapUrl = match[1];
-        }
+      if (!currentUser || !currentPlaceId) {
+        alert('Please sign in with Google to submit your review.');
+        signInWithGoogle();
+        return;
       }
 
-      try {
-        if (fileInput.files && fileInput.files[0]) {
-          saveBtn.innerText = "⏳ Compressing & Uploading...";
-          saveBtn.disabled = true;
+      const btn = document.getElementById('submitReviewBtn');
+      btn.innerText = 'Submitting...';
+      btn.disabled = true;
 
-          const originalFile = fileInput.files[0];
-          const compressedFile = await compressImage(originalFile, 1200, 0.8);
-          
-          const fileExt = 'jpg';
-          const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 7)}.${fileExt}`;
+      const name = document.getElementById('reviewerName').value;
+      const rating = parseInt(document.getElementById('reviewerRating').value);
+      const comment = document.getElementById('reviewerComment').value;
+      const fileInput = document.getElementById('reviewPhoto');
+      let uploadedPhotoUrl = null;
+
+      try {
+        if (!isAccommodationSpot && fileInput && fileInput.files && fileInput.files[0]) {
+          const file = fileInput.files[0];
+          const fileName = `review_${Date.now()}_${Math.random().toString(36).substring(2,6)}.jpg`;
 
           const { data: uploadData, error: uploadError } = await clientSupabase.storage
             .from('spot-images')
-            .upload(fileName, compressedFile);
+            .upload(fileName, file);
 
-          if (uploadError) {
-            alert("Gagal meng-upload gambar: " + uploadError.message);
-            saveBtn.innerText = "Save Spot to Database";
-            saveBtn.disabled = false;
-            return;
+          if (!uploadError) {
+            const { data: publicURLData } = clientSupabase.storage
+              .from('spot-images')
+              .getPublicUrl(fileName);
+            uploadedPhotoUrl = publicURLData.publicUrl;
           }
-
-          const { data: publicURLData } = clientSupabase.storage
-            .from('spot-images')
-            .getPublicUrl(fileName);
-
-          imageUrl = publicURLData.publicUrl;
         }
+
+        const { error: insertError } = await clientSupabase
+          .from('reviews')
+          .insert([{
+            place_id: parseInt(currentPlaceId),
+            user_name: name,
+            rating: rating,
+            comment: comment,
+            photo_url: uploadedPhotoUrl
+          }]);
+
+        if (insertError) throw insertError;
+
+        if (!isAccommodationSpot && uploadedPhotoUrl) {
+          await clientSupabase
+            .from('places')
+            .update({ image_url: uploadedPhotoUrl })
+            .eq('id', currentPlaceId);
+          
+          document.getElementById('spotCover').src = uploadedPhotoUrl;
+          document.getElementById('contributorName').innerText = name;
+          document.getElementById('contributorBadge').classList.remove('hidden');
+        }
+
+        alert('Review submitted successfully!');
+        document.getElementById('reviewerComment').value = '';
+        if (fileInput) fileInput.value = '';
+        loadReviews();
+
       } catch (err) {
-        alert("Terjadi kesalahan saat memproses gambar: " + err.message);
-        saveBtn.innerText = "Save Spot to Database";
-        saveBtn.disabled = false;
-        return;
+        alert('Failed to submit review: ' + err.message);
+      } finally {
+        btn.innerText = isAccommodationSpot ? 'Submit Review' : 'Submit Review & Photo';
+        btn.disabled = false;
       }
-      
-      const payload = {
-        name: document.getElementById('spotName').value,
-        category: categoryValue,
-        area: document.getElementById('spotArea').value,
-        rating: document.getElementById('spotRating').value,
-        price_label: document.getElementById('spotPrice').value,
-        image_url: imageUrl,
-        amenity: document.getElementById('spotAmenity').value,
-        description: document.getElementById('spotDescription').value,
-        map_url: rawMapUrl,
-        affiliate_url: document.getElementById('spotAffiliateUrl').value.trim() || null
-      };
-
-      if (id) {
-        const { error } = await clientSupabase.from('places').update(payload).eq('id', id);
-        if (error) { alert("Error updating: " + error.message); saveBtn.innerText = "Save Spot to Database"; saveBtn.disabled = false; return; }
-        alert("Spot updated successfully!");
-      } else {
-        const { error } = await clientSupabase.from('places').insert([payload]);
-        if (error) { alert("Error inserting: " + error.message); saveBtn.innerText = "Save Spot to Database"; saveBtn.disabled = false; return; }
-        alert("Spot added successfully!");
-      }
-
-      saveBtn.innerText = "Save Spot to Database";
-      saveBtn.disabled = false;
-      document.getElementById('directoryFilter').value = categoryValue;
-      document.getElementById('directorySearch').value = '';
-      resetForm();
-      fetchAdminSpots();
-    }
-
-    function editSpot(id, name, category, area, rating, price, imageUrl, amenity, mapUrl, affiliateUrl, encodedDesc) {
-      document.getElementById('spotId').value = id;
-      document.getElementById('spotName').value = name;
-      document.getElementById('spotCategory').value = category;
-      document.getElementById('spotArea').value = area;
-      document.getElementById('spotRating').value = rating;
-      document.getElementById('spotPrice').value = price;
-      document.getElementById('existingImageUrl').value = imageUrl || '';
-      document.getElementById('spotAmenity').value = amenity;
-      document.getElementById('spotMapUrl').value = mapUrl || '';
-      document.getElementById('spotAffiliateUrl').value = affiliateUrl || '';
-      document.getElementById('spotDescription').value = encodedDesc ? decodeURIComponent(encodedDesc) : '';
-
-      document.getElementById('formTitle').innerText = "✏️ Edit Spot ID: " + id;
-      document.getElementById('cancelEditBtn').classList.remove('hidden');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    function resetForm() {
-      document.getElementById('adminSpotForm').reset();
-      document.getElementById('spotId').value = '';
-      document.getElementById('existingImageUrl').value = '';
-      document.getElementById('spotMapUrl').value = '';
-      document.getElementById('spotAffiliateUrl').value = '';
-      document.getElementById('spotDescription').value = '';
-      document.getElementById('formTitle').innerText = "➕ Add New Curated Spot";
-      document.getElementById('cancelEditBtn').classList.add('hidden');
-    }
-
-    async function deleteSpot(id) {
-      if (!confirm("Are you sure you want to delete this spot?")) return;
-      const { error } = await clientSupabase.from('places').delete().eq('id', id);
-      if (error) { alert("Error deleting: " + error.message); return; }
-      fetchAdminSpots();
     }
 
     function escapeHtml(str) {
@@ -446,10 +647,7 @@
         .replace(/"/g, '&quot;');
     }
 
-    // Jika sudah unlocked via session, langsung muat data
-    if (sessionStorage.getItem("spottribe_admin_auth") === "true") {
-      fetchAdminSpots();
-    }
+    loadSpotDetail();
   </script>
 </body>
 </html>
