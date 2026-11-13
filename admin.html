@@ -249,7 +249,8 @@
   <script>
     const CORRECT_PASSWORD = "Tutde227394";
 
-    if (sessionStorage.getItem("spottribe_admin_auth") === "true") {
+    // Menggunakan localStorage agar session login tidak gampang hilang jika internet putus/refresh
+    if (localStorage.getItem("spottribe_admin_auth") === "true") {
       document.getElementById("passwordModal").style.display = "none";
     }
 
@@ -259,7 +260,7 @@
       const errorMsg = document.getElementById("errorMsg");
 
       if (enteredPass === CORRECT_PASSWORD) {
-        sessionStorage.setItem("spottribe_admin_auth", "true");
+        localStorage.setItem("spottribe_admin_auth", "true");
         document.getElementById("passwordModal").style.display = "none";
         fetchAdminSpots();
         fetchAdminWidgets();
@@ -301,32 +302,40 @@
       const selectedCategory = document.getElementById('directoryFilter').value;
       const searchQuery = document.getElementById('directorySearch').value.trim();
 
-      let query = clientSupabase.from('places').select('*').order('id', { ascending: false });
-      if (selectedCategory !== 'all') query = query.eq('category', selectedCategory);
-      if (searchQuery) query = query.ilike('name', `%${searchQuery}%`);
+      try {
+        let query = clientSupabase.from('places').select('*').order('id', { ascending: false });
+        if (selectedCategory !== 'all') query = query.eq('category', selectedCategory);
+        if (searchQuery) query = query.ilike('name', `%${searchQuery}%`);
 
-      const { data, error } = await query;
-      if (error) { container.innerHTML = `<p class="text-rose-500 text-xs text-center">Failed to load places.</p>`; return; }
-      if (!data || data.length === 0) { container.innerHTML = `<p class="text-slate-400 text-xs italic text-center py-6">No places found.</p>`; return; }
+        const { data, error } = await query;
+        if (error) throw error;
 
-      windowSpotsData = {};
-      data.forEach(s => { windowSpotsData[s.id] = s; });
+        if (!data || data.length === 0) { 
+          container.innerHTML = `<p class="text-slate-400 text-xs italic text-center py-6">No places found.</p>`; 
+          return; 
+        }
 
-      container.innerHTML = data.map(spot => `
-        <div class="flex items-center justify-between p-4 rounded-2xl border border-slate-100 bg-slate-50/50 hover:bg-slate-50 transition gap-4">
-          <div class="flex items-center gap-3 min-w-0">
-            <img src="${spot.image_url || 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=150&q=80'}" class="w-12 h-12 rounded-xl object-cover flex-shrink-0 border border-slate-200" />
-            <div class="min-w-0">
-              <h4 class="font-bold text-slate-900 text-sm truncate">${escapeHtml(spot.name)}</h4>
-              <p class="text-[11px] text-slate-500 font-medium">📂 <strong>${escapeHtml(spot.category)}</strong> • 📍 ${escapeHtml(spot.area || spot.regency || 'Bali')}</p>
+        windowSpotsData = {};
+        data.forEach(s => { windowSpotsData[s.id] = s; });
+
+        container.innerHTML = data.map(spot => `
+          <div class="flex items-center justify-between p-4 rounded-2xl border border-slate-100 bg-slate-50/50 hover:bg-slate-50 transition gap-4">
+            <div class="flex items-center gap-3 min-w-0">
+              <img src="${spot.image_url || 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=150&q=80'}" class="w-12 h-12 rounded-xl object-cover flex-shrink-0 border border-slate-200" />
+              <div class="min-w-0">
+                <h4 class="font-bold text-slate-900 text-sm truncate">${escapeHtml(spot.name)}</h4>
+                <p class="text-[11px] text-slate-500 font-medium">📂 <strong>${escapeHtml(spot.category)}</strong> • 📍 ${escapeHtml(spot.area || spot.regency || 'Bali')}</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 flex-shrink-0">
+              <button onclick="editSpotById(${spot.id})" class="bg-sky-50 hover:bg-sky-100 text-sky-700 text-xs font-bold px-3 py-1.5 rounded-xl transition cursor-pointer">Edit</button>
+              <button onclick="deleteSpot(${spot.id})" class="bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold px-3 py-1.5 rounded-xl transition cursor-pointer">Delete</button>
             </div>
           </div>
-          <div class="flex items-center gap-2 flex-shrink-0">
-            <button onclick="editSpotById(${spot.id})" class="bg-sky-50 hover:bg-sky-100 text-sky-700 text-xs font-bold px-3 py-1.5 rounded-xl transition cursor-pointer">Edit</button>
-            <button onclick="deleteSpot(${spot.id})" class="bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold px-3 py-1.5 rounded-xl transition cursor-pointer">Delete</button>
-          </div>
-        </div>
-      `).join('');
+        `).join('');
+      } catch (err) {
+        container.innerHTML = `<p class="text-rose-500 text-xs text-center py-6">Failed to load places (Network error). <button onclick="fetchAdminSpots()" class="underline font-bold">Retry</button></p>`;
+      }
     }
 
     function editSpotById(id) {
@@ -417,29 +426,37 @@
       const selectedCategory = document.getElementById('widgetFilter').value;
       const searchQuery = document.getElementById('widgetSearch').value.trim();
 
-      let query = clientSupabase.from('activities_widgets').select('*').order('id', { ascending: false });
-      if (selectedCategory !== 'all') query = query.eq('category', selectedCategory);
-      if (searchQuery) query = query.ilike('title', `%${searchQuery}%`);
+      try {
+        let query = clientSupabase.from('activities_widgets').select('*').order('id', { ascending: false });
+        if (selectedCategory !== 'all') query = query.eq('category', selectedCategory);
+        if (searchQuery) query = query.ilike('title', `%${searchQuery}%`);
 
-      const { data, error } = await query;
-      if (error) { container.innerHTML = `<p class="text-rose-500 text-xs text-center">Failed to load widgets.</p>`; return; }
-      if (!data || data.length === 0) { container.innerHTML = `<p class="text-slate-400 text-xs italic text-center py-6">No widgets found.</p>`; return; }
+        const { data, error } = await query;
+        if (error) throw error;
 
-      windowWidgetsData = {};
-      data.forEach(w => { windowWidgetsData[w.id] = w; });
+        if (!data || data.length === 0) { 
+          container.innerHTML = `<p class="text-slate-400 text-xs italic text-center py-6">No widgets found.</p>`; 
+          return; 
+        }
 
-      container.innerHTML = data.map(item => `
-        <div class="flex items-center justify-between p-4 rounded-2xl border border-slate-100 bg-slate-50/50 hover:bg-slate-50 transition gap-4">
-          <div class="min-w-0">
-            <h4 class="font-bold text-slate-900 text-sm truncate">${escapeHtml(item.title)}</h4>
-            <p class="text-[11px] text-slate-500 font-medium">📂 Category: <strong class="text-emerald-700">${escapeHtml(item.category)}</strong> • 📍 Area: ${escapeHtml(item.area || 'Bali')} • Status: <span class="${item.is_active ? 'text-emerald-600 font-bold' : 'text-slate-400'}">${item.is_active ? 'Active' : 'Hidden'}</span></p>
+        windowWidgetsData = {};
+        data.forEach(w => { windowWidgetsData[w.id] = w; });
+
+        container.innerHTML = data.map(item => `
+          <div class="flex items-center justify-between p-4 rounded-2xl border border-slate-100 bg-slate-50/50 hover:bg-slate-50 transition gap-4">
+            <div class="min-w-0">
+              <h4 class="font-bold text-slate-900 text-sm truncate">${escapeHtml(item.title)}</h4>
+              <p class="text-[11px] text-slate-500 font-medium">📂 Category: <strong class="text-emerald-700">${escapeHtml(item.category)}</strong> • 📍 Area: ${escapeHtml(item.area || 'Bali')} • Status: <span class="${item.is_active ? 'text-emerald-600 font-bold' : 'text-slate-400'}">${item.is_active ? 'Active' : 'Hidden'}</span></p>
+            </div>
+            <div class="flex items-center gap-2 flex-shrink-0">
+              <button onclick="editWidgetById(${item.id})" class="bg-sky-50 hover:bg-sky-100 text-sky-700 text-xs font-bold px-3 py-1.5 rounded-xl transition cursor-pointer">Edit</button>
+              <button onclick="deleteWidget(${item.id})" class="bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold px-3 py-1.5 rounded-xl transition cursor-pointer">Delete</button>
+            </div>
           </div>
-          <div class="flex items-center gap-2 flex-shrink-0">
-            <button onclick="editWidgetById(${item.id})" class="bg-sky-50 hover:bg-sky-100 text-sky-700 text-xs font-bold px-3 py-1.5 rounded-xl transition cursor-pointer">Edit</button>
-            <button onclick="deleteWidget(${item.id})" class="bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold px-3 py-1.5 rounded-xl transition cursor-pointer">Delete</button>
-          </div>
-        </div>
-      `).join('');
+        `).join('');
+      } catch (err) {
+        container.innerHTML = `<p class="text-rose-500 text-xs text-center py-6">Failed to load widgets (Network error). <button onclick="fetchAdminWidgets()" class="underline font-bold">Retry</button></p>`;
+      }
     }
 
     function editWidgetById(id) {
@@ -510,7 +527,7 @@
       return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     }
 
-    if (sessionStorage.getItem("spottribe_admin_auth") === "true") {
+    if (localStorage.getItem("spottribe_admin_auth") === "true") {
       fetchAdminSpots();
       fetchAdminWidgets();
     }
