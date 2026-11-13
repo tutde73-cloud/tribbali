@@ -267,6 +267,11 @@
 
       await checkAuthUser();
 
+      const container = document.getElementById('priceBoxContainer');
+      if (container) {
+        container.innerHTML = `<div class="text-xs text-slate-400 text-center py-4">Loading rates...</div>`;
+      }
+
       const { data: places, error } = await clientSupabase
         .from('places')
         .select('*')
@@ -346,7 +351,7 @@
       loadReviews();
     }
 
-    // RENDER DINAMIS WIDGET KLOOK / PRICE BOX (DENGAN ID UNIK PER SPOT AGAR TIDAK TERTUKAR)
+    // RENDER DINAMIS WIDGET KLOOK DENGAN ISOLASI ID BERBASIS SPOT.ID
     function renderDynamicPriceBox(spot) {
       const container = document.getElementById('priceBoxContainer');
       if (!container) return;
