@@ -215,6 +215,8 @@
     const SUPABASE_ANON_KEY = 'sb_publishable_df32CqJ5bqDNCHU4OKGRPQ_7LiJvWV0';
     const clientSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+    let windowSpotsData = {};
+
     async function fetchAdminSpots() {
       const container = document.getElementById('adminSpotsContainer');
       const selectedCategory = document.getElementById('directoryFilter').value;
@@ -242,6 +244,9 @@
         return;
       }
 
+      windowSpotsData = {};
+      data.forEach(s => { windowSpotsData[s.id] = s; });
+
       container.innerHTML = data.map(spot => `
         <div class="flex items-center justify-between p-4 rounded-2xl border border-slate-100 bg-slate-50/50 hover:bg-slate-50 transition gap-4">
           <div class="flex items-center gap-3 min-w-0">
@@ -252,7 +257,7 @@
             </div>
           </div>
           <div class="flex items-center gap-2 flex-shrink-0">
-            <button onclick='editSpotObject(${JSON.stringify(spot).replace(/'/g, "&#39;")})' class="bg-sky-50 hover:bg-sky-100 text-sky-700 text-xs font-bold px-3 py-1.5 rounded-xl transition cursor-pointer">
+            <button onclick="editSpotById(${spot.id})" class="bg-sky-50 hover:bg-sky-100 text-sky-700 text-xs font-bold px-3 py-1.5 rounded-xl transition cursor-pointer">
               Edit
             </button>
             <button onclick="deleteSpot(${spot.id})" class="bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold px-3 py-1.5 rounded-xl transition cursor-pointer">
@@ -261,6 +266,30 @@
           </div>
         </div>
       `).join('');
+    }
+
+    function editSpotById(id) {
+      const spot = windowSpotsData[id];
+      if (!spot) {
+        alert("Data spot tidak ditemukan di memori!");
+        return;
+      }
+
+      document.getElementById('spotId').value = spot.id;
+      document.getElementById('spotName').value = spot.name || '';
+      document.getElementById('spotCategory').value = spot.category || 'hotel';
+      document.getElementById('spotArea').value = spot.area || spot.regency || '';
+      document.getElementById('spotRating').value = spot.rating || 4.5;
+      document.getElementById('spotPrice').value = spot.price_label || spot.price || '';
+      document.getElementById('existingImageUrl').value = spot.image_url || '';
+      document.getElementById('spotAmenity').value = spot.amenity || '';
+      document.getElementById('spotMapUrl').value = spot.map_url || '';
+      document.getElementById('spotDescription').value = spot.description || '';
+      document.getElementById('spotAffiliateWidget').value = spot.affiliate_widget || '';
+
+      document.getElementById('formTitle').innerText = "✏️ Edit Spot ID: " + spot.id;
+      document.getElementById('cancelEditBtn').classList.remove('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function convertToHtml() {
@@ -314,7 +343,6 @@
       });
     }
 
-    // FUNGSI SIMPAN DENGAN PENGAMAN ID MUTLAK AGAR TIDAK MENIMPA SEMUA BARIS
     async function handleSaveSpot(event) {
       event.preventDefault();
       const rawId = document.getElementById('spotId').value;
@@ -379,7 +407,6 @@
         affiliate_widget: document.getElementById('spotAffiliateWidget').value.trim()
       };
 
-      // VALIDASI KETAT: JIKA ADA ID, WAJIB UPDATE BERDASARKAN ID TERSEBUT
       if (rawId && String(rawId).trim() !== "") {
         const spotIdNum = Number(rawId);
         
@@ -396,7 +423,6 @@
         }
         alert("Spot updated successfully!");
       } else {
-        // JIKA ID KOSONG, BARU LAKUKAN INSERT DATA BARU
         const { error } = await clientSupabase
           .from('places')
           .insert([payload]);
@@ -416,24 +442,6 @@
       document.getElementById('directorySearch').value = '';
       resetForm();
       fetchAdminSpots();
-    }
-
-    function editSpotObject(spot) {
-      document.getElementById('spotId').value = spot.id;
-      document.getElementById('spotName').value = spot.name || '';
-      document.getElementById('spotCategory').value = spot.category || 'hotel';
-      document.getElementById('spotArea').value = spot.area || spot.regency || '';
-      document.getElementById('spotRating').value = spot.rating || 4.5;
-      document.getElementById('spotPrice').value = spot.price_label || spot.price || '';
-      document.getElementById('existingImageUrl').value = spot.image_url || '';
-      document.getElementById('spotAmenity').value = spot.amenity || '';
-      document.getElementById('spotMapUrl').value = spot.map_url || '';
-      document.getElementById('spotDescription').value = spot.description || '';
-      document.getElementById('spotAffiliateWidget').value = spot.affiliate_widget || '';
-
-      document.getElementById('formTitle').innerText = "✏️ Edit Spot ID: " + spot.id;
-      document.getElementById('cancelEditBtn').classList.remove('hidden');
-      window.scrollTo({ top: { top: 0, behavior: 'smooth' } });
     }
 
     function resetForm() {
