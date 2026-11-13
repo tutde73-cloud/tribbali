@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  
+  <title>Outdoor Activities in Bali — SpotTribe Bali</title>
+  <meta name="description" content="Explore and book the best outdoor adventures, ATV rides, rafting, trekking, and island excursions in Bali powered by Klook.">
+  <link rel="icon" type="image/png" href="./favicon.png">
+
+  <!-- Tailwind CSS, Lucide Icons & Supabase -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    body { 
+      background-color: #f8fafc; 
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+      margin: 0; 
+      padding-bottom: 80px; 
+    }
+    .glass-nav-dark { background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+    .glass-nav-light { background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+    
+    /* Mengatur agar widget Klook tetap rapi di dalam kartu grid */
+    .klook-widget-wrapper {
+      width: 100%;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .klook-widget-wrapper ins {
+      width: 100% !important;
+      max-width: 100% !important;
+    }
+  </style>
+</head>
+<body class="flex flex-col text-slate-800">
+
+  <!-- HEADER -->
+  <header class="glass-nav-dark border-b border-slate-800 px-6 h-[72px] flex items-center justify-between sticky top-0 z-50 shadow-lg">
+    <div class="flex items-center gap-3">
+      <a href="./index.html" class="w-10 h-10 rounded-xl bg-slate-800 border border-slate-700 text-slate-300 hover:text-emerald-400 hover:border-emerald-500 flex items-center justify-center transition-all">
+        <i data-lucide="arrow-left" class="w-5 h-5"></i>
+      </a>
+      <div>
+        <h1 class="font-extrabold text-sm tracking-tight text-white flex items-center gap-2">
+          Outdoor Activities <span class="bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[10px] font-mono uppercase px-2 py-0.5 rounded-lg font-bold">BALI</span>
+        </h1>
+        <p class="text-[10px] text-slate-400 font-medium">Curated Adventures & Instant Booking</p>
+      </div>
+    </div>
+
+    <div class="flex items-center">
+      <span class="inline-flex items-center px-3 py-1.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+        <span id="activityCount" class="font-mono text-xs font-black mr-1">0</span> Deals
+      </span>
+    </div>
+  </header>
+
+  <!-- HERO BANNER -->
+  <section class="bg-slate-900 text-white px-6 py-8 border-b border-slate-800 relative overflow-hidden">
+    <div class="max-w-5xl mx-auto relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div>
+        <span class="text-[10px] font-black uppercase tracking-widest text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">
+          🏔️ Adventure & Nature
+        </span>
+        <h2 class="text-xl sm:text-2xl font-black mt-2 tracking-tight">Bali Outdoor Activities & Excursions</h2>
+        <p class="text-xs text-slate-400 mt-1 max-w-xl leading-relaxed">
+          Book verified outdoor experiences directly—from Ubud ATV quad biking and Ayung River rafting to Mount Batur sunrise treks.
+        </p>
+      </div>
+
+      <!-- Search Filter Box -->
+      <div class="relative w-full sm:w-64 shrink-0">
+        <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">
+          <i data-lucide="search" class="w-4 h-4"></i>
+        </span>
+        <input type="text" id="filterInput" onkeyup="filterActivities()" placeholder="Search activity or area..." 
+               class="w-full pl-9 pr-4 py-2.5 bg-slate-800/80 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500 transition-colors" />
+      </div>
+    </div>
+  </section>
+
+  <!-- MAIN WIDGET GRID -->
+  <main class="px-4 sm:px-6 pt-8 pb-12 flex-1">
+    <div class="max-w-5xl mx-auto">
+
+      <!-- Loading State -->
+      <div id="loadingState" class="text-center py-16">
+        <div class="w-10 h-10 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+        <p class="text-xs font-semibold text-slate-500">Loading Klook activity widgets...</p>
+      </div>
+
+      <!-- Empty State -->
+      <div id="emptyState" class="hidden text-center py-16 bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
+        <div class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-3">
+          <i data-lucide="compass" class="w-6 h-6"></i>
+        </div>
+        <h3 class="text-sm font-bold text-slate-800">No Outdoor Activities Found</h3>
+        <p class="text-xs text-slate-500 mt-1">Add widgets with category <code class="bg-slate-100 px-1.5 py-0.5 rounded text-emerald-700 font-mono">outdoor</code> in Supabase to display them here.</p>
+      </div>
+
+      <!-- Grid Container (1 Kolom di HP, 2 Kolom di Tablet/Desktop agar Widget Klook Lega) -->
+      <div id="widgetsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <!-- Kartu Widget akan dirender otomatis di sini -->
+      </div>
+
+    </div>
+  </main>
+
+  <!-- BOTTOM NAVIGATION BAR -->
+  <nav class="glass-nav-light border-t border-slate-200 h-16 flex items-center justify-around px-6 fixed bottom-0 left-0 right-0 z-50 shadow-lg">
+    <a href="./index.html" class="flex flex-col items-center gap-1 text-emerald-600 transition-colors">
+      <i data-lucide="map" class="w-5 h-5"></i>
+      <span class="text-[10px] font-extrabold">Explore</span>
+    </a>
+    <a href="./messages.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 transition-colors">
+      <i data-lucide="message-square" class="w-5 h-5"></i>
+      <span class="text-[10px] font-medium">Chats</span>
+    </a>
+    <a href="./profile.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 transition-colors">
+      <i data-lucide="user" class="w-5 h-5"></i>
+      <span class="text-[10px] font-medium">Profile</span>
+    </a>
+  </nav>
+
+  <!-- SCRIPT SUPABASE & KLOOK WIDGET LOADER -->
+  <script>
+    const SUPABASE_URL = 'https://riyupzmllltjrelqytwi.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_df32CqJ5bqDNCHU4OKGRPQ_7LiJvWV0';
+    const clientSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let allWidgets = [];
+
+    async function loadOutdoorWidgets() {
+      const loadingEl = document.getElementById('loadingState');
+      const emptyEl = document.getElementById('emptyState');
+      const gridEl = document.getElementById('widgetsGrid');
+
+      try {
+        // Mengambil data khusus kategori 'outdoor' yang aktif
+        const { data, error } = await clientSupabase
+          .from('activities_widgets')
+          .select('*')
+          .eq('category', 'outdoor')
+          .eq('is_active', true)
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        loadingEl.classList.add('hidden');
+        allWidgets = data || [];
+        document.getElementById('activityCount').innerText = allWidgets.length;
+
+        if (allWidgets.length === 0) {
+          emptyEl.classList.remove('hidden');
+          return;
+        }
+
+        renderWidgets(allWidgets);
+      } catch (err) {
+        console.error('Error fetching widgets:', err);
+        loadingEl.innerHTML = `<p class="text-xs text-rose-600 font-semibold">Failed to load activities. Please try again later.</p>`;
+      }
+    }
+
+    function renderWidgets(list) {
+      const gridEl = document.getElementById('widgetsGrid');
+      const emptyEl = document.getElementById('emptyState');
+      gridEl.innerHTML = '';
+
+      if (list.length === 0) {
+        emptyEl.classList.remove('hidden');
+        return;
+      } else {
+        emptyEl.classList.add('hidden');
+      }
+
+      list.forEach(item => {
+        // Membersihkan tag <script> jika user ikut mem-paste script Klook ke dalam kolom widget_code
+        // Karena script utama Klook akan kita panggil satu kali saja di akhir agar tidak bentrok
+        const cleanInsHtml = (item.widget_code || '').replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '').trim();
+
+        const card = document.createElement('div');
+        card.className = "bg-white rounded-3xl border border-slate-200/90 p-4 shadow-sm hover:shadow-md transition-all flex flex-col justify-between";
+        
+        card.innerHTML = `
+          <div class="flex items-center justify-between mb-3 pb-2.5 border-b border-slate-100">
+            <div>
+              <h3 class="text-xs font-extrabold text-slate-900 line-clamp-1">${escapeHtml(item.title)}</h3>
+              ${item.area ? `<span class="text-[10px] text-slate-500 font-medium flex items-center gap-1 mt-0.5">📍 ${escapeHtml(item.area)}</span>` : ''}
+            </div>
+            <span class="px-2 py-0.5 text-[9px] font-bold uppercase bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full shrink-0">
+              Outdoor
+            </span>
+          </div>
+          <div class="klook-widget-wrapper">
+            ${cleanInsHtml}
+          </div>
+        `;
+        gridEl.appendChild(card);
+      });
+
+      // Memuat / me-refresh skrip resmi Klook setelah elemen <ins> masuk ke DOM
+      initKlookScript();
+    }
+
+    function initKlookScript() {
+      // Hapus script Klook lama jika ada (saat filtering) agar merender ulang widget yang baru tampil
+      const existingScript = document.getElementById('klook-aff-script');
+      if (existingScript) {
+        existingScript.remove();
+      }
+
+      const s = document.createElement('script');
+      s.id = 'klook-aff-script';
+      s.type = 'text/javascript';
+      s.async = true;
+      s.src = 'https://affiliate.klook.com/widget/fetch-iframe-init.js';
+      document.body.appendChild(s);
+    }
+
+    function filterActivities() {
+      const query = document.getElementById('filterInput').value.toLowerCase().trim();
+      const filtered = allWidgets.filter(w => {
+        const titleMatch = (w.title || '').toLowerCase().includes(query);
+        const areaMatch = (w.area || '').toLowerCase().includes(query);
+        return titleMatch || areaMatch;
+      });
+      renderWidgets(filtered);
+    }
+
+    function escapeHtml(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    lucide.createIcons();
+    loadOutdoorWidgets();
+  </script>
+</body>
+</html>
