@@ -129,7 +129,7 @@
           </div>
         </div>
 
-        <!-- Scrollable Filter Chips -->
+        <!-- Scrollable Filter Chips (Coliving filter chip removed) -->
         <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
           <button onclick="filterMapCategory('all')" id="chip-all" class="px-4 py-1.5 rounded-full text-[11px] font-bold bg-emerald-600 text-white shadow-md shadow-emerald-600/20 shrink-0 transition-all duration-300 border border-emerald-500 hover:scale-105 cursor-pointer">
             🌐 All Spots
@@ -139,9 +139,6 @@
           </button>
           <button onclick="filterMapCategory('cafe')" id="chip-cafe" class="px-4 py-1.5 rounded-full text-[11px] font-semibold glass-chip-light shadow-sm shrink-0 hover:bg-slate-50 transition-all duration-300 hover:scale-105 cursor-pointer">
             ☕ Cafés
-          </button>
-          <button onclick="filterMapCategory('coliving')" id="chip-coliving" class="px-4 py-1.5 rounded-full text-[11px] font-semibold glass-chip-light shadow-sm shrink-0 hover:bg-slate-50 transition-all duration-300 hover:scale-105 cursor-pointer">
-            🏢 Coliving
           </button>
           <button onclick="filterMapCategory('coworking')" id="chip-coworking" class="px-4 py-1.5 rounded-full text-[11px] font-semibold glass-chip-light shadow-sm shrink-0 hover:bg-slate-50 transition-all duration-300 hover:scale-105 cursor-pointer">
             💻 Coworking
@@ -171,7 +168,7 @@
         </a>
       </section>
 
-      <!-- GROUP 1: Accommodation & Living (Updated Style & Discount Info) -->
+      <!-- GROUP 1: Accommodation & Living (Hanya 2 Tombol: Villas & Hotels) -->
       <section>
         <div class="flex items-center justify-between mb-3 px-1">
           <h2 class="text-xs font-black uppercase tracking-widest text-slate-500 flex items-center gap-2">
@@ -182,7 +179,7 @@
           </span>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
           
           <!-- Villas & Houses -->
           <a href="./category.html?type=villas" class="relative overflow-hidden flex items-center gap-4 p-4 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 text-white rounded-3xl shadow-xl shadow-emerald-600/25 text-left group hover:scale-[1.02] transition-all duration-300 border border-emerald-400/50">
@@ -199,22 +196,7 @@
             </div>
           </a>
 
-          <!-- Coliving Hubs -->
-          <a href="./category.html?type=coliving" class="relative overflow-hidden flex items-center gap-4 p-4 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 text-white rounded-3xl shadow-xl shadow-emerald-600/25 text-left group hover:scale-[1.02] transition-all duration-300 border border-emerald-400/50">
-            <div class="absolute -right-4 -bottom-4 w-20 h-20 bg-white/10 rounded-full blur-xl group-hover:scale-150 transition-transform"></div>
-            <div class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md text-white flex items-center justify-center shrink-0 group-hover:rotate-12 transition-transform shadow-inner">
-              <i data-lucide="building-2" class="w-6 h-6"></i>
-            </div>
-            <div class="relative z-10">
-              <div class="flex items-center gap-2">
-                <span class="text-xs font-black tracking-tight text-white group-hover:underline">Coliving Hubs</span>
-                <span class="px-1.5 py-0.5 text-[9px] font-extrabold bg-amber-400 text-slate-950 rounded-full shadow">PROMO</span>
-              </div>
-              <div class="text-[10px] text-emerald-100 font-medium mt-0.5">Nomad Living</div>
-            </div>
-          </a>
-
-          <!-- Hotels & Resorts (Diperbaiki mengarah ke halaman kategori internal database) -->
+          <!-- Hotels & Resorts -->
           <a href="./category.html?type=Hotel" class="relative overflow-hidden flex items-center gap-4 p-4 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 text-white rounded-3xl shadow-xl shadow-emerald-600/25 text-left group hover:scale-[1.02] transition-all duration-300 border border-emerald-400/50">
             <div class="absolute -right-4 -bottom-4 w-20 h-20 bg-white/10 rounded-full blur-xl group-hover:scale-150 transition-transform"></div>
             <div class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md text-white flex items-center justify-center shrink-0 group-hover:rotate-12 transition-transform shadow-inner">
@@ -547,7 +529,7 @@
     }
 
     function filterMapCategory(cat) {
-      const chips = ['all', 'villas', 'cafe', 'coliving', 'coworking', 'beach', 'waterfall'];
+      const chips = ['all', 'villas', 'cafe', 'coworking', 'beach', 'waterfall'];
       chips.forEach(c => {
         const btn = document.getElementById(`chip-${c}`);
         if (btn) {
