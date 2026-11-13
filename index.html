@@ -129,7 +129,7 @@
           </div>
         </div>
 
-        <!-- Scrollable Filter Chips (Coliving filter chip removed) -->
+        <!-- Scrollable Filter Chips -->
         <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
           <button onclick="filterMapCategory('all')" id="chip-all" class="px-4 py-1.5 rounded-full text-[11px] font-bold bg-emerald-600 text-white shadow-md shadow-emerald-600/20 shrink-0 transition-all duration-300 border border-emerald-500 hover:scale-105 cursor-pointer">
             🌐 All Spots
@@ -168,7 +168,7 @@
         </a>
       </section>
 
-      <!-- GROUP 1: Accommodation & Living (Hanya 2 Tombol: Villas & Hotels) -->
+      <!-- GROUP 1: Accommodation & Living (Villas & Hotels) -->
       <section>
         <div class="flex items-center justify-between mb-3 px-1">
           <h2 class="text-xs font-black uppercase tracking-widest text-slate-500 flex items-center gap-2">
@@ -208,6 +208,82 @@
                 <span class="px-1.5 py-0.5 text-[9px] font-extrabold bg-amber-400 text-slate-950 rounded-full shadow">HOT DEAL 🔥</span>
               </div>
               <div class="text-[10px] text-emerald-100 font-medium mt-0.5">Short Stay & Best Rates</div>
+            </div>
+          </a>
+
+        </div>
+      </section>
+
+      <!-- NEW SECTION: Activities & Experiences (Full Widget Pages) -->
+      <section>
+        <div class="flex items-center justify-between mb-3 px-1">
+          <h2 class="text-xs font-black uppercase tracking-widest text-slate-500 flex items-center gap-2">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Activities & Experiences
+          </h2>
+          <span class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200 shadow-sm">
+            🎟️ Instant Klook Booking
+          </span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+          
+          <!-- Outdoor Activities -->
+          <a href="./outdoor-activities.html" class="relative overflow-hidden flex items-center gap-4 p-4 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 text-white rounded-3xl shadow-xl shadow-emerald-600/25 text-left group hover:scale-[1.02] transition-all duration-300 border border-emerald-400/50">
+            <div class="absolute -right-4 -bottom-4 w-20 h-20 bg-white/10 rounded-full blur-xl group-hover:scale-150 transition-transform"></div>
+            <div class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md text-white flex items-center justify-center shrink-0 group-hover:rotate-12 transition-transform shadow-inner">
+              <i data-lucide="compass" class="w-6 h-6"></i>
+            </div>
+            <div class="relative z-10">
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-black tracking-tight text-white group-hover:underline">Outdoor Activities</span>
+                <span class="px-1.5 py-0.5 text-[9px] font-extrabold bg-amber-400 text-slate-950 rounded-full shadow">ADVENTURE</span>
+              </div>
+              <div class="text-[10px] text-emerald-100 font-medium mt-0.5">ATV, Rafting & Trekking</div>
+            </div>
+          </a>
+
+          <!-- Tour & Excursions -->
+          <a href="./tour-activities.html" class="relative overflow-hidden flex items-center gap-4 p-4 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 text-white rounded-3xl shadow-xl shadow-emerald-600/25 text-left group hover:scale-[1.02] transition-all duration-300 border border-emerald-400/50">
+            <div class="absolute -right-4 -bottom-4 w-20 h-20 bg-white/10 rounded-full blur-xl group-hover:scale-150 transition-transform"></div>
+            <div class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md text-white flex items-center justify-center shrink-0 group-hover:rotate-12 transition-transform shadow-inner">
+              <i data-lucide="map-pin" class="w-6 h-6"></i>
+            </div>
+            <div class="relative z-10">
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-black tracking-tight text-white group-hover:underline">Tour & Excursions</span>
+                <span class="px-1.5 py-0.5 text-[9px] font-extrabold bg-amber-400 text-slate-950 rounded-full shadow">POPULAR</span>
+              </div>
+              <div class="text-[10px] text-emerald-100 font-medium mt-0.5">Island Day Tours & Trips</div>
+            </div>
+          </a>
+
+          <!-- Water Activities -->
+          <a href="./water-activities.html" class="relative overflow-hidden flex items-center gap-4 p-4 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 text-white rounded-3xl shadow-xl shadow-emerald-600/25 text-left group hover:scale-[1.02] transition-all duration-300 border border-emerald-400/50">
+            <div class="absolute -right-4 -bottom-4 w-20 h-20 bg-white/10 rounded-full blur-xl group-hover:scale-150 transition-transform"></div>
+            <div class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md text-white flex items-center justify-center shrink-0 group-hover:rotate-12 transition-transform shadow-inner">
+              <i data-lucide="waves" class="w-6 h-6"></i>
+            </div>
+            <div class="relative z-10">
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-black tracking-tight text-white group-hover:underline">Water Activities</span>
+                <span class="px-1.5 py-0.5 text-[9px] font-extrabold bg-amber-400 text-slate-950 rounded-full shadow">SPLASH</span>
+              </div>
+              <div class="text-[10px] text-emerald-100 font-medium mt-0.5">Snorkeling, Cruise & Waterparks</div>
+            </div>
+          </a>
+
+          <!-- Spa & Massage -->
+          <a href="./spa-massage.html" class="relative overflow-hidden flex items-center gap-4 p-4 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 text-white rounded-3xl shadow-xl shadow-emerald-600/25 text-left group hover:scale-[1.02] transition-all duration-300 border border-emerald-400/50">
+            <div class="absolute -right-4 -bottom-4 w-20 h-20 bg-white/10 rounded-full blur-xl group-hover:scale-150 transition-transform"></div>
+            <div class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md text-white flex items-center justify-center shrink-0 group-hover:rotate-12 transition-transform shadow-inner">
+              <i data-lucide="sparkles" class="w-6 h-6"></i>
+            </div>
+            <div class="relative z-10">
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-black tracking-tight text-white group-hover:underline">Spa & Massage</span>
+                <span class="px-1.5 py-0.5 text-[9px] font-extrabold bg-amber-400 text-slate-950 rounded-full shadow">RELAX</span>
+              </div>
+              <div class="text-[10px] text-emerald-100 font-medium mt-0.5">Balinese Massage & Wellness</div>
             </div>
           </a>
 
