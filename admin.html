@@ -314,9 +314,10 @@
       });
     }
 
+    // FUNGSI SIMPAN DENGAN PENGAMAN ID MUTLAK AGAR TIDAK MENIMPA SEMUA BARIS
     async function handleSaveSpot(event) {
       event.preventDefault();
-      const id = document.getElementById('spotId').value;
+      const rawId = document.getElementById('spotId').value;
       const categoryValue = document.getElementById('spotCategory').value;
       const fileInput = document.getElementById('spotImageFile');
       const saveBtn = document.getElementById('saveBtn');
@@ -378,8 +379,15 @@
         affiliate_widget: document.getElementById('spotAffiliateWidget').value.trim()
       };
 
-      if (id && id !== "") {
-        const { error } = await clientSupabase.from('places').update(payload).eq('id', parseInt(id));
+      // VALIDASI KETAT: JIKA ADA ID, WAJIB UPDATE BERDASARKAN ID TERSEBUT
+      if (rawId && String(rawId).trim() !== "") {
+        const spotIdNum = Number(rawId);
+        
+        const { error } = await clientSupabase
+          .from('places')
+          .update(payload)
+          .eq('id', spotIdNum);
+
         if (error) { 
           alert("Error updating: " + error.message); 
           saveBtn.innerText = "Save Spot to Database"; 
@@ -388,7 +396,11 @@
         }
         alert("Spot updated successfully!");
       } else {
-        const { error } = await clientSupabase.from('places').insert([payload]);
+        // JIKA ID KOSONG, BARU LAKUKAN INSERT DATA BARU
+        const { error } = await clientSupabase
+          .from('places')
+          .insert([payload]);
+
         if (error) { 
           alert("Error inserting: " + error.message); 
           saveBtn.innerText = "Save Spot to Database"; 
