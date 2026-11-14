@@ -692,16 +692,26 @@
         const card = document.createElement('div');
         card.className = "flex items-center gap-3 bg-white p-3 rounded-2xl border border-indigo-100 shadow-sm";
         
-        card.innerHTML = `
+        const leftBox = document.createElement('div');
+        leftBox.className = "flex items-center gap-3 min-w-0 flex-grow";
+        const uniqueBtnId = `copyBtn_${Date.now()}_${i}`;
+        leftBox.innerHTML = `
           <img src="${publicUrl}" class="w-16 h-16 rounded-xl object-cover shrink-0 border border-slate-200" />
           <div class="min-w-0 flex-grow">
             <p class="text-[11px] font-bold text-slate-800 truncate mb-1">${escapeHtml(file.name)}</p>
-            <button type="button" onclick="navigator.clipboard.writeText(\`${htmlTag}\`); alert('Tag HTML berhasil disalin!');" class="px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-[10px] rounded-lg transition cursor-pointer">
+            <button type="button" id="${uniqueBtnId}" class="px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-[10px] rounded-lg transition cursor-pointer">
               📋 Salin Tag HTML
             </button>
           </div>
         `;
+        card.appendChild(leftBox);
         gallery.appendChild(card);
+
+        // Pasang event listener secara bersih melalui JavaScript DOM
+        document.getElementById(uniqueBtnId).onclick = function() {
+          navigator.clipboard.writeText(htmlTag);
+          alert('Tag HTML berhasil disalin!');
+        };
       }
       event.target.value = ''; 
     }
