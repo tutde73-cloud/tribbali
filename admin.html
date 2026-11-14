@@ -634,7 +634,7 @@
 
       const gallery = document.getElementById('articleImageGallery');
       if (gallery.querySelector('p')) {
-        gallery.innerHTML = ''; // Hapus teks "Belum ada gambar"
+        gallery.innerHTML = ''; 
       }
 
       for (let i = 0; i < files.length; i++) {
@@ -653,18 +653,21 @@
 
         const card = document.createElement('div');
         card.className = "flex items-center gap-3 bg-white p-3 rounded-2xl border border-indigo-100 shadow-sm";
+        
+        // Memperbaiki escape string HTML pada tombol salin agar tidak patah/bocor
+        const safeHtmlTag = htmlTag.replace(/"/g, '&quot;');
         card.innerHTML = `
           <img src="${publicUrl}" class="w-16 h-16 rounded-xl object-cover shrink-0 border border-slate-200" />
           <div class="min-w-0 flex-grow">
             <p class="text-[11px] font-bold text-slate-800 truncate mb-1">${escapeHtml(file.name)}</p>
-            <button type="button" onclick="navigator.clipboard.writeText('${htmlTag}'); alert('Tag HTML berhasil disalin!');" class="px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-[10px] rounded-lg transition">
+            <button type="button" onclick="navigator.clipboard.writeText(\`${htmlTag}\`); alert('Tag HTML berhasil disalin!');" class="px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-[10px] rounded-lg transition cursor-pointer">
               📋 Salin Tag HTML
             </button>
           </div>
         `;
         gallery.appendChild(card);
       }
-      event.target.value = ''; // Reset input file
+      event.target.value = ''; 
     }
 
     function autoGenerateSlug() {
@@ -747,7 +750,16 @@
       const textarea = document.getElementById('articleContent');
       let text = textarea.value.trim();
       if (!text) return;
-      textarea.value = text.split(/\n+/).map(p => `<p class="mb-4">${p.trim()}</p>`).join('\n');
+      
+      // Auto-Convert yang mendukung heading ## otomatis jadi tag <h2>
+      textarea.value = text.split(/\n+/).map(block => {
+        block = block.trim();
+        if (!block) return '';
+        if (block.startsWith('## ')) {
+          return `<h2 class="text-xl font-extrabold text-slate-900 mt-8 mb-3">${block.replace('## ', '')}</h2>`;
+        }
+        return `<p class="mb-4">${block}</p>`;
+      }).join('\n');
     }
 
     function escapeHtml(str) {
