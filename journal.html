@@ -104,28 +104,46 @@
                     year: 'numeric'
                 });
 
+                // Deteksi Cover Image: Prioritaskan article.image_url, jika kosong ambil gambar pertama dari isi content
+                let coverImg = article.image_url;
+                if (!coverImg && article.content) {
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = article.content;
+                    const firstImg = tempDiv.querySelector('img');
+                    if (firstImg) {
+                        coverImg = firstImg.src;
+                    }
+                }
+
                 const card = document.createElement('div');
-                card.className = "bg-white rounded-3xl border border-slate-200/80 p-6 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between group relative overflow-hidden";
+                card.className = "bg-white rounded-3xl border border-slate-200/80 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between group relative";
                 
                 card.innerHTML = `
-                    <div>
-                        <div class="flex items-center justify-between text-[11px] text-slate-400 mb-3 font-mono font-semibold">
-                            <span>📅 ${formattedDate}</span>
-                            <span class="bg-emerald-50 text-emerald-700 px-2.5 py-0.5 rounded-full border border-emerald-200">Guide</span>
+                    ${coverImg ? `
+                        <div class="w-full h-48 overflow-hidden bg-slate-100 border-b border-slate-100 relative">
+                            <img src="${coverImg}" alt="${escapeHtml(article.title)}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
                         </div>
-                        <h3 class="font-extrabold text-base text-slate-900 group-hover:text-emerald-600 transition-colors leading-snug mb-2">
-                            <a href="article.html?slug=${article.slug}" class="focus:outline-none">
-                                <span class="absolute inset-0"></span>
-                                ${escapeHtml(article.title)}
-                            </a>
-                        </h3>
-                        <p class="text-xs text-slate-500 leading-relaxed line-clamp-3 mb-4">
-                            ${escapeHtml(article.description || '')}
-                        </p>
-                    </div>
-                    <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-emerald-600 group-hover:translate-x-1 transition-transform">
-                        <span>Read Full Guide</span>
-                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    ` : ''}
+                    <div class="p-6 flex flex-col justify-between flex-grow">
+                        <div>
+                            <div class="flex items-center justify-between text-[11px] text-slate-400 mb-3 font-mono font-semibold">
+                                <span>📅 ${formattedDate}</span>
+                                <span class="bg-emerald-50 text-emerald-700 px-2.5 py-0.5 rounded-full border border-emerald-200">Guide</span>
+                            </div>
+                            <h3 class="font-extrabold text-base text-slate-900 group-hover:text-emerald-600 transition-colors leading-snug mb-2">
+                                <a href="article.html?slug=${article.slug}" class="focus:outline-none">
+                                    <span class="absolute inset-0"></span>
+                                    ${escapeHtml(article.title)}
+                                </a>
+                            </h3>
+                            <p class="text-xs text-slate-500 leading-relaxed line-clamp-3 mb-4">
+                                ${escapeHtml(article.description || '')}
+                            </p>
+                        </div>
+                        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-emerald-600 group-hover:translate-x-1 transition-transform relative z-10">
+                            <span>Read Full Guide</span>
+                            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </div>
                     </div>
                 `;
                 container.appendChild(card);
