@@ -1,87 +1,143 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title id="pageTitle">Loading Article... | SpotTribe Bali</title>
     <meta name="description" id="pageDesc" content="Explore Bali guides on SpotTribe Bali.">
-    
+    <link rel="canonical" id="canonicalTag" href="https://spottribebali.com/article.html">
+    <link rel="icon" type="image/png" href="./favicon.png">
+
+    <!-- Tailwind CSS & Lucide Icons -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        body { 
+            background-color: #f8fafc; 
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+        }
+        .glass-nav-dark { 
+            background: rgba(15, 23, 42, 0.90); 
+            backdrop-filter: blur(16px); 
+            -webkit-backdrop-filter: blur(16px); 
+        }
+        /* Penataan Tipografi Konten Artikel HTML dari Database */
+        .article-body p {
+            margin-bottom: 1.5rem;
             line-height: 1.8;
-            color: #222;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f9f9f9;
+            color: #334155;
+            font-size: 1.05rem;
         }
-        header {
-            text-align: center;
-            padding: 40px 0;
-            border-bottom: 1px solid #eaeaea;
-            margin-bottom: 30px;
+        .article-body h2 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #0f172a;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
         }
-        h1 {
-            font-size: 2.5em;
-            color: #111;
-            margin-bottom: 15px;
+        .article-body h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
         }
-        article {
-            background: #fff;
-            padding: 40px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        .article-body ul, .article-body ol {
+            margin-bottom: 1.5rem;
+            padding-left: 1.5rem;
+            color: #334155;
         }
-        p {
-            margin-bottom: 25px;
-            font-size: 1.1em;
-            color: #444;
-        }
-        .cta-box {
-            margin-top: 40px;
-            padding: 25px;
-            background: #f0f4f8;
-            border-left: 4px solid #0066cc;
-            border-radius: 4px;
-        }
-        .cta-box p {
-            margin: 0;
-            font-weight: 500;
-        }
-        a {
-            color: #0066cc;
-            text-decoration: none;
-        }
-        a:hover {
-            text-decoration: underline;
-        }
-        .back-link {
-            display: inline-block;
-            margin-bottom: 20px;
-            font-weight: 500;
-        }
+        .article-body ul { list-style-type: disc; }
+        .article-body ol { list-style-type: decimal; }
+        .article-body li { margin-bottom: 0.5rem; line-height: 1.6; }
+        .article-body strong { color: #0f172a; font-weight: 700; }
+        .article-body a { color: #059669; text-decoration: underline; font-weight: 600; }
     </style>
 </head>
-<body>
+<body class="flex flex-col min-h-screen text-slate-800">
 
-    <a href="journal.html" class="back-link">← Back to Journal</a>
-
-    <header>
-        <h1 id="articleTitle">Loading...</h1>
-        <p>Published by SpotTribe Bali</p>
+    <!-- HEADER NAVBAR -->
+    <header class="glass-nav-dark border-b border-slate-800 px-6 h-[72px] flex items-center justify-between sticky top-0 z-50 shadow-lg">
+        <div class="flex items-center gap-3.5">
+            <div class="w-11 h-11 rounded-2xl overflow-hidden bg-slate-900 border border-slate-700 shadow-md shadow-emerald-500/20 flex items-center justify-center shrink-0">
+                <img src="./favicon.png" alt="Logo" class="w-full h-full object-cover">
+            </div>
+            <div>
+                <h1 class="font-extrabold text-sm tracking-tight text-white flex items-center gap-2">
+                    SpotTribe <span class="bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent text-[11px] font-mono uppercase px-2 py-0.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 font-bold">BALI</span>
+                </h1>
+                <p class="text-[10px] text-slate-400 font-medium tracking-wide">Elite Island Journal & Guides</p>
+            </div>
+        </div>
+        
+        <div class="flex items-center gap-2">
+            <a href="./journal.html" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 transition border border-slate-700 shadow-sm">
+                <i data-lucide="book-open" class="w-3.5 h-3.5 text-emerald-400"></i>
+                <span>Journal</span>
+            </a>
+            <a href="./index.html" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 transition border border-slate-700 shadow-sm">
+                <i data-lucide="map" class="w-3.5 h-3.5 text-emerald-400"></i>
+                <span>Map</span>
+            </a>
+        </div>
     </header>
 
-    <article id="articleContent">
-        <p>Fetching article content from database...</p>
-    </article>
+    <!-- MAIN ARTICLE CONTAINER -->
+    <main class="max-w-3xl mx-auto px-6 py-12 flex-grow w-full">
+        
+        <!-- Back Navigation -->
+        <a href="./journal.html" class="inline-flex items-center gap-2 text-xs font-bold text-emerald-600 hover:text-emerald-700 mb-6 transition">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i>
+            <span>Back to Journal</span>
+        </a>
 
-    <!-- Supabase JS Client SDK -->
+        <!-- Article Card Wrapper -->
+        <article class="bg-white rounded-3xl border border-slate-200/80 p-8 sm:p-12 shadow-sm space-y-8">
+            
+            <!-- Article Header Meta -->
+            <div class="space-y-4 border-b border-slate-100 pb-8">
+                <div class="flex items-center gap-2 text-xs font-mono font-bold text-emerald-600">
+                    <span class="px-2.5 py-1 bg-emerald-50 rounded-full border border-emerald-200">SpotTribe Editorial</span>
+                    <span id="articleDate" class="text-slate-400"></span>
+                </div>
+                <h1 id="articleTitle" class="text-2xl sm:text-4xl font-extrabold tracking-tight text-slate-900 leading-tight">
+                    Loading Article...
+                </h1>
+            </div>
+
+            <!-- Article Body Content (Supports HTML Formatting from Admin) -->
+            <div id="articleContent" class="article-body">
+                <div class="flex items-center justify-center py-12">
+                    <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-emerald-500 border-t-transparent"></div>
+                </div>
+            </div>
+
+            <!-- CTA Box -->
+            <div class="mt-12 p-6 bg-gradient-to-br from-emerald-50 to-teal-50 rounded-2xl border border-emerald-200/70 text-slate-800 space-y-2">
+                <h3 class="font-bold text-sm text-emerald-900 flex items-center gap-2">
+                    <i data-lucide="compass" class="w-4 h-4 text-emerald-600"></i> Plan Your Island Journey
+                </h3>
+                <p class="text-xs text-slate-600 leading-relaxed font-medium">
+                    Ready to explore these spots firsthand? Discover curated stays, luxury villas, and secure exclusive partner rates directly on the <a href="https://spottribebali.com" class="text-emerald-700 font-bold underline">SpotTribe Bali Homepage</a>.
+                </p>
+            </div>
+
+        </article>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-slate-900 text-slate-300 py-8 px-6 border-t border-slate-800 text-center text-xs">
+        <p>© 2026 SpotTribe BALI. All rights reserved.</p>
+    </footer>
+
+    <!-- SUPABASE & SCRIPT -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         const SUPABASE_URL = 'https://riyupzmllltjrelqytwi.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_df32CqJ5bqDNCHU4OKGRPQ_7LiJvWV0';
-        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         async function fetchArticle() {
             const params = new URLSearchParams(window.location.search);
@@ -89,7 +145,7 @@
 
             if (!slug) {
                 document.getElementById('articleTitle').textContent = 'Article Not Found';
-                document.getElementById('articleContent').innerHTML = '<p>No article specified.</p>';
+                document.getElementById('articleContent').innerHTML = '<p class="text-center text-slate-500">No article specified in the URL.</p>';
                 return;
             }
 
@@ -102,21 +158,33 @@
             if (error || !data) {
                 console.error('Error fetching article:', error);
                 document.getElementById('articleTitle').textContent = 'Article Not Found';
-                document.getElementById('articleContent').innerHTML = '<p>The article you are looking for does not exist.</p>';
+                document.getElementById('articleContent').innerHTML = '<p class="text-center text-slate-500">The article you are looking for does not exist or has been removed.</p>';
                 return;
             }
 
-            // Memperbarui Title dan Meta Description dengan benar
+            // Set SEO & Meta tags dynamically
             document.getElementById('pageTitle').textContent = data.title + ' | SpotTribe Bali';
-            document.getElementById('pageDesc').setAttribute('content', data.description);
-            document.getElementById('articleTitle').textContent = data.title;
+            document.getElementById('pageDesc').setAttribute('content', data.description || 'Explore Bali guides on SpotTribe Bali.');
+            
+            const currentCanonical = `https://spottribebali.com/article.html?slug=${data.slug}`;
+            document.getElementById('canonicalTag').setAttribute('href', currentCanonical);
 
+            // Render Header Data
+            document.getElementById('articleTitle').textContent = data.title;
+            if (data.created_at) {
+                const formattedDate = new Date(data.created_at).toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric'
+                });
+                document.getElementById('articleDate').textContent = '•  ' + formattedDate;
+            }
+
+            // Render HTML Content from Supabase securely
             const contentContainer = document.getElementById('articleContent');
-            contentContainer.innerHTML = data.content + `
-                <div class="cta-box">
-                    <p>Ready to plan your next island adventure? Explore detailed guides, curated stays, and secure the best rates directly on the <a href="https://spottribebali.com">SpotTribe Bali Homepage</a>.</p>
-                </div>
-            `;
+            contentContainer.innerHTML = data.content || '<p>No content available.</p>';
+
+            lucide.createIcons();
         }
 
         fetchArticle();
