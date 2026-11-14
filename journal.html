@@ -113,9 +113,8 @@
         <h1>SpotTribe Bali Journal</h1>
         <p class="subtitle">Curated stories, smart budget itineraries, and honest luxury stay reviews across the island.</p>
 
-        <!-- Daftar artikel akan tercetak otomatis di sini via JavaScript -->
         <div class="article-grid" id="articleContainer">
-            <p>Loading articles...</p>
+            <p>Loading articles from database...</p>
         </div>
     </main>
 
@@ -123,34 +122,47 @@
         <p>&copy; 2026 SpotTribe Bali. All rights reserved.</p>
     </footer>
 
+    <!-- Supabase JS Client SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // Mengambil data artikel secara otomatis dari file articles.json
-        fetch('articles.json')
-            .then(response => response.json())
-            .then(articles => {
-                const container = document.getElementById('articleContainer');
-                container.innerHTML = ''; // Hapus teks loading
+        const SUPABASE_URL = 'https://riyupzmllltjrelqytwi.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_df32CqJ5bqDNCHU4OKGRPQ_7LiJvWV0';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-                if(articles.length === 0) {
-                    container.innerHTML = '<p>No articles found yet.</p>';
-                    return;
-                }
+        async function loadArticles() {
+            const container = document.getElementById('articleContainer');
 
-                articles.forEach(article => {
-                    const card = document.createElement('article');
-                    card.className = 'article-card';
-                    card.innerHTML = `
-                        <h2><a href="article/${article.slug}.html">${article.title}</a></h2>
-                        <p>${article.description}</p>
-                        <a href="article/${article.slug}.html" class="read-more">Read Full Guide →</a>
-                    `;
-                    container.appendChild(card);
-                });
-            })
-            .catch(error => {
+            const { data: articles, error } = await supabaseClient
+                .from('articles')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error) {
                 console.error('Error loading articles:', error);
-                document.getElementById('articleContainer').innerHTML = '<p>Failed to load articles.</p>';
+                container.innerHTML = '<p>Failed to load articles from database.</p>';
+                return;
+            }
+
+            if (!articles || articles.length === 0) {
+                container.innerHTML = '<p>No articles found yet.</p>';
+                return;
+            }
+
+            container.innerHTML = '';
+            articles.forEach(article => {
+                const card = document.createElement('article');
+                card.className = 'article-card';
+                // Mengarahkan ke halaman pembaca dinamis dengan parameter slug
+                card.innerHTML = `
+                    <h2><a href="article.html?slug=${article.slug}">${article.title}</a></h2>
+                    <p>${article.description || ''}</p>
+                    <a href="article.html?slug=${article.slug}" class="read-more">Read Full Guide →</a>
+                `;
+                container.appendChild(card);
             });
+        }
+
+        loadArticles();
     </script>
 
 </body>
