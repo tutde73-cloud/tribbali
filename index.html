@@ -646,7 +646,6 @@
       }
     }
 
-    /* Helper function for HTML escaping */
     function escapeHtml(text) {
       const map = {
         '&': '&amp;',
@@ -657,6 +656,9 @@
       };
       return text.replace(/[&<>"']/g, function(m) { return map[m]; });
     }
+
+    // Inisialisasi ikon Lucide agar muncul kembali dengan sempurna
+    lucide.createIcons();
   </script>
 </body>
 </html>
