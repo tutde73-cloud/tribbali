@@ -71,7 +71,7 @@
       <div class="bg-sky-50 border border-sky-100 rounded-2xl p-4 text-xs text-sky-900 flex items-start gap-3">
         <span class="text-lg">💡</span>
         <div>
-          <strong class="font-bold">How Meet-ups Work:</strong> Join community gatherings, dinner hangouts, or coworking sessions initiated by fellow travelers and nomads in Bali, or create your own event!
+          <strong class="font-bold">How Meet-ups Work:</strong> Join community gatherings, dinner hangouts, or coworking sessions. Request to join, wait for host approval, and see who's going!
         </div>
       </div>
       <div class="flex justify-between items-center mb-4">
@@ -90,7 +90,7 @@
       <div class="bg-emerald-50 border border-emerald-100 rounded-2xl p-4 text-xs text-emerald-900 flex items-start gap-3">
         <span class="text-lg">🏄‍♂️</span>
         <div>
-          <strong class="font-bold">How Surf Buddies Works:</strong> Find active members who are currently free for surfing, sunset sessions, or coffee. Post your status so others can connect with you!
+          <strong class="font-bold">How Surf Buddies Works:</strong> Find active members free for surfing or coffee. Request to connect, wait for host approval, and view approved buddies!
         </div>
       </div>
       <div class="flex justify-between items-center mb-4">
@@ -213,7 +213,7 @@
           <input type="text" id="meetupTitle" required placeholder="e.g. Coworking & Web Project Sharing" class="w-full text-sm border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:border-sky-500">
         </div>
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Location / Venue</label>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Location / Venue (Auto Google Maps Link)</label>
           <input type="text" id="meetupLocation" required placeholder="e.g. Expat. Roasters, Canggu" class="w-full text-sm border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:border-sky-500">
         </div>
         <div>
@@ -250,6 +250,20 @@
           <button type="submit" class="px-4 py-2 text-xs font-semibold text-white bg-sky-600 hover:bg-sky-700 rounded-xl transition">Post Status</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- MODAL: MANAGE REQUESTS (MEETUP / BUDDY) -->
+  <div id="manageModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 px-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl relative max-h-[80vh] overflow-y-auto">
+      <h3 id="manageModalTitle" class="font-bold text-lg text-slate-900 mb-2">Manage Participants</h3>
+      <p id="manageModalSub" class="text-xs text-slate-500 mb-4">Approve requests from members who want to join.</p>
+      <div id="manageRequestsContainer" class="space-y-3">
+        <!-- Injected via JS -->
+      </div>
+      <div class="flex justify-end pt-4 border-t border-slate-100 mt-4">
+        <button type="button" onclick="closeModal('manageModal')" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition">Close</button>
+      </div>
     </div>
   </div>
 
@@ -387,9 +401,10 @@
       fetchBuddies();
     }
 
+    // --- FETCH MEET-UPS WITH PARTICIPANTS ---
     async function fetchMeetups() {
       const container = document.getElementById('meetupsListContainer');
-      const { data, error } = await supabaseClient
+      const { data: meetups, error } = await supabaseClient
         .from('meetups')
         .select('*')
         .order('created_at', { ascending: false });
@@ -399,32 +414,149 @@
         return;
       }
 
-      if (!data || data.length === 0) {
+      if (!meetups || meetups.length === 0) {
         container.innerHTML = `<p class="text-slate-400 text-xs italic col-span-2 text-center py-6">No meet-ups available yet. Be the first to create one!</p>`;
         return;
       }
 
-      container.innerHTML = data.map(item => `
-        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition">
-          <div class="flex justify-between items-start mb-3">
-            <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-1 rounded-full">${escapeHtml(item.category)}</span>
-            <span class="text-xs text-slate-400 font-medium">${escapeHtml(item.event_time)}</span>
-          </div>
-          <h3 class="font-bold text-slate-900 text-base mb-1">${escapeHtml(item.title)}</h3>
-          <p class="text-slate-500 text-xs mb-4">📍 ${escapeHtml(item.location)}</p>
-          <div class="flex items-center justify-between border-t border-slate-100 pt-3">
-            <span class="text-xs text-slate-500">Host: <strong class="text-slate-700">${escapeHtml(item.host_name)}</strong></span>
-            <button onclick="handleJoinAction('${escapeHtml(item.title)}')" class="bg-sky-50 hover:bg-sky-100 text-sky-700 text-xs font-bold px-3 py-1.5 rounded-lg transition">
+      // Ambil data peserta (participants)
+      const { data: participants } = await supabaseClient
+        .from('meetup_participants')
+        .select('*');
+
+      container.innerHTML = meetups.map(item => {
+        const isHost = currentUserSession && currentUserSession.user.id === item.user_id;
+        const itemParticipants = participants ? participants.filter(p => p.meetup_id === item.id) : [];
+        
+        const approvedList = itemParticipants.filter(p => p.status === 'approved');
+        const pendingList = itemParticipants.filter(p => p.status === 'pending');
+
+        const myRequest = currentUserSession ? itemParticipants.find(p => p.user_id === currentUserSession.user.id) : null;
+
+        let actionBtnHtml = '';
+        if (isHost) {
+          actionBtnHtml = `
+            <button onclick="openManageMeetup(${item.id})" class="bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1.5 rounded-lg transition">
+              Manage Requests (${pendingList.length})
+            </button>
+          `;
+        } else if (!myRequest) {
+          actionBtnHtml = `
+            <button onclick="requestJoinMeetup(${item.id})" class="bg-sky-50 hover:bg-sky-100 text-sky-700 text-xs font-bold px-3 py-1.5 rounded-lg transition">
               Join Meet-up
             </button>
+          `;
+        } else if (myRequest.status === 'pending') {
+          actionBtnHtml = `
+            <span class="text-xs text-amber-600 font-semibold bg-amber-50 px-3 py-1.5 rounded-lg border border-amber-200">
+              ⏳ Waiting Approval
+            </span>
+          `;
+        } else if (myRequest.status === 'approved') {
+          actionBtnHtml = `
+            <span class="text-xs text-emerald-600 font-bold bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-200">
+              ✓ Joined
+            </span>
+          `;
+        }
+
+        // Render approved attendees list
+        const attendeesHtml = approvedList.length > 0 
+          ? approvedList.map(p => `<span class="inline-flex items-center gap-1 bg-slate-100 text-slate-700 text-[11px] font-medium px-2.5 py-1 rounded-lg">👤 ${escapeHtml(p.user_name)}</span>`).join('')
+          : `<span class="text-[11px] text-slate-400 italic">No approved participants yet.</span>`;
+
+        // Google Maps Link Generator
+        const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.location)}`;
+
+        return `
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col justify-between">
+            <div>
+              <div class="flex justify-between items-start mb-3">
+                <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-1 rounded-full">${escapeHtml(item.category)}</span>
+                <span class="text-xs text-slate-400 font-medium">${escapeHtml(item.event_time)}</span>
+              </div>
+              <h3 class="font-bold text-slate-900 text-base mb-1">${escapeHtml(item.title)}</h3>
+              <p class="text-xs mb-4">
+                📍 <a href="${mapsUrl}" target="_blank" class="text-sky-600 hover:text-sky-700 font-semibold underline decoration-sky-300">${escapeHtml(item.location)}</a>
+              </p>
+              
+              <!-- Attendees Section -->
+              <div class="bg-slate-50 border border-slate-100 rounded-xl p-3 mb-4 space-y-1.5">
+                <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wide">Approved Attendees (${approvedList.length}):</p>
+                <div class="flex flex-wrap gap-1.5 pt-1">
+                  ${attendeesHtml}
+                </div>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between border-t border-slate-100 pt-3">
+              <span class="text-xs text-slate-500">Host: <strong class="text-slate-700">${escapeHtml(item.host_name)}</strong></span>
+              ${actionBtnHtml}
+            </div>
           </div>
-        </div>
-      `).join('');
+        `;
+      }).join('');
     }
 
+    async function requestJoinMeetup(meetupId) {
+      if (!currentUserSession) { alert("Please sign in first."); window.location.href = './login.html'; return; }
+      const userName = currentUserProfile?.full_name || currentUserSession.user.user_metadata.full_name || 'Member';
+
+      const { error } = await supabaseClient.from('meetup_participants').insert([{
+        meetup_id: meetupId,
+        user_id: currentUserSession.user.id,
+        user_name: userName,
+        status: 'pending'
+      }]);
+
+      if (error) { alert("Error: " + error.message); return; }
+      alert("Join request sent! Waiting for host approval.");
+      fetchMeetups();
+    }
+
+    async function openManageMeetup(meetupId) {
+      if (!currentUserSession) return;
+      const { data, error } = await supabaseClient
+        .from('meetup_participants')
+        .select('*')
+        .eq('meetup_id', meetupId)
+        .eq('status', 'pending');
+
+      const container = document.getElementById('manageRequestsContainer');
+      document.getElementById('manageModalTitle').innerText = "Manage Meet-up Participants";
+      document.getElementById('manageModalSub').innerText = "Approve or decline member requests.";
+
+      if (error || !data || data.length === 0) {
+        container.innerHTML = `<p class="text-xs text-slate-400 italic text-center py-4">No pending join requests.</p>`;
+      } else {
+        container.innerHTML = data.map(p => `
+          <div class="flex items-center justify-between bg-slate-50 p-3 rounded-xl border border-slate-200">
+            <span class="text-xs font-bold text-slate-800">${escapeHtml(p.user_name)}</span>
+            <div class="flex gap-2">
+              <button onclick="updateMeetupStatus(${p.id}, 'approved')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition">Approve ✓</button>
+              <button onclick="updateMeetupStatus(${p.id}, 'rejected')" class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition">Reject ✕</button>
+            </div>
+          </div>
+        `).join('');
+      }
+      openModal('manageModal');
+    }
+
+    async function updateMeetupStatus(participationId, newStatus) {
+      const { error } = await supabaseClient
+        .from('meetup_participants')
+        .update({ status: newStatus })
+        .eq('id', participationId);
+
+      if (error) { alert("Error: " + error.message); return; }
+      closeModal('manageModal');
+      fetchMeetups();
+    }
+
+    // --- FETCH SURF BUDDIES WITH APPROVAL ---
     async function fetchBuddies() {
       const container = document.getElementById('buddiesListContainer');
-      const { data, error } = await supabaseClient
+      const { data: buddies, error } = await supabaseClient
         .from('buddies')
         .select('*')
         .order('created_at', { ascending: false });
@@ -434,15 +566,56 @@
         return;
       }
 
-      if (!data || data.length === 0) {
+      if (!buddies || buddies.length === 0) {
         container.innerHTML = `<p class="text-slate-400 text-xs italic col-span-3 text-center py-6">No active status posted yet.</p>`;
         return;
       }
 
-      container.innerHTML = data.map(item => {
+      const { data: connections } = await supabaseClient
+        .from('buddy_connections')
+        .select('*');
+
+      container.innerHTML = buddies.map(item => {
         const initials = item.user_name ? item.user_name.substring(0, 2).toUpperCase() : 'ST';
         const tagsHtml = item.tags ? item.tags.map(t => `<span class="bg-slate-100 text-slate-600 text-[10px] px-2 py-0.5 rounded font-medium">${escapeHtml(t.trim())}</span>`).join('') : '';
         const censoredStatus = censorProfanity(item.status_text);
+
+        const isHost = currentUserSession && currentUserSession.user.id === item.user_id;
+        const itemConns = connections ? connections.filter(c => c.buddy_id === item.id) : [];
+        const approvedConns = itemConns.filter(c => c.status === 'approved');
+        const pendingConns = itemConns.filter(c => c.status === 'pending');
+        const myConn = currentUserSession ? itemConns.find(c => c.user_id === currentUserSession.user.id) : null;
+
+        let buddyActionHtml = '';
+        if (isHost) {
+          buddyActionHtml = `
+            <button onclick="openManageBuddy(${item.id})" class="w-full bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-bold py-2 rounded-xl transition">
+              Manage Requests (${pendingConns.length})
+            </button>
+          `;
+        } else if (!myConn) {
+          buddyActionHtml = `
+            <button onclick="requestConnectBuddy(${item.id})" class="w-full bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold py-2 rounded-xl transition">
+              🤝 Connect & Hangout
+            </button>
+          `;
+        } else if (myConn.status === 'pending') {
+          buddyActionHtml = `
+            <div class="w-full text-center text-xs text-amber-600 font-semibold bg-amber-50 py-2 rounded-xl border border-amber-200">
+              ⏳ Waiting Approval
+            </div>
+          `;
+        } else if (myConn.status === 'approved') {
+          buddyActionHtml = `
+            <div class="w-full text-center text-xs text-emerald-600 font-bold bg-emerald-50 py-2 rounded-xl border border-emerald-200">
+              ✓ Connected & Approved
+            </div>
+          `;
+        }
+
+        const approvedBuddiesHtml = approvedConns.length > 0
+          ? approvedConns.map(c => `<span class="inline-flex items-center gap-1 bg-slate-100 text-slate-700 text-[11px] font-medium px-2 py-0.5 rounded">👤 ${escapeHtml(c.user_name)}</span>`).join('')
+          : `<span class="text-[10px] text-slate-400 italic">No connections yet.</span>`;
 
         return `
           <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col justify-between">
@@ -455,20 +628,84 @@
                 </div>
               </div>
               <p class="text-slate-600 text-xs mb-3">"${escapeHtml(censoredStatus)}"</p>
-              <div class="flex flex-wrap gap-1 mb-4">
+              <div class="flex flex-wrap gap-1 mb-3">
                 ${tagsHtml}
               </div>
+
+              <!-- Connected Buddies List -->
+              <div class="bg-slate-50 border border-slate-100 rounded-xl p-2.5 mb-4 space-y-1">
+                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wide">Connected Buddies (${approvedConns.length}):</p>
+                <div class="flex flex-wrap gap-1 pt-0.5">
+                  ${approvedBuddiesHtml}
+                </div>
+              </div>
             </div>
-            <button onclick="handleChatAction('${escapeHtml(item.user_name)}')" class="w-full bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold py-2 rounded-xl transition">
-              💬 Direct Message
-            </button>
+
+            <div>
+              ${buddyActionHtml}
+            </div>
           </div>
         `;
       }).join('');
     }
 
+    async function requestConnectBuddy(buddyId) {
+      if (!currentUserSession) { alert("Please sign in first."); window.location.href = './login.html'; return; }
+      const userName = currentUserProfile?.full_name || currentUserSession.user.user_metadata.full_name || 'Member';
+
+      const { error } = await supabaseClient.from('buddy_connections').insert([{
+        buddy_id: buddyId,
+        user_id: currentUserSession.user.id,
+        user_name: userName,
+        status: 'pending'
+      }]);
+
+      if (error) { alert("Error: " + error.message); return; }
+      alert("Connection request sent! Waiting for host approval.");
+      fetchBuddies();
+    }
+
+    async function openManageBuddy(buddyId) {
+      if (!currentUserSession) return;
+      const { data, error } = await supabaseClient
+        .from('buddy_connections')
+        .select('*')
+        .eq('buddy_id', buddyId)
+        .eq('status', 'pending');
+
+      const container = document.getElementById('manageRequestsContainer');
+      document.getElementById('manageModalTitle').innerText = "Manage Hangout Connections";
+      document.getElementById('manageModalSub').innerText = "Approve requests from members who want to join your session.";
+
+      if (error || !data || data.length === 0) {
+        container.innerHTML = `<p class="text-xs text-slate-400 italic text-center py-4">No pending connection requests.</p>`;
+      } else {
+        container.innerHTML = data.map(c => `
+          <div class="flex items-center justify-between bg-slate-50 p-3 rounded-xl border border-slate-200">
+            <span class="text-xs font-bold text-slate-800">${escapeHtml(c.user_name)}</span>
+            <div class="flex gap-2">
+              <button onclick="updateBuddyStatus(${c.id}, 'approved')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition">Approve ✓</button>
+              <button onclick="updateBuddyStatus(${c.id}, 'rejected')" class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition">Reject ✕</button>
+            </div>
+          </div>
+        `).join('');
+      }
+      openModal('manageModal');
+    }
+
+    async function updateBuddyStatus(connectionId, newStatus) {
+      const { error } = await supabaseClient
+        .from('buddy_connections')
+        .update({ status: newStatus })
+        .eq('id', connectionId);
+
+      if (error) { alert("Error: " + error.message); return; }
+      closeModal('manageModal');
+      fetchBuddies();
+    }
+
+    // --- MESSAGES & CHAT ---
     async function fetchMessages() {
-      // Batasi hanya mengambil pesan dari 3 hari terakhir ke belakang
       const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString();
 
       const { data, error } = await supabaseClient
@@ -713,16 +950,6 @@
       document.getElementById('buddyForm').reset();
       closeModal('buddyModal');
       fetchBuddies();
-    }
-
-    function handleJoinAction(title) {
-      if (!currentUserSession) { alert("Please sign in first."); window.location.href = './login.html'; return; }
-      alert(`Joined meet-up: "${title}"!`);
-    }
-
-    function handleChatAction(userName) {
-      if (!currentUserSession) { alert("Please sign in first."); window.location.href = './login.html'; return; }
-      alert(`Opening direct message room with ${userName}...`);
     }
 
     async function handleLogout() {
