@@ -46,12 +46,15 @@
 
   <!-- TAB SWITCHER NAVIGATION -->
   <div class="bg-slate-900/95 border-b border-slate-800 pb-3 pt-1 px-6 sticky top-[65px] z-40 backdrop-blur-md">
-    <div class="max-w-5xl mx-auto flex items-center gap-2">
-      <button onclick="switchTab('spots')" id="tabBtnSpots" class="px-4 py-2 rounded-xl text-xs font-bold bg-emerald-600 text-white shadow-md transition cursor-pointer flex items-center gap-2">
-        <span>🏡 Directory Spots (Villas, Cafes, Hotels)</span>
+    <div class="max-w-5xl mx-auto flex items-center gap-2 overflow-x-auto no-scrollbar">
+      <button onclick="switchTab('spots')" id="tabBtnSpots" class="px-4 py-2 rounded-xl text-xs font-bold bg-emerald-600 text-white shadow-md transition cursor-pointer flex items-center gap-2 shrink-0">
+        <span>🏡 Directory Spots</span>
       </button>
-      <button onclick="switchTab('widgets')" id="tabBtnWidgets" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 transition cursor-pointer flex items-center gap-2">
-        <span>🎟️ Klook Activity Widgets (Outdoor, Tour, Water, Spa)</span>
+      <button onclick="switchTab('widgets')" id="tabBtnWidgets" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 transition cursor-pointer flex items-center gap-2 shrink-0">
+        <span>🎟️ Klook Widgets</span>
+      </button>
+      <button onclick="switchTab('articles')" id="tabBtnArticles" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 transition cursor-pointer flex items-center gap-2 shrink-0">
+        <span>📖 Journal Articles (SEO)</span>
       </button>
     </div>
   </div>
@@ -61,8 +64,6 @@
     
     <!-- ================= TAB 1: PLACES / SPOTS FORM & DIRECTORY ================= -->
     <div id="sectionSpots" class="space-y-8">
-      
-      <!-- FORM SPOTS -->
       <div class="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
         <h2 id="formTitle" class="font-bold text-lg text-slate-900 mb-4">➕ Add New Curated Spot</h2>
         
@@ -174,10 +175,8 @@
 
     <!-- ================= TAB 2: ACTIVITIES WIDGETS FORM & DIRECTORY ================= -->
     <div id="sectionWidgets" class="space-y-8 hidden">
-      
-      <!-- FORM WIDGETS -->
       <div class="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
-        <h2 id="widgetFormTitle" class="font-bold text-lg text-slate-900 mb-4">➕ Add New Activity Widget (Outdoor, Tour, Water, Spa)</h2>
+        <h2 id="widgetFormTitle" class="font-bold text-lg text-slate-900 mb-4">➕ Add New Activity Widget</h2>
         
         <form id="adminWidgetForm" onsubmit="handleSaveWidget(event)" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <input type="hidden" id="widgetId">
@@ -243,13 +242,65 @@
       </div>
     </div>
 
+
+    <!-- ================= TAB 3: ARTICLES / JOURNAL FORM & DIRECTORY ================= -->
+    <div id="sectionArticles" class="space-y-8 hidden">
+      <div class="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
+        <h2 id="articleFormTitle" class="font-bold text-lg text-slate-900 mb-4">➕ Add New Journal Article (SEO)</h2>
+        
+        <form id="adminArticleForm" onsubmit="handleSaveArticle(event)" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <input type="hidden" id="articleId">
+
+          <div class="sm:col-span-2">
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Article Title</label>
+            <input type="text" id="articleTitle" required placeholder="e.g. The Ultimate 3-Day Bali Escape" oninput="autoGenerateSlug()" class="w-full text-sm border border-slate-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-indigo-500">
+          </div>
+
+          <div class="sm:col-span-2">
+            <label class="block text-xs font-semibold text-slate-600 mb-1">URL Slug (Auto-generated or custom)</label>
+            <input type="text" id="articleSlug" required placeholder="bali-budget-itinerary-3-days" class="w-full text-sm font-mono bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-indigo-500 text-indigo-700 font-bold">
+          </div>
+
+          <div class="sm:col-span-2">
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Meta Description (SEO Summary)</label>
+            <textarea id="articleDescription" rows="2" required placeholder="Discover how to experience the best of Bali without breaking the bank..." class="w-full text-xs border border-slate-200 rounded-xl p-3 focus:outline-none focus:border-indigo-500"></textarea>
+          </div>
+
+          <div class="sm:col-span-2 space-y-2 pt-2 border-t border-slate-100">
+            <div class="flex items-center justify-between">
+              <label class="block text-xs font-bold text-slate-700">Full Article Content (HTML / Paragraphs)</label>
+              <button type="button" onclick="convertArticleToHtml()" class="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs rounded-xl transition flex items-center gap-1.5 border border-indigo-200 cursor-pointer">
+                <span>✨ Auto-Convert to HTML (&lt;p&gt;)</span>
+              </button>
+            </div>
+            <textarea id="articleContent" rows="8" required placeholder="Tulis atau paste isi artikel lengkap di sini..." class="w-full text-xs font-mono border border-slate-200 rounded-2xl p-3 focus:outline-none focus:border-indigo-500 bg-slate-50/50 leading-relaxed"></textarea>
+          </div>
+
+          <div class="sm:col-span-2 flex justify-end gap-2 pt-2">
+            <button type="button" id="cancelArticleEditBtn" onclick="resetArticleForm()" class="hidden px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition cursor-pointer">Cancel Edit</button>
+            <button type="submit" id="saveArticleBtn" class="px-6 py-2.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition shadow-md shadow-indigo-600/20 cursor-pointer">Save Article to Database</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- LIST ARTICLES -->
+      <div class="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm space-y-4">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+          <h2 class="font-bold text-lg text-slate-900">📁 Managed Journal Articles</h2>
+          <input type="text" id="articleSearch" oninput="fetchAdminArticles()" placeholder="🔍 Search article title..." class="text-xs border border-slate-300 rounded-xl pl-3 pr-3 py-2 bg-slate-50 text-slate-800 focus:outline-none focus:border-indigo-500 w-56 transition">
+        </div>
+        <div id="adminArticlesContainer" class="space-y-3">
+          <p class="text-slate-400 text-xs italic text-center py-6">Loading articles data...</p>
+        </div>
+      </div>
+    </div>
+
   </main>
 
   <!-- SCRIPT ADMIN & AUTH -->
   <script>
     const CORRECT_PASSWORD = "Tutde227394";
 
-    // Menggunakan localStorage agar session login tidak gampang hilang jika internet putus/refresh
     if (localStorage.getItem("spottribe_admin_auth") === "true") {
       document.getElementById("passwordModal").style.display = "none";
     }
@@ -264,6 +315,7 @@
         document.getElementById("passwordModal").style.display = "none";
         fetchAdminSpots();
         fetchAdminWidgets();
+        fetchAdminArticles();
       } else {
         errorMsg.classList.remove("hidden");
         document.getElementById("adminPasswordInput").value = "";
@@ -273,19 +325,27 @@
     function switchTab(tab) {
       const btnSpots = document.getElementById('tabBtnSpots');
       const btnWidgets = document.getElementById('tabBtnWidgets');
+      const btnArticles = document.getElementById('tabBtnArticles');
       const secSpots = document.getElementById('sectionSpots');
       const secWidgets = document.getElementById('sectionWidgets');
+      const secArticles = document.getElementById('sectionArticles');
+
+      btnSpots.className = "px-4 py-2 rounded-xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 transition cursor-pointer flex items-center gap-2 shrink-0";
+      btnWidgets.className = "px-4 py-2 rounded-xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 transition cursor-pointer flex items-center gap-2 shrink-0";
+      btnArticles.className = "px-4 py-2 rounded-xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 transition cursor-pointer flex items-center gap-2 shrink-0";
+      secSpots.classList.add('hidden');
+      secWidgets.classList.add('hidden');
+      secArticles.classList.add('hidden');
 
       if (tab === 'spots') {
-        btnSpots.className = "px-4 py-2 rounded-xl text-xs font-bold bg-emerald-600 text-white shadow-md transition cursor-pointer flex items-center gap-2";
-        btnWidgets.className = "px-4 py-2 rounded-xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 transition cursor-pointer flex items-center gap-2";
+        btnSpots.className = "px-4 py-2 rounded-xl text-xs font-bold bg-emerald-600 text-white shadow-md transition cursor-pointer flex items-center gap-2 shrink-0";
         secSpots.classList.remove('hidden');
-        secWidgets.classList.add('hidden');
-      } else {
-        btnWidgets.className = "px-4 py-2 rounded-xl text-xs font-bold bg-emerald-600 text-white shadow-md transition cursor-pointer flex items-center gap-2";
-        btnSpots.className = "px-4 py-2 rounded-xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 transition cursor-pointer flex items-center gap-2";
+      } else if (tab === 'widgets') {
+        btnWidgets.className = "px-4 py-2 rounded-xl text-xs font-bold bg-emerald-600 text-white shadow-md transition cursor-pointer flex items-center gap-2 shrink-0";
         secWidgets.classList.remove('hidden');
-        secSpots.classList.add('hidden');
+      } else if (tab === 'articles') {
+        btnArticles.className = "px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white shadow-md transition cursor-pointer flex items-center gap-2 shrink-0";
+        secArticles.classList.remove('hidden');
       }
     }
 
@@ -295,6 +355,7 @@
 
     let windowSpotsData = {};
     let windowWidgetsData = {};
+    let windowArticlesData = {};
 
     // --- SPOTS FUNCTIONS ---
     async function fetchAdminSpots() {
@@ -334,7 +395,7 @@
           </div>
         `).join('');
       } catch (err) {
-        container.innerHTML = `<p class="text-rose-500 text-xs text-center py-6">Failed to load places (Network error). <button onclick="fetchAdminSpots()" class="underline font-bold">Retry</button></p>`;
+        container.innerHTML = `<p class="text-rose-500 text-xs text-center py-6">Failed to load places. <button onclick="fetchAdminSpots()" class="underline font-bold">Retry</button></p>`;
       }
     }
 
@@ -360,7 +421,6 @@
     async function handleSaveSpot(event) {
       event.preventDefault();
       const rawId = document.getElementById('spotId').value;
-      const categoryValue = document.getElementById('spotCategory').value;
       const fileInput = document.getElementById('spotImageFile');
       const saveBtn = document.getElementById('saveSpotBtn');
       let imageUrl = document.getElementById('existingImageUrl').value;
@@ -380,7 +440,7 @@
 
       const payload = {
         name: document.getElementById('spotName').value,
-        category: categoryValue,
+        category: document.getElementById('spotCategory').value,
         area: document.getElementById('spotArea').value,
         rating: document.getElementById('spotRating').value,
         price_label: document.getElementById('spotPrice').value,
@@ -455,7 +515,7 @@
           </div>
         `).join('');
       } catch (err) {
-        container.innerHTML = `<p class="text-rose-500 text-xs text-center py-6">Failed to load widgets (Network error). <button onclick="fetchAdminWidgets()" class="underline font-bold">Retry</button></p>`;
+        container.innerHTML = `<p class="text-rose-500 text-xs text-center py-6">Failed to load widgets.</p>`;
       }
     }
 
@@ -506,7 +566,7 @@
     function resetWidgetForm() {
       document.getElementById('adminWidgetForm').reset();
       document.getElementById('widgetId').value = '';
-      document.getElementById('widgetFormTitle').innerText = "➕ Add New Activity Widget (Outdoor, Tour, Water, Spa)";
+      document.getElementById('widgetFormTitle').innerText = "➕ Add New Activity Widget";
       document.getElementById('cancelWidgetEditBtn').classList.add('hidden');
     }
 
@@ -516,11 +576,126 @@
       fetchAdminWidgets();
     }
 
+
+    // --- ARTICLES / JOURNAL FUNCTIONS ---
+    async function fetchAdminArticles() {
+      const container = document.getElementById('adminArticlesContainer');
+      const searchQuery = document.getElementById('articleSearch').value.trim();
+
+      try {
+        let query = clientSupabase.from('articles').select('*').order('created_at', { ascending: false });
+        if (searchQuery) query = query.ilike('title', `%${searchQuery}%`);
+
+        const { data, error } = await query;
+        if (error) throw error;
+
+        if (!data || data.length === 0) { 
+          container.innerHTML = `<p class="text-slate-400 text-xs italic text-center py-6">No articles found.</p>`; 
+          return; 
+        }
+
+        windowArticlesData = {};
+        data.forEach(a => { windowArticlesData[a.id] = a; });
+
+        container.innerHTML = data.map(item => `
+          <div class="flex items-center justify-between p-4 rounded-2xl border border-slate-100 bg-slate-50/50 hover:bg-slate-50 transition gap-4">
+            <div class="min-w-0">
+              <h4 class="font-bold text-slate-900 text-sm truncate">${escapeHtml(item.title)}</h4>
+              <p class="text-[11px] text-slate-500 font-medium">🔗 Slug: <code class="text-indigo-600">${escapeHtml(item.slug)}</code> • 📅 ${new Date(item.created_at).toLocaleDateString()}</p>
+            </div>
+            <div class="flex items-center gap-2 flex-shrink-0">
+              <a href="./article.html?slug=${item.slug}" target="_blank" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-bold px-3 py-1.5 rounded-xl transition">View</a>
+              <button onclick="editArticleById('${item.id}')" class="bg-sky-50 hover:bg-sky-100 text-sky-700 text-xs font-bold px-3 py-1.5 rounded-xl transition cursor-pointer">Edit</button>
+              <button onclick="deleteArticle('${item.id}')" class="bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold px-3 py-1.5 rounded-xl transition cursor-pointer">Delete</button>
+            </div>
+          </div>
+        `).join('');
+      } catch (err) {
+        container.innerHTML = `<p class="text-rose-500 text-xs text-center py-6">Failed to load articles.</p>`;
+      }
+    }
+
+    function autoGenerateSlug() {
+      const title = document.getElementById('articleTitle').value;
+      const slugInput = document.getElementById('articleSlug');
+      // Jangan timpa manual jika user sedang mengedit slug khusus
+      if (!document.getElementById('articleId').value) {
+        slugInput.value = title.toLowerCase().trim()
+          .replace(/[^\w\s-]/g, '')
+          .replace(/[\s_-]+/g, '-')
+          .replace(/^-+|-+$/g, '');
+      }
+    }
+
+    function editArticleById(id) {
+      const item = windowArticlesData[id];
+      if (!item) return;
+      document.getElementById('articleId').value = item.id;
+      document.getElementById('articleTitle').value = item.title || '';
+      document.getElementById('articleSlug').value = item.slug || '';
+      document.getElementById('articleDescription').value = item.description || '';
+      document.getElementById('articleContent').value = item.content || '';
+      document.getElementById('articleFormTitle').innerText = "✏️ Edit Article ID: " + item.id;
+      document.getElementById('cancelArticleEditBtn').classList.remove('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    async function handleSaveArticle(event) {
+      event.preventDefault();
+      const rawId = document.getElementById('articleId').value;
+      const saveBtn = document.getElementById('saveArticleBtn');
+
+      const payload = {
+        title: document.getElementById('articleTitle').value.trim(),
+        slug: document.getElementById('articleSlug').value.trim(),
+        description: document.getElementById('articleDescription').value.trim(),
+        content: document.getElementById('articleContent').value.trim()
+      };
+
+      saveBtn.innerText = "⏳ Saving Article...";
+      saveBtn.disabled = true;
+
+      if (rawId) {
+        const { error } = await clientSupabase.from('articles').update(payload).eq('id', rawId);
+        if (error) alert("Error updating: " + error.message);
+        else alert("Article updated successfully!");
+      } else {
+        const { error } = await clientSupabase.from('articles').insert([payload]);
+        if (error) alert("Error adding: " + error.message);
+        else alert("Article added successfully!");
+      }
+
+      saveBtn.innerText = "Save Article to Database";
+      saveBtn.disabled = false;
+      resetArticleForm();
+      fetchAdminArticles();
+    }
+
+    function resetArticleForm() {
+      document.getElementById('adminArticleForm').reset();
+      document.getElementById('articleId').value = '';
+      document.getElementById('articleFormTitle').innerText = "➕ Add New Journal Article (SEO)";
+      document.getElementById('cancelArticleEditBtn').classList.add('hidden');
+    }
+
+    async function deleteArticle(id) {
+      if (!confirm("Delete this article?")) return;
+      await clientSupabase.from('articles').delete().eq('id', id);
+      fetchAdminArticles();
+    }
+
     function convertToHtml() {
       const textarea = document.getElementById('spotDescription');
       let text = textarea.value.trim();
       if (!text) return;
       textarea.value = text.split(/\n+/).map(p => `<p class="mb-3">${p.trim()}</p>`).join('\n');
+    }
+
+    function convertArticleToHtml() {
+      const textarea = document.getElementById('articleContent');
+      let text = textarea.value.trim();
+      if (!text) return;
+      textarea.value = text.split(/\n+/).map(p => `<p class="mb-4">${p.trim()}</p>`).join('\n');
     }
 
     function escapeHtml(str) {
@@ -530,6 +705,7 @@
     if (localStorage.getItem("spottribe_admin_auth") === "true") {
       fetchAdminSpots();
       fetchAdminWidgets();
+      fetchAdminArticles();
     }
   </script>
 </body>
