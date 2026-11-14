@@ -276,6 +276,19 @@
             <textarea id="articleContent" rows="8" required placeholder="Tulis atau paste isi artikel lengkap di sini..." class="w-full text-xs font-mono border border-slate-200 rounded-2xl p-3 focus:outline-none focus:border-indigo-500 bg-slate-50/50 leading-relaxed"></textarea>
           </div>
 
+          <!-- FITUR UPLOAD BANYAK GAMBAR UNTUK ARTIKEL -->
+          <div class="sm:col-span-2 bg-indigo-50/60 p-4 rounded-2xl border border-indigo-200 space-y-3">
+            <label class="block text-xs font-extrabold text-indigo-900 uppercase tracking-wide">🖼️ Article Image Uploader (Multiple Images)</label>
+            <p class="text-[11px] text-slate-600">Pilih satu atau banyak gambar sekaligus. Setelah diunggah, salin kode HTML-nya dan tempel ke dalam konten artikel di atas.</p>
+            
+            <input type="file" id="articleImageFiles" accept="image/*" multiple onchange="handleUploadArticleImages(event)" class="w-full text-xs border border-indigo-300 rounded-xl px-2 py-1.5 bg-white file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 cursor-pointer">
+            
+            <div id="articleImageGallery" class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+              <!-- Hasil unggahan gambar akan muncul di sini secara dinamis -->
+              <p class="text-xs text-slate-400 italic">Belum ada gambar yang diunggah untuk artikel ini.</p>
+            </div>
+          </div>
+
           <div class="sm:col-span-2 flex justify-end gap-2 pt-2">
             <button type="button" id="cancelArticleEditBtn" onclick="resetArticleForm()" class="hidden px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition cursor-pointer">Cancel Edit</button>
             <button type="submit" id="saveArticleBtn" class="px-6 py-2.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition shadow-md shadow-indigo-600/20 cursor-pointer">Save Article to Database</button>
@@ -395,7 +408,7 @@
           </div>
         `).join('');
       } catch (err) {
-        container.innerHTML = `<p class="text-rose-500 text-xs text-center py-6">Failed to load places. <button onclick="fetchAdminSpots()" class="underline font-bold">Retry</button></p>`;
+        container.innerHTML = `<p class="text-rose-500 text-xs text-center py-6">Failed to load places.</p>`;
       }
     }
 
@@ -615,10 +628,48 @@
       }
     }
 
+    async function handleUploadArticleImages(event) {
+      const files = event.target.files;
+      if (!files || files.length === 0) return;
+
+      const gallery = document.getElementById('articleImageGallery');
+      if (gallery.querySelector('p')) {
+        gallery.innerHTML = ''; // Hapus teks "Belum ada gambar"
+      }
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const fileName = `article_${Date.now()}_${Math.random().toString(36).substring(2, 7)}.jpg`;
+        
+        const { error: uploadError } = await clientSupabase.storage.from('spot-images').upload(fileName, file);
+        if (uploadError) {
+          alert(`Gagal mengunggah ${file.name}: ${uploadError.message}`);
+          continue;
+        }
+
+        const { data: pubData } = clientSupabase.storage.from('spot-images').getPublicUrl(fileName);
+        const publicUrl = pubData.publicUrl;
+        const htmlTag = `<img src="${publicUrl}" alt="Article Illustration" style="width:100%; height:auto; border-radius:16px; margin:20px 0;" />`;
+
+        const card = document.createElement('div');
+        card.className = "flex items-center gap-3 bg-white p-3 rounded-2xl border border-indigo-100 shadow-sm";
+        card.innerHTML = `
+          <img src="${publicUrl}" class="w-16 h-16 rounded-xl object-cover shrink-0 border border-slate-200" />
+          <div class="min-w-0 flex-grow">
+            <p class="text-[11px] font-bold text-slate-800 truncate mb-1">${escapeHtml(file.name)}</p>
+            <button type="button" onclick="navigator.clipboard.writeText('${htmlTag}'); alert('Tag HTML berhasil disalin!');" class="px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-[10px] rounded-lg transition">
+              📋 Salin Tag HTML
+            </button>
+          </div>
+        `;
+        gallery.appendChild(card);
+      }
+      event.target.value = ''; // Reset input file
+    }
+
     function autoGenerateSlug() {
       const title = document.getElementById('articleTitle').value;
       const slugInput = document.getElementById('articleSlug');
-      // Jangan timpa manual jika user sedang mengedit slug khusus
       if (!document.getElementById('articleId').value) {
         slugInput.value = title.toLowerCase().trim()
           .replace(/[^\w\s-]/g, '')
@@ -676,6 +727,7 @@
       document.getElementById('articleId').value = '';
       document.getElementById('articleFormTitle').innerText = "➕ Add New Journal Article (SEO)";
       document.getElementById('cancelArticleEditBtn').classList.add('hidden');
+      document.getElementById('articleImageGallery').innerHTML = '<p class="text-xs text-slate-400 italic">Belum ada gambar yang diunggah untuk artikel ini.</p>';
     }
 
     async function deleteArticle(id) {
