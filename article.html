@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="pageTitle">Loading Article... | SpotTribe Bali</title>
+    <meta name="description" id="pageDesc" content="Explore Bali guides on SpotTribe Bali.">
+    
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.8;
+            color: #222;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        header {
+            text-align: center;
+            padding: 40px 0;
+            border-bottom: 1px solid #eaeaea;
+            margin-bottom: 30px;
+        }
+        h1 {
+            font-size: 2.5em;
+            color: #111;
+            margin-bottom: 15px;
+        }
+        article {
+            background: #fff;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        p {
+            margin-bottom: 25px;
+            font-size: 1.1em;
+            color: #444;
+        }
+        .cta-box {
+            margin-top: 40px;
+            padding: 25px;
+            background: #f0f4f8;
+            border-left: 4px solid #0066cc;
+            border-radius: 4px;
+        }
+        .cta-box p {
+            margin: 0;
+            font-weight: 500;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+
+    <a href="journal.html" class="back-link">← Back to Journal</a>
+
+    <header>
+        <h1 id="articleTitle">Loading...</h1>
+        <p>Published by SpotTribe Bali</p>
+    </header>
+
+    <article id="articleContent">
+        <p>Fetching article content from database...</p>
+    </article>
+
+    <!-- Supabase JS Client SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = 'https://riyupzmllltjrelqytwi.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_df32CqJ5bqDNCHU4OKGRPQ_7LiJvWV0';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        async function fetchArticle() {
+            const params = new URLSearchParams(window.location.search);
+            const slug = params.get('slug');
+
+            if (!slug) {
+                document.getElementById('articleTitle').textContent = 'Article Not Found';
+                document.getElementById('articleContent').innerHTML = '<p>No article specified.</p>';
+                return;
+            }
+
+            const { data, error } = await supabaseClient
+                .from('articles')
+                .select('*')
+                .eq('slug', slug)
+                .single();
+
+            if (error || !data) {
+                console.error('Error fetching article:', error);
+                document.getElementById('articleTitle').textContent = 'Article Not Found';
+                document.getElementById('articleContent').innerHTML = '<p>The article you are looking for does not exist.</p>';
+                return;
+            }
+
+            // Memperbarui Title dan Meta Description dengan benar
+            document.getElementById('pageTitle').textContent = data.title + ' | SpotTribe Bali';
+            document.getElementById('pageDesc').setAttribute('content', data.description);
+            document.getElementById('articleTitle').textContent = data.title;
+
+            const contentContainer = document.getElementById('articleContent');
+            contentContainer.innerHTML = data.content + `
+                <div class="cta-box">
+                    <p>Ready to plan your next island adventure? Explore detailed guides, curated stays, and secure the best rates directly on the <a href="https://spottribebali.com">SpotTribe Bali Homepage</a>.</p>
+                </div>
+            `;
+        }
+
+        fetchArticle();
+    </script>
+
+</body>
+</html>
