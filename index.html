@@ -25,7 +25,6 @@
   <meta property="og:description" content="Explore verified island spots, luxury living, cafes, and hidden gems across Bali with real-time interactive mapping.">
   <meta property="og:image" content="https://spottribebali.com/og-image.png">
 
-
   <!-- Tailwind CSS, Leaflet & Lucide Icons -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
@@ -87,31 +86,31 @@
 </head>
 <body class="flex flex-col text-slate-800">
 
-  <!-- SEMANTIC HEADER (DARK THEME) -->
-  <header class="glass-nav-dark border-b border-slate-800 px-6 h-[72px] flex items-center justify-between sticky top-0 z-50 shadow-lg">
-    <div class="flex items-center gap-3.5">
-      <div class="w-11 h-11 rounded-2xl overflow-hidden bg-slate-900 border border-slate-700 shadow-md shadow-emerald-500/20 flex items-center justify-center shrink-0">
+  <!-- SEMANTIC HEADER (DARK THEME) - Diberi jarak aman dan padding optimal untuk mobile -->
+  <header class="glass-nav-dark border-b border-slate-800 px-4 sm:px-6 h-[72px] flex items-center justify-between sticky top-0 z-50 shadow-lg">
+    <div class="flex items-center gap-3 min-w-0">
+      <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl overflow-hidden bg-slate-900 border border-slate-700 shadow-md shadow-emerald-500/20 flex items-center justify-center shrink-0">
         <img src="./favicon.png" alt="SpotTribe Bali Logo" class="w-full h-full object-cover">
       </div>
-      <div>
-        <h1 class="font-extrabold text-sm tracking-tight text-white flex items-center gap-2">
-          SpotTribe <span class="bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent text-[11px] font-mono uppercase px-2 py-0.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 font-bold">BALI</span>
+      <div class="min-w-0">
+        <h1 class="font-extrabold text-xs sm:text-sm tracking-tight text-white flex items-center gap-1.5 sm:gap-2 truncate">
+          SpotTribe <span class="bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent text-[10px] sm:text-[11px] font-mono uppercase px-1.5 sm:px-2 py-0.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 font-bold shrink-0">BALI</span>
         </h1>
-        <p class="text-[10px] text-slate-400 font-medium tracking-wide">Elite Island Guide & Nomad Sanctuary</p>
+        <p class="text-[9px] sm:text-[10px] text-slate-400 font-medium tracking-wide truncate">Elite Island Guide & Nomad Sanctuary</p>
       </div>
     </div>
     
-    <div class="flex items-center gap-2.5">
+    <div class="flex items-center gap-2 shrink-0">
       <!-- Tombol Menu Artikel / Journal -->
       <a href="./journal.html" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-800 text-slate-200 border border-slate-700 hover:bg-slate-700 hover:text-white transition shadow-sm">
         <i data-lucide="book-open" class="w-3.5 h-3.5 text-emerald-400"></i>
-        <span>Journal</span>
+        <span class="hidden sm:inline">Journal</span>
       </a>
 
       <!-- Indikator Live Spots -->
-      <span class="inline-flex items-center px-3.5 py-1.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 shadow-inner">
-        <span class="w-2 h-2 rounded-full bg-emerald-400 pulse-live mr-2"></span> 
-        <span id="mapCount" class="font-mono text-xs font-black">0</span> <span class="ml-1 tracking-wider uppercase font-semibold">Live Spots</span>
+      <span class="inline-flex items-center px-3 py-1.5 sm:px-3.5 sm:py-1.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 shadow-inner">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 pulse-live mr-1.5 sm:mr-2"></span> 
+        <span id="mapCount" class="font-mono text-xs font-black">0</span> <span class="ml-1 tracking-wider uppercase font-semibold hidden sm:inline">Live Spots</span>
       </span>
     </div>
   </header>
