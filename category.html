@@ -175,26 +175,13 @@
         .replace(/^-+|-+$/g, '');
     }
 
+    // DIUBAH MENJADI KETERANGAN SINGKAT BERUPA TEKS PARAGRAF
     function renderAmenitiesBadges(amenityString) {
       if (!amenityString || typeof amenityString !== 'string') {
-        return `
-          <span class="inline-flex items-center gap-1 bg-slate-100 text-slate-600 text-[11px] font-medium px-2.5 py-1 rounded-lg">
-            📍 Scenic Area
-          </span>
-          <span class="inline-flex items-center gap-1 bg-slate-100 text-slate-600 text-[11px] font-medium px-2.5 py-1 rounded-lg">
-            📸 Photo Spot
-          </span>
-        `;
+        return `<p class="text-xs text-slate-500 font-medium line-clamp-2">Verified scenic spot & comfortable environment in Bali.</p>`;
       }
 
-      const items = amenityString.split(/[•,]/).map(i => i.trim()).filter(Boolean);
-
-      return items.map(item => `
-        <span class="inline-flex items-center gap-1 bg-slate-100 text-slate-700 text-[11px] font-medium px-2.5 py-1 rounded-lg border border-slate-200/60">
-          <span>✨</span>
-          <span>${escapeHtml(item)}</span>
-        </span>
-      `).join('');
+      return `<p class="text-xs text-slate-500 font-medium line-clamp-2">${escapeHtml(amenityString)}</p>`;
     }
 
     async function loadCategorySpots() {
@@ -292,7 +279,7 @@
                   <span class="text-rose-500">📍</span> ${escapeHtml(spot.area || spot.regency || 'Bali')}
                 </p>
               </div>
-              <div class="flex flex-wrap gap-1.5 pt-2 border-t border-slate-100">
+              <div class="pt-2 border-t border-slate-100">
                 ${renderAmenitiesBadges(spot.amenity)}
               </div>
               <div class="flex items-center justify-between pt-3 border-t border-slate-100 text-xs">
