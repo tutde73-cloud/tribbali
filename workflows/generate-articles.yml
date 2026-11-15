@@ -1,0 +1,35 @@
+name: Generate Static Articles
+
+on:
+  workflow_dispatch: # Memungkinkan Anda menjalankan secara manual dari tab Actions
+  schedule:
+    - cron: '0 0 * * *' # Otomatis berjalan setiap hari sekali (opsional)
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm install @supabase/supabase-js
+
+      - name: Run Article Generator Script
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: node generate-articles.js
+
+      - name: Commit and push generated static files
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add article/
+          git commit -m "Auto-generate static article pages with OG tags" || echo "No changes to commit"
+          git push
