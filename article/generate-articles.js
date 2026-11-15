@@ -2,7 +2,6 @@ const { createClient } = require('@supabase/supabase-js');
 const fs = require('fs');
 const path = require('path');
 
-// Ambil kunci Supabase dari Environment Variables GitHub Actions
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -16,21 +15,16 @@ async function generateStaticArticles() {
         process.exit(1);
     }
 
-    // Pastikan folder 'article' ada
     const outputDir = path.join(__dirname, 'article');
     if (!fs.existsSync(outputDir)) {
         fs.mkdirSync(outputDir, { recursive: true });
     }
 
-    // Template HTML standar untuk setiap artikel
     articles.forEach((article) => {
         const slug = article.slug;
         const title = article.title || 'SpotTribe Bali Article';
         const description = article.description || 'Explore Bali guides on SpotTribe Bali.';
-        
-        // Ambil gambar cover dari database atau fallback ke logo utama
         const coverImage = article.cover_image || article.image_url || article.thumbnail || 'https://spottribebali.com/favicon.png';
-        const canonicalUrl = `https://spottribebali.com/article/ ${slug}`; // sesuaikan struktur URL Anda
 
         const htmlContent = `<!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
@@ -42,7 +36,6 @@ async function generateStaticArticles() {
     <link rel="canonical" href="https://spottribebali.com/article.html?slug=${slug}">
     <link rel="icon" type="image/png" href="../favicon.png">
 
-    <!-- Open Graph / Facebook Share Meta Tags (Server-Generated & Crawler Friendly) -->
     <meta property="og:site_name" content="SpotTribe Bali">
     <meta property="og:type" content="article">
     <meta property="og:title" content="${title} | SpotTribe Bali">
@@ -50,13 +43,11 @@ async function generateStaticArticles() {
     <meta property="og:image" content="${coverImage}">
     <meta property="og:url" content="https://spottribebali.com/article.html?slug=${slug}">
 
-    <!-- Twitter Card Meta Tags -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="${title} | SpotTribe Bali">
     <meta name="twitter:description" content="${description}">
     <meta name="twitter:image" content="${coverImage}">
 
-    <!-- Tailwind CSS & Lucide Icons -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -115,7 +106,6 @@ async function generateStaticArticles() {
 </body>
 </html>`;
 
-        // Simpan file dengan nama berdasarkan slug artikel, misal: article/panduan-bali.html
         const filePath = path.join(outputDir, `${slug}.html`);
         fs.writeFileSync(filePath, htmlContent, 'utf8');
         console.log(`Generated static page for: ${slug}`);
