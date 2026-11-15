@@ -463,7 +463,7 @@
         </a>
       </section>
 
-      <!-- JOURNAL HIGHLIGHTS (DIAMBIL OTOMATIS DARI SUPABASE TABEL "journals" ATAU "posts") -->
+      <!-- JOURNAL HIGHLIGHTS (DIAMBIL DARI TABEL "articles") -->
       <section class="space-y-4 pt-4">
         <div class="flex items-center justify-between px-1">
           <h2 class="text-xs font-black uppercase tracking-widest text-slate-500 flex items-center gap-2">
@@ -655,24 +655,22 @@
 
     loadAllMapMarkers();
 
-    // FUNGSI UNTUK MEMUAT 5 ARTIKEL JOURNAL HIGHLIGHTS SECARA OTOMATIS
+    // FUNGSI UNTUK MEMUAT JOURNAL HIGHLIGHTS DARI TABEL "articles"
     async function loadJournalHighlights() {
       const container = document.getElementById('journalHighlightsContainer');
       if (!container || !clientSupabase) return;
 
       try {
-        // Ambil data dari tabel jurnal Anda (ganti nama tabel jika berbeda, misal 'journals' atau 'articles')
         const { data: articles, error } = await clientSupabase
-          .from('journals') 
+          .from('articles') // Menggunakan tabel "articles" sesuai database Anda
           .select('*')
           .order('created_at', { ascending: false })
           .limit(5);
 
         if (error || !articles || articles.length === 0) {
-          // Fallback jika tabel kosong / belum ada isinya agar tetap tampil rapi
           container.innerHTML = `
             <div class="bg-white/90 backdrop-blur-md border border-slate-200/90 rounded-2xl p-3.5 shadow-sm col-span-full text-center text-xs text-slate-500">
-              Belum ada artikel jurnal yang dipublikasikan. Silakan buat artikel di halaman Journal.
+              Belum ada artikel jurnal yang ditemukan di tabel articles.
             </div>
           `;
           return;
