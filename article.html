@@ -8,6 +8,20 @@
     <link rel="canonical" id="canonicalTag" href="https://spottribebali.com/article.html">
     <link rel="icon" type="image/png" href="./favicon.png">
 
+    <!-- Open Graph / Facebook Share Meta Tags -->
+    <meta property="og:site_name" content="SpotTribe Bali">
+    <meta property="og:type" content="article">
+    <meta property="og:title" id="ogTitle" content="SpotTribe Bali | Elite Island Journal & Guides">
+    <meta property="og:description" id="ogDesc" content="Explore Bali guides on SpotTribe Bali.">
+    <meta property="og:image" id="ogImage" content="https://spottribebali.com/favicon.png">
+    <meta property="og:url" id="ogUrl" content="https://spottribebali.com/article.html">
+
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" id="twTitle" content="SpotTribe Bali | Elite Island Journal & Guides">
+    <meta name="twitter:description" id="twDesc" content="Explore Bali guides on SpotTribe Bali.">
+    <meta name="twitter:image" id="twImage" content="https://spottribebali.com/favicon.png">
+
     <!-- Tailwind CSS & Lucide Icons -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -23,7 +37,6 @@
             backdrop-filter: blur(16px); 
             -webkit-backdrop-filter: blur(16px); 
         }
-        /* Penataan Tipografi Konten Artikel HTML dari Database */
         .article-body p {
             margin-bottom: 1.5rem;
             line-height: 1.8;
@@ -108,7 +121,7 @@
                 </h1>
             </div>
 
-            <!-- Article Body Content (Supports HTML Formatting from Admin) -->
+            <!-- Article Body Content -->
             <div id="articleContent" class="article-body">
                 <div class="flex items-center justify-center py-12">
                     <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-emerald-500 border-t-transparent"></div>
@@ -134,7 +147,6 @@
     </footer>
 
     <!-- SUPABASE & SCRIPT -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         const SUPABASE_URL = 'https://riyupzmllltjrelqytwi.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_df32CqJ5bqDNCHU4OKGRPQ_7LiJvWV0';
@@ -163,12 +175,32 @@
                 return;
             }
 
-            // Set SEO & Meta tags dynamically
-            document.getElementById('pageTitle').textContent = data.title + ' | SpotTribe Bali';
-            document.getElementById('pageDesc').setAttribute('content', data.description || 'Explore Bali guides on SpotTribe Bali.');
-            
+            const pageTitle = data.title + ' | SpotTribe Bali';
+            const pageDesc = data.description || 'Explore Bali guides on SpotTribe Bali.';
             const currentCanonical = `https://spottribebali.com/article.html?slug=${data.slug}`;
+
+            // Render HTML Content terlebih dahulu agar bisa mengambil gambar pertama jika kolom cover kosong
+            const contentContainer = document.getElementById('articleContent');
+            contentContainer.innerHTML = data.content || '<p>No content available.</p>';
+
+            // Cari gambar cover: cek kolom cover_image / image_url / thumbnail, atau ambil <img> pertama di dalam konten
+            const firstImgEl = contentContainer.querySelector('img');
+            const coverImage = data.cover_image || data.image_url || data.thumbnail || (firstImgEl ? firstImgEl.src : 'https://spottribebali.com/favicon.png');
+
+            // Set SEO & Meta tags dynamically
+            document.getElementById('pageTitle').textContent = pageTitle;
+            document.getElementById('pageDesc').setAttribute('content', pageDesc);
             document.getElementById('canonicalTag').setAttribute('href', currentCanonical);
+
+            // Set Open Graph & Twitter Meta Tags
+            document.getElementById('ogTitle').setAttribute('content', pageTitle);
+            document.getElementById('ogDesc').setAttribute('content', pageDesc);
+            document.getElementById('ogImage').setAttribute('content', coverImage);
+            document.getElementById('ogUrl').setAttribute('content', currentCanonical);
+
+            document.getElementById('twTitle').setAttribute('content', pageTitle);
+            document.getElementById('twDesc').setAttribute('content', pageDesc);
+            document.getElementById('twImage').setAttribute('content', coverImage);
 
             // Render Header Data
             document.getElementById('articleTitle').textContent = data.title;
@@ -180,10 +212,6 @@
                 });
                 document.getElementById('articleDate').textContent = '•  ' + formattedDate;
             }
-
-            // Render HTML Content from Supabase securely
-            const contentContainer = document.getElementById('articleContent');
-            contentContainer.innerHTML = data.content || '<p>No content available.</p>';
 
             lucide.createIcons();
         }
