@@ -655,14 +655,14 @@
 
     loadAllMapMarkers();
 
-    // FUNGSI UNTUK MEMUAT JOURNAL HIGHLIGHTS DARI TABEL "articles"
+    // FUNGSI UNTUK MEMUAT JOURNAL HIGHLIGHTS DARI TABEL "articles" DAN MENGARAH KE article.html?slug=...
     async function loadJournalHighlights() {
       const container = document.getElementById('journalHighlightsContainer');
       if (!container || !clientSupabase) return;
 
       try {
         const { data: articles, error } = await clientSupabase
-          .from('articles') // Menggunakan tabel "articles" sesuai database Anda
+          .from('articles')
           .select('*')
           .order('created_at', { ascending: false })
           .limit(5);
@@ -680,9 +680,9 @@
         articles.forEach(art => {
           const title = escapeHtml(art.title || 'Untitled Journal');
           const category = escapeHtml(art.category || 'Guide');
-          const slug = createSlug(art.title);
+          const slug = art.slug || createSlug(art.title);
           const readTime = art.read_time || '5m read';
-          const artUrl = `./journal-detail.html?slug=${slug}`;
+          const artUrl = `./article.html?slug=${slug}`;
 
           html += `
             <a href="${artUrl}" class="bg-white/90 backdrop-blur-md border border-slate-200/90 rounded-2xl p-3.5 shadow-sm group hover:shadow-md transition-all flex flex-col justify-between">
