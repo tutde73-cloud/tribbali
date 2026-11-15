@@ -108,11 +108,6 @@
                 </h1>
             </div>
 
-            <!-- Article Cover Image (Auto-Rendered) -->
-            <div id="articleCoverContainer" class="hidden">
-                <img id="articleCoverImg" src="" alt="Article Cover" class="w-full h-[320px] sm:h-[400px] object-cover rounded-3xl border border-slate-200 shadow-md">
-            </div>
-
             <!-- Article Body Content (Supports HTML Formatting from Admin) -->
             <div id="articleContent" class="article-body">
                 <div class="flex items-center justify-center py-12">
@@ -189,22 +184,6 @@
             // Render HTML Content from Supabase securely
             const contentContainer = document.getElementById('articleContent');
             contentContainer.innerHTML = data.content || '<p>No content available.</p>';
-
-            // Handle Cover Image: Prioritaskan data.image_url, jika kosong otomatis ambil gambar pertama dari isi konten artikel
-            let coverUrl = data.image_url;
-            if (!coverUrl) {
-                const tempDiv = document.createElement('div');
-                tempDiv.innerHTML = data.content || '';
-                const firstImg = tempDiv.querySelector('img');
-                if (firstImg) {
-                    coverUrl = firstImg.src;
-                }
-            }
-
-            if (coverUrl) {
-                document.getElementById('articleCoverImg').src = coverUrl;
-                document.getElementById('articleCoverContainer').classList.remove('hidden');
-            }
 
             lucide.createIcons();
         }
