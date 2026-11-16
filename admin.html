@@ -123,6 +123,19 @@
             <input type="hidden" id="existingImageUrl">
           </div>
 
+          <!-- UPLOAD BANYAK GAMBAR UNTUK GALERI HOTEL -->
+          <div class="sm:col-span-2 bg-sky-50/60 p-4 rounded-2xl border border-sky-200 space-y-3">
+            <label class="block text-xs font-extrabold text-sky-900 uppercase tracking-wide">📸 Hotel Photo Gallery Uploader (Multiple Images)</label>
+            <p class="text-[11px] text-slate-600">Pilih satu atau banyak foto sekaligus untuk galeri hotel ini. Sistem akan otomatis mengompres dan menyimpannya.</p>
+            
+            <input type="file" id="spotGalleryFiles" accept="image/*" multiple onchange="handleUploadSpotGallery(event)" class="w-full text-xs border border-sky-300 rounded-xl px-2 py-1.5 bg-white file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-sky-600 file:text-white hover:file:bg-sky-700 cursor-pointer">
+            
+            <div id="adminSpotGalleryPreview" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-2">
+              <p class="text-xs text-slate-400 italic">Belum ada foto galeri tambahan diunggah.</p>
+            </div>
+            <input type="hidden" id="existingGalleryJson" value="[]">
+          </div>
+
           <!-- KOTAK AFFILIATE WIDGET DI PLACES -->
           <div class="sm:col-span-2 bg-emerald-50/60 p-4 rounded-2xl border border-emerald-200 space-y-2">
             <label class="block text-xs font-extrabold text-emerald-900 uppercase tracking-wide">🏷️ Klook Affiliate Widget / Booking Link (<code class="text-emerald-700">affiliate_widget</code>)</label>
@@ -380,6 +393,7 @@
     let windowSpotsData = {};
     let windowWidgetsData = {};
     let windowArticlesData = {};
+    let currentSpotGalleryUrls = [];
 
     // --- HELPER: AUTO COMPRESS IMAGE (Max width 1200px, 80% quality JPEG) ---
     async function compressImageFile(file, maxWidth = 1200, quality = 0.8) {
@@ -414,6 +428,59 @@
         };
       });
     }
+
+    // --- SPOTS GALLERY UPLOADER FUNCTIONS ---
+    async function handleUploadSpotGallery(event) {
+      const files = event.target.files;
+      if (!files || files.length === 0) return;
+
+      const previewContainer = document.getElementById('adminSpotGalleryPreview');
+      if (previewContainer.querySelector('p')) {
+        previewContainer.innerHTML = '';
+      }
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        
+        const compressedFile = await compressImageFile(file);
+        const fileName = `gallery_${Date.now()}_${Math.random().toString(36).substring(2, 7)}.jpg`;
+        
+        const { error: uploadError } = await clientSupabase.storage.from('spot-images').upload(fileName, compressedFile);
+        if (uploadError) {
+          alert(`Gagal mengunggah ${file.name}: ${uploadError.message}`);
+          continue;
+        }
+
+        const { data: pubData } = clientSupabase.storage.from('spot-images').getPublicUrl(fileName);
+        currentSpotGalleryUrls.push(pubData.publicUrl);
+      }
+
+      updateGalleryPreviewUI();
+      event.target.value = '';
+    }
+
+    function updateGalleryPreviewUI() {
+      const previewContainer = document.getElementById('adminSpotGalleryPreview');
+      document.getElementById('existingGalleryJson').value = JSON.stringify(currentSpotGalleryUrls);
+
+      if (currentSpotGalleryUrls.length === 0) {
+        previewContainer.innerHTML = `<p class="text-xs text-slate-400 italic">Belum ada foto galeri tambahan diunggah.</p>`;
+        return;
+      }
+
+      previewContainer.innerHTML = currentSpotGalleryUrls.map((url, index) => `
+        <div class="relative h-24 rounded-xl overflow-hidden border border-slate-200 bg-slate-100 shadow-sm group">
+          <img src="${url}" class="w-full h-full object-cover" />
+          <button type="button" onclick="removeGalleryImage(${index})" class="absolute top-1 right-1 bg-rose-600 hover:bg-rose-700 text-white w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center shadow cursor-pointer">✕</button>
+        </div>
+      `).join('');
+    }
+
+    function removeGalleryImage(index) {
+      currentSpotGalleryUrls.splice(index, 1);
+      updateGalleryPreviewUI();
+    }
+
 
     // --- SPOTS FUNCTIONS ---
     async function fetchAdminSpots() {
@@ -471,6 +538,11 @@
       document.getElementById('spotMapUrl').value = spot.map_url || '';
       document.getElementById('spotDescription').value = spot.description || '';
       document.getElementById('spotAffiliateWidget').value = spot.affiliate_widget || '';
+      
+      // Load gallery images
+      currentSpotGalleryUrls = Array.isArray(spot.gallery) ? spot.gallery : (typeof spot.gallery === 'string' ? JSON.parse(spot.gallery || '[]') : []);
+      updateGalleryPreviewUI();
+
       document.getElementById('formTitle').innerText = "✏️ Edit Spot ID: " + spot.id;
       document.getElementById('cancelEditBtn').classList.remove('hidden');
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -508,7 +580,8 @@
         amenity: document.getElementById('spotAmenity').value,
         description: document.getElementById('spotDescription').value,
         map_url: rawMapUrl,
-        affiliate_widget: document.getElementById('spotAffiliateWidget').value.trim()
+        affiliate_widget: document.getElementById('spotAffiliateWidget').value.trim(),
+        gallery: currentSpotGalleryUrls
       };
 
       if (rawId) {
@@ -529,6 +602,8 @@
       document.getElementById('adminSpotForm').reset();
       document.getElementById('spotId').value = '';
       document.getElementById('existingImageUrl').value = '';
+      currentSpotGalleryUrls = [];
+      updateGalleryPreviewUI();
       document.getElementById('formTitle').innerText = "➕ Add New Curated Spot";
       document.getElementById('cancelEditBtn').classList.add('hidden');
     }
@@ -687,7 +762,6 @@
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
         
-        // Auto-Compress gambar artikel sebelum diunggah
         const compressedFile = await compressImageFile(file);
         const fileName = `article_${Date.now()}_${Math.random().toString(36).substring(2, 7)}.jpg`;
         
@@ -719,7 +793,6 @@
         card.appendChild(leftBox);
         gallery.appendChild(card);
 
-        // Pasang event listener secara bersih melalui JavaScript DOM
         document.getElementById(uniqueBtnId).onclick = function() {
           navigator.clipboard.writeText(htmlTag);
           alert('Tag HTML berhasil disalin!');
