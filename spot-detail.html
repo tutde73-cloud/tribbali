@@ -67,12 +67,22 @@
         <span class="text-[9px] text-slate-400 mt-0.5">Verified Experience</span>
       </div>
       
-      <!-- DYNAMIC PRICE / WIDGET KLOOK AFFILIATE BOX (DIPERLEBAR KE 2 KOLOM) -->
+      <!-- DYNAMIC PRICE / WIDGET KLOOK AFFILIATE BOX -->
       <div id="priceBoxContainer" class="md:col-span-2 flex items-center justify-center w-full">
         <div class="bg-white p-3 rounded-2xl border border-slate-200 text-center shadow-sm w-full">
           <span class="text-[10px] text-slate-400 uppercase font-bold block">Price</span>
           <span id="spotPrice" class="text-xs font-bold text-slate-700 truncate block">Inquiry</span>
         </div>
+      </div>
+    </div>
+
+    <!-- GALLERY SECTION (FOTO TAMBAHAN DARI SUPABASE) -->
+    <div id="gallerySection" class="hidden bg-white border border-slate-200 shadow-sm rounded-3xl p-4 sm:p-5 space-y-3">
+      <h2 class="text-xs font-black uppercase tracking-widest text-slate-500 flex items-center gap-2">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Photo Gallery
+      </h2>
+      <div id="spotGalleryGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+        <!-- Populated via JavaScript -->
       </div>
     </div>
 
@@ -115,31 +125,23 @@
       </div>
     </article>
 
-    <!-- SMART ROLLING RELATED SPOTS (INTERNAL LINKING SECTION) -->
+    <!-- SMART ROLLING RELATED SPOTS -->
     <section class="space-y-6 pt-2">
-      
-      <!-- SECTION 1: Similar Category Recommendations (2 Links) -->
       <div class="space-y-3">
         <h3 id="sameCategoryTitle" class="text-xs font-black uppercase tracking-widest text-slate-500 flex items-center gap-2">
           <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> More Similar Spots
         </h3>
-        <div id="sameCategoryContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <!-- Populated via Javascript -->
-        </div>
+        <div id="sameCategoryContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
       </div>
 
-      <!-- SECTION 2: Cross-Category Recommendations (3 Rolling Links) -->
       <div class="bg-slate-900 text-white p-5 rounded-3xl space-y-3 shadow-lg">
         <div class="flex items-center justify-between">
           <h3 id="crossCategoryPrompt" class="text-xs font-bold uppercase tracking-widest text-emerald-400 flex items-center gap-2">
             <span>✨</span> Looking for a great cafe, dining, or a different vibe?
           </h3>
         </div>
-        <div id="crossCategoryContainer" class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <!-- Populated via Javascript (3 randomized rolling links) -->
-        </div>
+        <div id="crossCategoryContainer" class="grid grid-cols-1 sm:grid-cols-3 gap-3"></div>
       </div>
-
     </section>
 
     <!-- REVIEWS & COMMUNITY SECTION -->
@@ -151,13 +153,11 @@
         </div>
       </div>
 
-      <!-- FORM UPLOAD REVIEW -->
       <div class="bg-white p-5 rounded-3xl border border-emerald-200 shadow-sm space-y-4">
         <h4 id="reviewFormTitle" class="font-bold text-sm text-slate-900 flex items-center gap-2">
           <span>📸</span> Share Your Experience & Update Spot Cover
         </h4>
 
-        <!-- LOGIN NOTICE BOX -->
         <div id="loginNotice" class="hidden bg-slate-900 text-white p-4 rounded-2xl text-center space-y-2">
           <p class="text-xs font-medium text-slate-300">Sign in with your Google account to submit reviews.</p>
           <button onclick="signInWithGoogle()" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-extrabold text-xs rounded-xl transition shadow-md inline-flex items-center gap-2">
@@ -197,13 +197,20 @@
         </form>
       </div>
 
-      <!-- LIST REVIEWS -->
       <div id="reviewsListContainer" class="space-y-4">
         <p class="text-xs text-slate-400 italic text-center py-4">Loading reviews...</p>
       </div>
     </section>
 
   </main>
+
+  <!-- IMAGE LIGHTBOX MODAL -->
+  <div id="imageModal" class="fixed inset-0 z-50 bg-black/90 hidden items-center justify-center p-4" onclick="closeLightbox()">
+    <div class="relative max-w-4xl max-h-full flex items-center justify-center">
+      <img id="modalImage" src="" class="max-w-full max-h-[90vh] object-contain rounded-2xl shadow-2xl">
+      <button onclick="closeLightbox()" class="absolute top-4 right-4 bg-white/20 hover:bg-white/40 text-white w-10 h-10 rounded-full font-bold flex items-center justify-center backdrop-blur-md">✕</button>
+    </div>
+  </div>
 
   <!-- SUPABASE & PAGE SCRIPT -->
   <script>
@@ -311,6 +318,7 @@
       }
 
       renderDynamicPriceBox(spot);
+      renderGalleryGrid(spot);
 
       const spotTitleText = `${spot.name} — SpotTribe Bali`;
       const cleanDesc = (spot.description || spot.amenity || `Explore ${spot.name} in ${spot.area || 'Bali'}.`).replace(/<[^>]*>?/gm, '').substring(0, 130) + '...';
@@ -351,7 +359,52 @@
       loadReviews();
     }
 
-    // RENDER DINAMIS WIDGET KLOOK DENGAN ISOLASI ID BERBASIS SPOT.ID
+    // RENDER GALLERY GRID FROM SUPABASE `gallery` (JSONB)
+    function renderGalleryGrid(spot) {
+      const section = document.getElementById('gallerySection');
+      const grid = document.getElementById('spotGalleryGrid');
+      
+      let photos = [];
+      if (spot.gallery) {
+        if (Array.isArray(spot.gallery)) {
+          photos = spot.gallery;
+        } else if (typeof spot.gallery === 'string') {
+          try {
+            photos = JSON.parse(spot.gallery);
+          } catch(e) {
+            photos = [];
+          }
+        }
+      }
+
+      if (!photos || photos.length === 0) {
+        section.classList.add('hidden');
+        return;
+      }
+
+      section.classList.remove('hidden');
+      grid.innerHTML = photos.map(url => `
+        <div class="relative h-28 rounded-2xl overflow-hidden border border-slate-200 cursor-pointer group bg-slate-100 shadow-sm" onclick="openLightbox('${url}')">
+          <img src="${url}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" loading="lazy" />
+          <div class="absolute inset-0 bg-black/10 group-hover:bg-transparent transition"></div>
+        </div>
+      `).join('');
+    }
+
+    function openLightbox(url) {
+      const modal = document.getElementById('imageModal');
+      const modalImg = document.getElementById('modalImage');
+      modalImg.src = url;
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeLightbox() {
+      const modal = document.getElementById('imageModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
     function renderDynamicPriceBox(spot) {
       const container = document.getElementById('priceBoxContainer');
       if (!container) return;
@@ -561,7 +614,7 @@
           <p class="text-xs text-slate-600 leading-relaxed font-medium">${escapeHtml(rev.comment)}</p>
 
           ${rev.photo_url ? `
-            <img src="${rev.photo_url}" class="w-full h-44 object-cover rounded-xl border border-slate-100" />
+            <img src="${rev.photo_url}" class="w-full h-44 object-cover rounded-xl border border-slate-100 cursor-pointer" onclick="openLightbox('${rev.photo_url}')" />
           ` : ''}
         </div>
       `).join('');
