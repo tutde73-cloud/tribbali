@@ -291,7 +291,7 @@
             <textarea id="articleDescription" rows="2" required placeholder="Discover how to experience the best of Bali without breaking the bank..." class="w-full text-xs border border-slate-200 rounded-xl p-3 focus:outline-none focus:border-indigo-500"></textarea>
           </div>
 
-          <div class="sm:col-span-2 space-y-2 pt-2 border-t border-slate-100">
+          <div class="sm:col-span-2 space-y-2.5 pt-2 border-t border-slate-100">
             <div class="flex flex-wrap items-center justify-between gap-2">
               <label class="block text-xs font-bold text-slate-700">Full Article Content (HTML / Paragraphs)</label>
               <div class="flex flex-wrap items-center gap-2">
@@ -303,7 +303,39 @@
                 </button>
               </div>
             </div>
-            <p class="text-[11px] text-slate-500">Tip: Taruh kursor di sela paragraf yang diinginkan lalu klik <strong>+ Insert Widget Slot</strong>, kemudian tempel tag <code>&lt;ins class="klk-aff-widget" ...&gt;&lt;/ins&gt;</code> di dalamnya (tanpa tag <code>&lt;script&gt;</code>).</p>
+
+            <!-- TOOLBAR FORMAT TEKS (BOLD, UKURAN FONT, HEADING, LIST, LINK) -->
+            <div class="flex flex-wrap items-center gap-1.5 p-2 rounded-2xl bg-slate-100/90 border border-slate-200">
+              <button type="button" onclick="wrapSelection('<strong>', '</strong>', 'bold text')" class="px-2.5 py-1.5 bg-white hover:bg-slate-50 text-slate-800 font-extrabold text-xs rounded-xl border border-slate-200 shadow-2xs cursor-pointer" title="Bold">
+                B
+              </button>
+              <button type="button" onclick="wrapSelection('<em>', '</em>', 'italic text')" class="px-2.5 py-1.5 bg-white hover:bg-slate-50 text-slate-800 italic font-semibold text-xs rounded-xl border border-slate-200 shadow-2xs cursor-pointer" title="Italic">
+                I
+              </button>
+
+              <select id="fontSizeSelect" onchange="applyFontSizeFromSelect()" class="text-xs font-bold bg-white text-slate-700 border border-slate-200 rounded-xl px-2.5 py-1.5 focus:outline-none focus:border-indigo-500 cursor-pointer" title="Font Size">
+                <option value="">Size: Default</option>
+                <option value="0.9rem">Small (0.9rem)</option>
+                <option value="1.15rem">Medium+ (1.15rem)</option>
+                <option value="1.3rem">Large (1.3rem)</option>
+                <option value="1.5rem">XL (1.5rem)</option>
+              </select>
+
+              <button type="button" onclick="wrapSelection('<h2>', '</h2>', 'Section Heading')" class="px-2.5 py-1.5 bg-white hover:bg-slate-50 text-slate-800 font-bold text-xs rounded-xl border border-slate-200 shadow-2xs cursor-pointer" title="Heading 2">
+                H2
+              </button>
+              <button type="button" onclick="wrapSelection('<h3>', '</h3>', 'Subheading')" class="px-2.5 py-1.5 bg-white hover:bg-slate-50 text-slate-800 font-bold text-xs rounded-xl border border-slate-200 shadow-2xs cursor-pointer" title="Heading 3">
+                H3
+              </button>
+              <button type="button" onclick="insertBulletList()" class="px-2.5 py-1.5 bg-white hover:bg-slate-50 text-slate-800 font-semibold text-xs rounded-xl border border-slate-200 shadow-2xs cursor-pointer" title="Bullet List">
+                • List
+              </button>
+              <button type="button" onclick="insertTextLink()" class="px-2.5 py-1.5 bg-white hover:bg-slate-50 text-indigo-700 font-semibold text-xs rounded-xl border border-slate-200 shadow-2xs cursor-pointer" title="Insert Link">
+                🔗 Link
+              </button>
+            </div>
+
+            <p class="text-[11px] text-slate-500">Tip: Blok teks lalu pilih format (<strong>B</strong>, ukuran font, <strong>H2/H3</strong>, list, atau link), atau klik <strong>+ Insert Widget Slot</strong> lalu tempel <code>&lt;ins class="klk-aff-widget" ...&gt;&lt;/ins&gt;</code> di dalamnya (tanpa tag <code>&lt;script&gt;</code>).</p>
             <textarea id="articleContent" rows="10" required placeholder="Tulis atau paste isi artikel lengkap di sini..." class="w-full text-xs font-mono border border-slate-200 rounded-2xl p-3 focus:outline-none focus:border-indigo-500 bg-slate-50/50 leading-relaxed"></textarea>
           </div>
 
@@ -880,6 +912,61 @@
       let text = textarea.value.trim();
       if (!text) return;
       textarea.value = text.split(/\n+/).map(p => `<p class="mb-3">${p.trim()}</p>`).join('\n');
+    }
+
+    function wrapSelection(openTag, closeTag, placeholderText) {
+      const textarea = document.getElementById('articleContent');
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const currentVal = textarea.value;
+      const selected = currentVal.substring(start, end) || placeholderText;
+      const inserted = `${openTag}${selected}${closeTag}`;
+
+      textarea.value = currentVal.substring(0, start) + inserted + currentVal.substring(end);
+      textarea.focus();
+      textarea.selectionStart = start + openTag.length;
+      textarea.selectionEnd = start + openTag.length + selected.length;
+    }
+
+    function applyFontSizeFromSelect() {
+      const selectEl = document.getElementById('fontSizeSelect');
+      const size = selectEl.value;
+      if (!size) return;
+      wrapSelection(`<span style="font-size: ${size};">`, '</span>', 'sized text');
+      selectEl.value = '';
+    }
+
+    function insertBulletList() {
+      const textarea = document.getElementById('articleContent');
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const currentVal = textarea.value;
+      const selected = currentVal.substring(start, end);
+
+      let listHtml = '';
+      if (selected.trim()) {
+        const items = selected.split(/\n+/).map(line => line.trim()).filter(Boolean);
+        listHtml = `<ul>\n${items.map(item => `  <li>${item}</li>`).join('\n')}\n</ul>`;
+      } else {
+        listHtml = `<ul>\n  <li>First item</li>\n  <li>Second item</li>\n</ul>`;
+      }
+
+      textarea.value = currentVal.substring(0, start) + listHtml + currentVal.substring(end);
+      textarea.focus();
+    }
+
+    function insertTextLink() {
+      const textarea = document.getElementById('articleContent');
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const currentVal = textarea.value;
+      const selectedText = currentVal.substring(start, end) || 'Explore more';
+      const url = prompt('Masukkan URL tujuan (contoh: https://spottribebali.com/journal.html):', 'https://spottribebali.com/');
+      if (!url) return;
+
+      const linkHtml = `<a href="${url.trim()}">${selectedText}</a>`;
+      textarea.value = currentVal.substring(0, start) + linkHtml + currentVal.substring(end);
+      textarea.focus();
     }
 
     function insertWidgetSlot() {
