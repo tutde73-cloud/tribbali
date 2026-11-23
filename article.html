@@ -68,6 +68,11 @@
         .article-body strong { color: #0f172a; font-weight: 700; }
         .article-body a { color: #059669; text-decoration: underline; font-weight: 600; }
         .article-body img { border-radius: 1.5rem; width: 100%; height: auto; margin: 2rem 0; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
+        .aff-widget-slot {
+            margin: 2rem 0;
+            width: 100%;
+            overflow-x: auto;
+        }
     </style>
 </head>
 <body class="flex flex-col min-h-screen text-slate-800">
@@ -79,9 +84,9 @@
                 <img src="./favicon.png" alt="Logo" class="w-full h-full object-cover">
             </div>
             <div>
-                <h1 class="font-extrabold text-sm tracking-tight text-white flex items-center gap-2">
+                <div class="font-extrabold text-sm tracking-tight text-white flex items-center gap-2">
                     SpotTribe <span class="bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent text-[11px] font-mono uppercase px-2 py-0.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 font-bold">BALI</span>
-                </h1>
+                </div>
                 <p class="text-[10px] text-slate-400 font-medium tracking-wide">Elite Island Journal & Guides</p>
             </div>
         </div>
@@ -152,6 +157,25 @@
         const SUPABASE_ANON_KEY = 'sb_publishable_df32CqJ5bqDNCHU4OKGRPQ_7LiJvWV0';
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+        function initAffiliateWidgets() {
+            const container = document.getElementById('articleContent');
+            if (!container) return;
+
+            const hasKlook = container.querySelector('.klk-aff-widget');
+            if (hasKlook) {
+                const existingScript = document.getElementById('klook-widget-script');
+                if (existingScript) {
+                    existingScript.remove();
+                }
+                const s = document.createElement('script');
+                s.id = 'klook-widget-script';
+                s.type = 'text/javascript';
+                s.async = true;
+                s.src = 'https://affiliate.klook.com/widget/fetch-iframe-init.js';
+                document.body.appendChild(s);
+            }
+        }
+
         async function fetchArticle() {
             const params = new URLSearchParams(window.location.search);
             const slug = params.get('slug');
@@ -179,20 +203,17 @@
             const pageDesc = data.description || 'Explore Bali guides on SpotTribe Bali.';
             const currentCanonical = `https://spottribebali.com/article.html?slug=${data.slug}`;
 
-            // Render HTML Content terlebih dahulu agar bisa mengambil gambar pertama jika kolom cover kosong
             const contentContainer = document.getElementById('articleContent');
             contentContainer.innerHTML = data.content || '<p>No content available.</p>';
+            initAffiliateWidgets();
 
-            // Cari gambar cover: cek kolom cover_image / image_url / thumbnail, atau ambil <img> pertama di dalam konten
             const firstImgEl = contentContainer.querySelector('img');
             const coverImage = data.cover_image || data.image_url || data.thumbnail || (firstImgEl ? firstImgEl.src : 'https://spottribebali.com/favicon.png');
 
-            // Set SEO & Meta tags dynamically
             document.getElementById('pageTitle').textContent = pageTitle;
             document.getElementById('pageDesc').setAttribute('content', pageDesc);
             document.getElementById('canonicalTag').setAttribute('href', currentCanonical);
 
-            // Set Open Graph & Twitter Meta Tags
             document.getElementById('ogTitle').setAttribute('content', pageTitle);
             document.getElementById('ogDesc').setAttribute('content', pageDesc);
             document.getElementById('ogImage').setAttribute('content', coverImage);
@@ -202,7 +223,6 @@
             document.getElementById('twDesc').setAttribute('content', pageDesc);
             document.getElementById('twImage').setAttribute('content', coverImage);
 
-            // Render Header Data
             document.getElementById('articleTitle').textContent = data.title;
             if (data.created_at) {
                 const formattedDate = new Date(data.created_at).toLocaleDateString('en-US', {
