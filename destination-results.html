@@ -13,7 +13,12 @@
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     .aff-widget-slot { width: 100%; overflow-x: auto; overflow-y: hidden; }
     .aff-widget-slot iframe, .aff-widget-slot ins { max-width: 100% !important; }
-    .filter-active { background-color: #059669 !important; color: #ffffff !important; border-color: #059669 !important; }
+    .exp-btn.filter-active,
+    .dest-btn.filter-active {
+      background-color: #059669 !important;
+      color: #ffffff !important;
+      border-color: #059669 !important;
+    }
   </style>
 </head>
 <body class="text-slate-800">
@@ -119,6 +124,12 @@
       return String(text || '').replace(/[&<>"']/g, m => map[m]);
     }
 
+    function stripHtml(htmlStr) {
+      const tmp = document.createElement('div');
+      tmp.innerHTML = String(htmlStr || '');
+      return (tmp.textContent || tmp.innerText || '').trim();
+    }
+
     function getWidgetHtml(item) {
       return String(item.widget_html || item.widget_code || item.affiliate_widget || '').trim();
     }
@@ -168,17 +179,19 @@
     function matchesKeyword(item, kw) {
       if (!kw) return true;
       const q = kw.toLowerCase();
-      const hay = `${item.name || ''} ${item.area || ''} ${item.location || ''} ${item.category || ''} ${item.description || ''}`.toLowerCase();
+      const plainDesc = stripHtml(item.description || '');
+      const hay = `${item.name || ''} ${item.area || ''} ${item.location || ''} ${item.category || ''} ${plainDesc}`.toLowerCase();
       return hay.includes(q);
     }
 
     function matchesExpType(item, expType) {
       if (!expType || expType === 'all') return true;
-      const hay = `${item.name || ''} ${item.category || ''} ${item.type || ''} ${item.description || ''}`.toLowerCase();
-      if (expType === 'outdoor') return hay.includes('outdoor') || hay.includes('atv') || hay.includes('rafting') || hay.includes('trek') || hay.includes('volcano') || hay.includes('waterfall');
-      if (expType === 'tour') return hay.includes('tour') || hay.includes('excursion') || hay.includes('trip') || hay.includes('temple') || hay.includes('culture');
-      if (expType === 'water') return hay.includes('water') || hay.includes('snorkel') || hay.includes('surf') || hay.includes('beach') || hay.includes('boat') || hay.includes('cruise');
-      if (expType === 'spa') return hay.includes('spa') || hay.includes('massage') || hay.includes('wellness') || hay.includes('yoga');
+      const plainDesc = stripHtml(item.description || '');
+      const hay = `${item.name || ''} ${item.category || ''} ${item.type || ''} ${plainDesc}`.toLowerCase();
+      if (expType === 'outdoor') return hay.includes('outdoor') || hay.includes('atv') || hay.includes('rafting') || hay.includes('trek') || hay.includes('volcano') || hay.includes('waterfall') || hay.includes('swing') || hay.includes('jungle');
+      if (expType === 'tour') return hay.includes('tour') || hay.includes('excursion') || hay.includes('trip') || hay.includes('temple') || hay.includes('culture') || hay.includes('day');
+      if (expType === 'water') return hay.includes('water') || hay.includes('snorkel') || hay.includes('surf') || hay.includes('beach') || hay.includes('boat') || hay.includes('cruise') || hay.includes('river');
+      if (expType === 'spa') return hay.includes('spa') || hay.includes('massage') || hay.includes('wellness') || hay.includes('yoga') || hay.includes('relax');
       return hay.includes(expType);
     }
 
@@ -186,7 +199,7 @@
       const name = escapeHtml(item.name || 'Spot');
       const area = escapeHtml(item.area || item.location || 'Bali');
       const rating = escapeHtml(item.rating || '4.5');
-      const desc = escapeHtml(item.description || '');
+      const cleanDesc = escapeHtml(stripHtml(item.description || ''));
       const slug = createSlug(item.name);
       const url = `./spot-detail.html?slug=${slug}`;
       const widgetHtml = getWidgetHtml(item);
@@ -208,7 +221,7 @@
             </a>
           </div>
 
-          ${desc ? `<p class="text-xs text-slate-600 leading-relaxed line-clamp-2">${desc}</p>` : ''}
+          ${cleanDesc ? `<p class="text-xs text-slate-600 leading-relaxed line-clamp-2">${cleanDesc}</p>` : ''}
 
           ${widgetHtml ? `<div class="aff-widget-slot pt-2 border-t border-slate-100">${widgetHtml}</div>` : ''}
         </article>
