@@ -110,13 +110,17 @@
   <script>
     const SUPABASE_URL = 'https://riyupzmllltjrelqytwi.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_df32CqJ5bqDNCHU4OKGRPQ_7LiJvWV0';
-    const clientSupabase = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+    const clientSupabase = (window.supabase && typeof window.supabase.createClient === 'function')
+      ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+      : null;
 
     const urlParams = new URLSearchParams(window.location.search);
     let currentKeyword = (urlParams.get('q') || urlParams.get('dest') || 'Ubud').trim();
     let currentExpFilter = (urlParams.get('exp') || 'all').toLowerCase();
     let allPlaces = [];
     let allActivities = [];
+    let staysErrorMsg = '';
+    let activitiesErrorMsg = '';
     let klookLoaded = false;
 
     document.getElementById('pageSearchInput').value = currentKeyword;
@@ -287,15 +291,23 @@
       const actEl = document.getElementById('activitiesList');
 
       if (!showOnlyActivities) {
-        staysEl.innerHTML = stays.length > 0
-          ? stays.map(s => renderCard(s, escapeHtml(s.category || 'Stay'), './spot-detail.html')).join('')
-          : `<div class="bg-white border border-slate-200 rounded-2xl p-5 text-center text-xs text-slate-500">No hotels or villas matched "${escapeHtml(currentKeyword)}".</div>`;
+        if (staysErrorMsg) {
+          staysEl.innerHTML = `<div class="bg-white border border-rose-200 rounded-2xl p-5 text-center text-xs text-rose-600">Stays error: ${escapeHtml(staysErrorMsg)}</div>`;
+        } else {
+          staysEl.innerHTML = stays.length > 0
+            ? stays.map(s => renderCard(s, escapeHtml(s.category || 'Stay'), './spot-detail.html')).join('')
+            : `<div class="bg-white border border-slate-200 rounded-2xl p-5 text-center text-xs text-slate-500">No hotels or villas matched "${escapeHtml(currentKeyword)}".</div>`;
+        }
       }
 
       if (!showOnlyStays) {
-        actEl.innerHTML = activities.length > 0
-          ? activities.map(a => renderCard(a, escapeHtml(a.category || 'Activity'), './activity-detail.html')).join('')
-          : `<div class="bg-white border border-slate-200 rounded-2xl p-5 text-center text-xs text-slate-500">No activities found for this category.</div>`;
+        if (activitiesErrorMsg) {
+          actEl.innerHTML = `<div class="bg-white border border-rose-200 rounded-2xl p-5 text-center text-xs text-rose-600">Activities error: ${escapeHtml(activitiesErrorMsg)}</div>`;
+        } else {
+          actEl.innerHTML = activities.length > 0
+            ? activities.map(a => renderCard(a, escapeHtml(a.category || 'Activity'), './activity-detail.html')).join('')
+            : `<div class="bg-white border border-slate-200 rounded-2xl p-5 text-center text-xs text-slate-500">No activities found for this category.</div>`;
+        }
       }
 
       lucide.createIcons();
@@ -303,24 +315,34 @@
     }
 
     async function loadAllData() {
-      if (!clientSupabase) return;
-      try {
-        const [placesRes, activitiesRes] = await Promise.all([
-          clientSupabase.from('places').select('*'),
-          clientSupabase.from('activities').select('*')
-        ]);
-
-        if (placesRes.error) throw placesRes.error;
-        if (activitiesRes.error) throw activitiesRes.error;
-
-        allPlaces = placesRes.data || [];
-        allActivities = activitiesRes.data || [];
+      if (!clientSupabase) {
+        staysErrorMsg = 'Supabase client failed to initialize';
+        activitiesErrorMsg = 'Supabase client failed to initialize';
         renderFilteredResults();
-      } catch (err) {
-        console.error('Error loading data from Supabase:', err);
-        document.getElementById('staysList').innerHTML = `<div class="bg-white border border-rose-200 rounded-2xl p-5 text-center text-xs text-rose-600">Failed to load data from Supabase.</div>`;
-        document.getElementById('activitiesList').innerHTML = `<div class="bg-white border border-rose-200 rounded-2xl p-5 text-center text-xs text-rose-600">Failed to load activities from Supabase.</div>`;
+        return;
       }
+
+      try {
+        const { data, error } = await clientSupabase.from('places').select('*');
+        if (error) throw error;
+        allPlaces = data || [];
+        staysErrorMsg = '';
+      } catch (err) {
+        console.error('Error loading places:', err);
+        staysErrorMsg = err?.message || 'Unknown error on places';
+      }
+
+      try {
+        const { data, error } = await clientSupabase.from('activities').select('*');
+        if (error) throw error;
+        allActivities = data || [];
+        activitiesErrorMsg = '';
+      } catch (err) {
+        console.error('Error loading activities:', err);
+        activitiesErrorMsg = err?.message || 'Unknown error on activities';
+      }
+
+      renderFilteredResults();
     }
 
     lucide.createIcons();
