@@ -101,6 +101,15 @@
       50% { opacity: 0.5; transform: scale(1.08); }
     }
     .pulse-live { animation: pulseGlow 2.2s infinite ease-in-out; }
+
+    .dest-chip-active {
+      background: linear-gradient(to right, #059669, #0d9488) !important;
+      color: #ffffff !important;
+      border-color: #10b981 !important;
+      box-shadow: 0 8px 20px -6px rgba(16, 185, 129, 0.45);
+    }
+
+    .aff-widget-slot:empty { display: none; }
   </style>
 </head>
 <body class="flex flex-col text-slate-800">
@@ -179,6 +188,75 @@
   <!-- SCROLLABLE CONTENT AREA (Responsive Width: Max-w-2xl on Mobile, Max-w-5xl on Desktop) -->
   <main class="ambient-content-bg px-4 sm:px-6 pt-8 pb-16">
     <div class="max-w-2xl sm:max-w-4xl lg:max-w-5xl mx-auto space-y-8 relative z-30">
+
+      <!-- INSTANT DESTINATION & ROUTE HUB (CLICK GOAL -> STAYS, WAHANA & TRANSPORT) -->
+      <section id="destinationHub" class="bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-3xl p-4 sm:p-6 shadow-xl space-y-5">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-100 pb-4">
+          <div>
+            <span class="inline-flex items-center gap-1.5 text-[10px] font-mono font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
+              <i data-lucide="navigation" class="w-3 h-3"></i> Instant Destination Finder
+            </span>
+            <h2 class="text-base sm:text-lg font-black text-slate-900 mt-1.5">
+              Pick a Destination — Get Stays, Wahana & Transport
+            </h2>
+            <p class="text-xs text-slate-500 mt-0.5">
+              Tap a goal area below to focus the map and pull matching database options in one view.
+            </p>
+          </div>
+
+          <!-- Optional Route Origin Selector -->
+          <div class="flex items-center gap-2 shrink-0">
+            <label for="originSelect" class="text-[11px] font-bold text-slate-500 whitespace-nowrap">From:</label>
+            <select id="originSelect" onchange="onRouteSelectionChange()" class="text-xs font-bold text-slate-800 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:border-emerald-500">
+              <option value="Any">Any Start</option>
+              <option value="Kuta">Kuta</option>
+              <option value="Canggu">Canggu</option>
+              <option value="Ubud">Ubud</option>
+              <option value="Sanur">Sanur</option>
+              <option value="Uluwatu">Uluwatu</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Goal Area Chips -->
+        <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1" id="destinationChips">
+          <button type="button" onclick="selectDestination('Ubud')" data-dest="Ubud" class="dest-chip dest-chip-active px-4 py-2 rounded-2xl text-xs font-extrabold border border-slate-200 bg-slate-50 text-slate-700 shrink-0 transition-all cursor-pointer">
+            🌿 Ubud
+          </button>
+          <button type="button" onclick="selectDestination('Canggu')" data-dest="Canggu" class="dest-chip px-4 py-2 rounded-2xl text-xs font-extrabold border border-slate-200 bg-slate-50 text-slate-700 shrink-0 hover:border-emerald-300 transition-all cursor-pointer">
+            🏄 Canggu
+          </button>
+          <button type="button" onclick="selectDestination('Nusa Penida')" data-dest="Nusa Penida" class="dest-chip px-4 py-2 rounded-2xl text-xs font-extrabold border border-slate-200 bg-slate-50 text-slate-700 shrink-0 hover:border-emerald-300 transition-all cursor-pointer">
+            🏝️ Nusa Penida
+          </button>
+          <button type="button" onclick="selectDestination('Uluwatu')" data-dest="Uluwatu" class="dest-chip px-4 py-2 rounded-2xl text-xs font-extrabold border border-slate-200 bg-slate-50 text-slate-700 shrink-0 hover:border-emerald-300 transition-all cursor-pointer">
+            🌅 Uluwatu
+          </button>
+          <button type="button" onclick="selectDestination('Kuta')" data-dest="Kuta" class="dest-chip px-4 py-2 rounded-2xl text-xs font-extrabold border border-slate-200 bg-slate-50 text-slate-700 shrink-0 hover:border-emerald-300 transition-all cursor-pointer">
+            🌊 Kuta
+          </button>
+          <button type="button" onclick="selectDestination('Sanur')" data-dest="Sanur" class="dest-chip px-4 py-2 rounded-2xl text-xs font-extrabold border border-slate-200 bg-slate-50 text-slate-700 shrink-0 hover:border-emerald-300 transition-all cursor-pointer">
+            🚤 Sanur
+          </button>
+        </div>
+
+        <!-- Active Route Summary Bar -->
+        <div id="routeSummaryBanner" class="flex flex-wrap items-center justify-between gap-2 bg-slate-50 border border-slate-200/80 rounded-2xl px-3.5 py-2.5 text-xs">
+          <div class="font-bold text-slate-800" id="routeSummaryTitle">
+            Showing Ubud options
+          </div>
+          <div class="text-[11px] font-medium text-slate-500" id="routeSummaryMeta">
+            Loading database items...
+          </div>
+        </div>
+
+        <!-- Results Grid: Stays, Wahana/Activities, Transport & Guides -->
+        <div id="destinationResultsContainer" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="col-span-full text-center text-xs text-slate-400 py-6">
+            Loading destination options...
+          </div>
+        </div>
+      </section>
 
       <!-- TRIBE EXPLORER CHALLENGE BANNER -->
       <section class="w-full">
@@ -567,7 +645,18 @@
     }
 
     let allPlaces = [];
+    let allArticles = [];
     let markersLayer = L.layerGroup().addTo(map);
+    let selectedDestination = 'Ubud';
+
+    const DESTINATION_CENTERS = {
+      'Ubud': { lat: -8.5069, lng: 115.2625, zoom: 12 },
+      'Canggu': { lat: -8.6478, lng: 115.1385, zoom: 13 },
+      'Nusa Penida': { lat: -8.7275, lng: 115.5444, zoom: 12 },
+      'Uluwatu': { lat: -8.8291, lng: 115.0849, zoom: 12 },
+      'Kuta': { lat: -8.7185, lng: 115.1686, zoom: 13 },
+      'Sanur': { lat: -8.6913, lng: 115.2626, zoom: 13 }
+    };
 
     function createSlug(text) {
       return String(text || '')
@@ -576,6 +665,31 @@
         .replace(/[^\w\s-]/g, '')
         .replace(/[\s_-]+/g, '-')
         .replace(/^-+|-+$/g, '');
+    }
+
+    function getAreaText(item) {
+      return String(item.area || item.location || item.region || item.district || '').toLowerCase();
+    }
+
+    function getCategoryText(item) {
+      return String(item.category || item.type || '').toLowerCase();
+    }
+
+    function getWidgetHtml(item) {
+      return String(item.widget_html || item.widget_code || item.affiliate_widget || '').trim();
+    }
+
+    function initAffiliateWidgets() {
+      if (typeof window.initKlookWidgets === 'function') {
+        try { window.initKlookWidgets(); } catch (_) {}
+      }
+      const existing = document.querySelector('script[data-klook-init="true"]');
+      if (existing) existing.remove();
+      const s = document.createElement('script');
+      s.src = 'https://affiliate.klook.com/widget/fetch-iframe-init.js';
+      s.async = true;
+      s.setAttribute('data-klook-init', 'true');
+      document.body.appendChild(s);
     }
 
     async function loadAllMapMarkers() {
@@ -590,22 +704,30 @@
         allPlaces = places || [];
         document.getElementById('mapCount').innerText = allPlaces.length;
         renderMarkers(allPlaces);
+        renderDestinationHub();
       } catch (err) {
         console.error('Failed to load map markers:', err);
+        renderDestinationHub();
       }
     }
 
-    function renderMarkers(placesToRender) {
+    function renderMarkers(placesToRender, focusArea = null) {
       markersLayer.clearLayers();
 
       if (!placesToRender || placesToRender.length === 0) return;
 
+      const bounds = [];
       placesToRender.forEach(spot => {
         const lat = spot.latitude || spot.lat;
         const lng = spot.longitude || spot.lng || spot.lon;
 
         if (lat && lng) {
-          const marker = L.marker([parseFloat(lat), parseFloat(lng)]);
+          const parsedLat = parseFloat(lat);
+          const parsedLng = parseFloat(lng);
+          if (Number.isNaN(parsedLat) || Number.isNaN(parsedLng)) return;
+
+          bounds.push([parsedLat, parsedLng]);
+          const marker = L.marker([parsedLat, parsedLng]);
           
           const spotSlug = createSlug(spot.name);
           const detailUrl = `./spot-detail.html?slug=${spotSlug}`;
@@ -627,6 +749,194 @@
           markersLayer.addLayer(marker);
         }
       });
+
+      if (focusArea) {
+        if (bounds.length > 0) {
+          map.fitBounds(bounds, { padding: [35, 35], maxZoom: 13 });
+        } else if (DESTINATION_CENTERS[focusArea]) {
+          const c = DESTINATION_CENTERS[focusArea];
+          map.setView([c.lat, c.lng], c.zoom);
+        }
+      }
+    }
+
+    function selectDestination(destName) {
+      selectedDestination = destName;
+
+      document.querySelectorAll('.dest-chip').forEach(btn => {
+        const isMatch = btn.getAttribute('data-dest') === destName;
+        btn.classList.toggle('dest-chip-active', isMatch);
+      });
+
+      const areaKey = destName.toLowerCase();
+      const areaMatches = allPlaces.filter(p => {
+        const areaStr = getAreaText(p);
+        const nameStr = String(p.name || '').toLowerCase();
+        return areaStr.includes(areaKey) || nameStr.includes(areaKey);
+      });
+
+      renderMarkers(areaMatches.length > 0 ? areaMatches : allPlaces, destName);
+      renderDestinationHub();
+    }
+
+    function onRouteSelectionChange() {
+      renderDestinationHub();
+    }
+
+    function renderPlaceMiniCard(item, badgeLabel) {
+      const name = escapeHtml(item.name || 'Spot');
+      const area = escapeHtml(item.area || item.location || selectedDestination);
+      const slug = createSlug(item.name);
+      const url = `./spot-detail.html?slug=${slug}`;
+      const widgetHtml = getWidgetHtml(item);
+
+      return `
+        <div class="border border-slate-100 rounded-2xl p-3 bg-slate-50/70 hover:bg-white transition space-y-2">
+          <div class="flex items-start justify-between gap-2">
+            <a href="${url}" class="text-xs font-extrabold text-slate-900 hover:text-emerald-600 transition-colors leading-snug">
+              ${name}
+            </a>
+            <span class="text-[9px] font-mono font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded shrink-0">
+              ${badgeLabel}
+            </span>
+          </div>
+          <div class="flex items-center justify-between text-[10px] text-slate-500">
+            <span>📍 ${area}</span>
+            <a href="${url}" class="font-bold text-emerald-600 hover:underline">Detail →</a>
+          </div>
+          ${widgetHtml ? `<div class="aff-widget-slot pt-1">${widgetHtml}</div>` : ''}
+        </div>
+      `;
+    }
+
+    function renderDestinationHub() {
+      const container = document.getElementById('destinationResultsContainer');
+      const titleEl = document.getElementById('routeSummaryTitle');
+      const metaEl = document.getElementById('routeSummaryMeta');
+      if (!container) return;
+
+      const originVal = document.getElementById('originSelect')?.value || 'Any';
+      const areaKey = selectedDestination.toLowerCase();
+
+      if (titleEl) {
+        titleEl.textContent = originVal !== 'Any'
+          ? `Route ${originVal} → ${selectedDestination}`
+          : `Destination: ${selectedDestination}`;
+      }
+
+      const areaItems = allPlaces.filter(p => {
+        const areaStr = getAreaText(p);
+        const nameStr = String(p.name || '').toLowerCase();
+        const descStr = String(p.description || '').toLowerCase();
+        return areaStr.includes(areaKey) || nameStr.includes(areaKey) || descStr.includes(areaKey);
+      });
+
+      const stays = areaItems.filter(p => {
+        const cat = getCategoryText(p);
+        return cat.includes('villa') || cat.includes('hotel') || cat.includes('resort') || cat.includes('stay');
+      }).slice(0, 4);
+
+      const wahanas = areaItems.filter(p => {
+        const cat = getCategoryText(p);
+        const isStay = cat.includes('villa') || cat.includes('hotel') || cat.includes('resort') || cat.includes('stay');
+        const isTransport = cat.includes('transport') || cat.includes('car') || cat.includes('boat') || cat.includes('driver');
+        return !isStay && !isTransport;
+      }).slice(0, 4);
+
+      const transports = areaItems.filter(p => {
+        const cat = getCategoryText(p);
+        return cat.includes('transport') || cat.includes('car') || cat.includes('boat') || cat.includes('driver');
+      }).slice(0, 3);
+
+      const relatedArticles = allArticles.filter(a => {
+        const hay = `${a.title || ''} ${a.category || ''} ${a.slug || ''}`.toLowerCase();
+        return hay.includes(areaKey) || (originVal !== 'Any' && hay.includes(originVal.toLowerCase()));
+      }).slice(0, 3);
+
+      if (metaEl) {
+        metaEl.textContent = `${stays.length} stays • ${wahanas.length} wahana/spots • ${transports.length + relatedArticles.length} transport & guides`;
+      }
+
+      const staysHtml = stays.length > 0
+        ? stays.map(s => renderPlaceMiniCard(s, 'Stay')).join('')
+        : `<p class="text-[11px] text-slate-400 py-3">No villas/hotels tagged with "${escapeHtml(selectedDestination)}" yet. <a href="./category.html?type=villas" class="text-emerald-600 font-bold underline">Browse all stays →</a></p>`;
+
+      const wahanaHtml = wahanas.length > 0
+        ? wahanas.map(w => renderPlaceMiniCard(w, escapeHtml(w.category || 'Spot'))).join('')
+        : `<p class="text-[11px] text-slate-400 py-3">No wahana/spots tagged with "${escapeHtml(selectedDestination)}" yet. <a href="./tour-activities.html" class="text-emerald-600 font-bold underline">Explore tours →</a></p>`;
+
+      let transportHtml = '';
+      if (transports.length > 0) {
+        transportHtml += transports.map(t => renderPlaceMiniCard(t, 'Transport')).join('');
+      }
+      if (relatedArticles.length > 0) {
+        transportHtml += relatedArticles.map(art => {
+          const artTitle = escapeHtml(art.title || 'Route Guide');
+          const slug = art.slug || createSlug(art.title);
+          const artWidget = getWidgetHtml(art);
+          return `
+            <div class="border border-slate-100 rounded-2xl p-3 bg-slate-50/70 hover:bg-white transition space-y-2">
+              <a href="./article.html?slug=${slug}" class="text-xs font-extrabold text-slate-900 hover:text-emerald-600 transition-colors block leading-snug">
+                ${artTitle}
+              </a>
+              <div class="flex items-center justify-between text-[10px] text-slate-500">
+                <span>🧭 Itinerary & Route Info</span>
+                <a href="./article.html?slug=${slug}" class="font-bold text-emerald-600 hover:underline">Open →</a>
+              </div>
+              ${artWidget ? `<div class="aff-widget-slot pt-1">${artWidget}</div>` : ''}
+            </div>
+          `;
+        }).join('');
+      }
+      if (!transportHtml) {
+        transportHtml = `
+          <div class="border border-slate-100 rounded-2xl p-3 bg-slate-50/70 space-y-2">
+            <div class="text-xs font-extrabold text-slate-900">
+              ${originVal !== 'Any' ? `${escapeHtml(originVal)} → ${escapeHtml(selectedDestination)} Transfer` : `${escapeHtml(selectedDestination)} Transport & Passes`}
+            </div>
+            <p class="text-[11px] text-slate-500">Check private cars, fast boats, and day passes for ${escapeHtml(selectedDestination)}.</p>
+            <div class="flex items-center gap-3 pt-1 text-[11px] font-bold">
+              <a href="./rent-car.html" class="text-emerald-600 hover:underline">Car & Driver →</a>
+              <a href="./tour-activities.html" class="text-teal-600 hover:underline">Day Trips →</a>
+            </div>
+          </div>
+        `;
+      }
+
+      container.innerHTML = `
+        <div class="bg-white border border-slate-200/80 rounded-2xl p-4 space-y-3 shadow-sm">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xs font-black uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+              <i data-lucide="bed" class="w-3.5 h-3.5 text-emerald-600"></i> Stays in ${escapeHtml(selectedDestination)}
+            </h3>
+            <a href="./category.html?type=villas" class="text-[10px] font-bold text-emerald-600 hover:underline">All</a>
+          </div>
+          <div class="space-y-2.5">${staysHtml}</div>
+        </div>
+
+        <div class="bg-white border border-slate-200/80 rounded-2xl p-4 space-y-3 shadow-sm">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xs font-black uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+              <i data-lucide="compass" class="w-3.5 h-3.5 text-teal-600"></i> Wahana & Spots
+            </h3>
+            <a href="./outdoor-activities.html" class="text-[10px] font-bold text-teal-600 hover:underline">All</a>
+          </div>
+          <div class="space-y-2.5">${wahanaHtml}</div>
+        </div>
+
+        <div class="bg-white border border-slate-200/80 rounded-2xl p-4 space-y-3 shadow-sm">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xs font-black uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+              <i data-lucide="car" class="w-3.5 h-3.5 text-cyan-600"></i> Transport & Guides
+            </h3>
+            <a href="./rent-car.html" class="text-[10px] font-bold text-cyan-600 hover:underline">Transport</a>
+          </div>
+          <div class="space-y-2.5">${transportHtml}</div>
+        </div>
+      `;
+
+      lucide.createIcons();
+      initAffiliateWidgets();
     }
 
     function filterMapCategory(cat) {
@@ -665,7 +975,7 @@
           .from('articles')
           .select('*')
           .order('created_at', { ascending: false })
-          .limit(5);
+          .limit(20);
 
         if (error || !articles || articles.length === 0) {
           container.innerHTML = `
@@ -676,8 +986,12 @@
           return;
         }
 
+        allArticles = articles;
+        renderDestinationHub();
+
+        const topFive = articles.slice(0, 5);
         let html = '';
-        articles.forEach(art => {
+        topFive.forEach(art => {
           const title = escapeHtml(art.title || 'Untitled Journal');
           const category = escapeHtml(art.category || 'Guide');
           const slug = art.slug || createSlug(art.title);
