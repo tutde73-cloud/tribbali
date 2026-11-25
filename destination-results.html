@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Destination Stays & Experiences — SpotTribe Bali</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body { background-color: #f8fafc; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding-bottom: 40px; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    .aff-widget-slot { width: 100%; overflow-x: auto; overflow-y: hidden; }
+    .aff-widget-slot iframe, .aff-widget-slot ins { max-width: 100% !important; }
+    .filter-active { background-color: #059669 !important; color: #ffffff !important; border-color: #059669 !important; }
+  </style>
+</head>
+<body class="text-slate-800">
+
+  <!-- HEADER -->
+  <header class="bg-slate-900 border-b border-slate-800 px-4 sm:px-6 h-16 flex items-center justify-between sticky top-0 z-40 shadow-md">
+    <a href="./index.html" class="inline-flex items-center gap-2 text-xs font-extrabold text-white hover:text-emerald-400 transition">
+      <i data-lucide="arrow-left" class="w-4 h-4 text-emerald-400"></i>
+      <span>Back to Explore</span>
+    </a>
+    <span class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-wider">SpotTribe Bali</span>
+  </header>
+
+  <main class="max-w-4xl mx-auto px-4 sm:px-6 pt-6 space-y-6">
+
+    <!-- SEARCH & DESTINATION SWITCHER -->
+    <section class="bg-white border border-slate-200 rounded-3xl p-4 sm:p-5 shadow-sm space-y-4">
+      <form onsubmit="submitSearchForm(event)" class="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-2xl px-3 py-1.5">
+        <i data-lucide="search" class="w-4 h-4 text-emerald-600 shrink-0"></i>
+        <input id="pageSearchInput" type="text" placeholder="Search destination, villa, hotel, or activity (e.g. Ubud, Canggu, ATV)..."
+               class="w-full bg-transparent text-sm text-slate-900 placeholder-slate-400 focus:outline-none py-1.5" />
+        <button type="submit" class="px-3.5 py-1.5 rounded-xl bg-emerald-600 text-white text-xs font-extrabold hover:bg-emerald-700 transition shrink-0 cursor-pointer">
+          Search
+        </button>
+      </form>
+
+      <!-- Quick Destination Chips -->
+      <div class="flex items-center gap-2 overflow-x-auto no-scrollbar">
+        <button type="button" onclick="setDest('Ubud')" data-dest-btn="Ubud" class="dest-btn px-3.5 py-1.5 rounded-xl text-xs font-bold border border-slate-200 bg-slate-50 text-slate-700 shrink-0 cursor-pointer">Ubud</button>
+        <button type="button" onclick="setDest('Canggu')" data-dest-btn="Canggu" class="dest-btn px-3.5 py-1.5 rounded-xl text-xs font-bold border border-slate-200 bg-slate-50 text-slate-700 shrink-0 cursor-pointer">Canggu</button>
+        <button type="button" onclick="setDest('Nusa Penida')" data-dest-btn="Nusa Penida" class="dest-btn px-3.5 py-1.5 rounded-xl text-xs font-bold border border-slate-200 bg-slate-50 text-slate-700 shrink-0 cursor-pointer">Nusa Penida</button>
+        <button type="button" onclick="setDest('Uluwatu')" data-dest-btn="Uluwatu" class="dest-btn px-3.5 py-1.5 rounded-xl text-xs font-bold border border-slate-200 bg-slate-50 text-slate-700 shrink-0 cursor-pointer">Uluwatu</button>
+        <button type="button" onclick="setDest('Kuta')" data-dest-btn="Kuta" class="dest-btn px-3.5 py-1.5 rounded-xl text-xs font-bold border border-slate-200 bg-slate-50 text-slate-700 shrink-0 cursor-pointer">Kuta</button>
+        <button type="button" onclick="setDest('Sanur')" data-dest-btn="Sanur" class="dest-btn px-3.5 py-1.5 rounded-xl text-xs font-bold border border-slate-200 bg-slate-50 text-slate-700 shrink-0 cursor-pointer">Sanur</button>
+      </div>
+
+      <!-- Activity / Experience Type Filter -->
+      <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pt-1 border-t border-slate-100">
+        <span class="text-[11px] font-bold text-slate-400 shrink-0 mr-1">Activity Type:</span>
+        <button type="button" onclick="setExpFilter('all')" data-exp-btn="all" class="exp-btn filter-active px-3 py-1 rounded-full text-[11px] font-bold border border-slate-200 bg-slate-50 text-slate-700 shrink-0 cursor-pointer">All</button>
+        <button type="button" onclick="setExpFilter('outdoor')" data-exp-btn="outdoor" class="exp-btn px-3 py-1 rounded-full text-[11px] font-bold border border-slate-200 bg-slate-50 text-slate-700 shrink-0 cursor-pointer">Outdoor</button>
+        <button type="button" onclick="setExpFilter('tour')" data-exp-btn="tour" class="exp-btn px-3 py-1 rounded-full text-[11px] font-bold border border-slate-200 bg-slate-50 text-slate-700 shrink-0 cursor-pointer">Tours</button>
+        <button type="button" onclick="setExpFilter('water')" data-exp-btn="water" class="exp-btn px-3 py-1 rounded-full text-[11px] font-bold border border-slate-200 bg-slate-50 text-slate-700 shrink-0 cursor-pointer">Water</button>
+        <button type="button" onclick="setExpFilter('spa')" data-exp-btn="spa" class="exp-btn px-3 py-1 rounded-full text-[11px] font-bold border border-slate-200 bg-slate-50 text-slate-700 shrink-0 cursor-pointer">Spa & Wellness</button>
+      </div>
+    </section>
+
+    <!-- RESULT HEADING -->
+    <div class="flex flex-wrap items-center justify-between gap-2 px-1">
+      <div>
+        <h1 id="resultHeading" class="text-lg sm:text-xl font-black text-slate-900">Results for Bali</h1>
+        <p id="resultSubheading" class="text-xs text-slate-500">Loading stays and experiences...</p>
+      </div>
+    </div>
+
+    <!-- SECTION 1: HOTELS & VILLAS -->
+    <section class="space-y-3">
+      <div class="flex items-center justify-between px-1">
+        <h2 class="text-xs font-black uppercase tracking-widest text-slate-600 flex items-center gap-2">
+          <i data-lucide="bed" class="w-4 h-4 text-emerald-600"></i> Hotels & Villas
+        </h2>
+        <span id="staysCountBadge" class="text-[11px] font-mono font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full">0</span>
+      </div>
+      <div id="staysList" class="space-y-4">
+        <div class="bg-white border border-slate-200 rounded-2xl p-5 text-center text-xs text-slate-400">Loading stays...</div>
+      </div>
+    </section>
+
+    <!-- SECTION 2: ACTIVITIES & EXPERIENCES -->
+    <section class="space-y-3 pt-2">
+      <div class="flex items-center justify-between px-1">
+        <h2 class="text-xs font-black uppercase tracking-widest text-slate-600 flex items-center gap-2">
+          <i data-lucide="compass" class="w-4 h-4 text-teal-600"></i> Activities & Experiences
+        </h2>
+        <span id="activitiesCountBadge" class="text-[11px] font-mono font-bold text-teal-700 bg-teal-50 border border-teal-200 px-2.5 py-0.5 rounded-full">0</span>
+      </div>
+      <div id="activitiesList" class="space-y-4">
+        <div class="bg-white border border-slate-200 rounded-2xl p-5 text-center text-xs text-slate-400">Loading activities & experiences...</div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    const SUPABASE_URL = 'https://riyupzmllltjrelqytwi.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_df32CqJ5bqDNCHU4OKGRPQ_7LiJvWV0';
+    const clientSupabase = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+
+    const urlParams = new URLSearchParams(window.location.search);
+    let currentKeyword = (urlParams.get('q') || urlParams.get('dest') || 'Ubud').trim();
+    let currentExpFilter = (urlParams.get('exp') || 'all').toLowerCase();
+    let allPlaces = [];
+    let klookLoaded = false;
+
+    document.getElementById('pageSearchInput').value = currentKeyword;
+
+    function createSlug(text) {
+      return String(text || '').toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-').replace(/^-+|-+$/g, '');
+    }
+
+    function escapeHtml(text) {
+      const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+      return String(text || '').replace(/[&<>"']/g, m => map[m]);
+    }
+
+    function getWidgetHtml(item) {
+      return String(item.widget_html || item.widget_code || item.affiliate_widget || '').trim();
+    }
+
+    function ensureKlookScript() {
+      if (klookLoaded) return;
+      klookLoaded = true;
+      const s = document.createElement('script');
+      s.src = 'https://affiliate.klook.com/widget/fetch-iframe-init.js';
+      s.async = true;
+      document.body.appendChild(s);
+    }
+
+    function syncUrlParams() {
+      const params = new URLSearchParams();
+      if (currentKeyword) params.set('q', currentKeyword);
+      if (currentExpFilter && currentExpFilter !== 'all') params.set('exp', currentExpFilter);
+      window.history.replaceState({}, '', `?${params.toString()}`);
+    }
+
+    function setDest(dest) {
+      currentKeyword = dest;
+      document.getElementById('pageSearchInput').value = dest;
+      syncUrlParams();
+      renderFilteredResults();
+    }
+
+    function setExpFilter(expType) {
+      currentExpFilter = expType;
+      syncUrlParams();
+      renderFilteredResults();
+    }
+
+    function submitSearchForm(e) {
+      e.preventDefault();
+      const val = document.getElementById('pageSearchInput').value.trim();
+      currentKeyword = val || 'Ubud';
+      syncUrlParams();
+      renderFilteredResults();
+    }
+
+    function isStayItem(item) {
+      const cat = String(item.category || item.type || '').toLowerCase();
+      return cat.includes('villa') || cat.includes('hotel') || cat.includes('resort') || cat.includes('stay');
+    }
+
+    function matchesKeyword(item, kw) {
+      if (!kw) return true;
+      const q = kw.toLowerCase();
+      const hay = `${item.name || ''} ${item.area || ''} ${item.location || ''} ${item.category || ''} ${item.description || ''}`.toLowerCase();
+      return hay.includes(q);
+    }
+
+    function matchesExpType(item, expType) {
+      if (!expType || expType === 'all') return true;
+      const hay = `${item.name || ''} ${item.category || ''} ${item.type || ''} ${item.description || ''}`.toLowerCase();
+      if (expType === 'outdoor') return hay.includes('outdoor') || hay.includes('atv') || hay.includes('rafting') || hay.includes('trek') || hay.includes('volcano') || hay.includes('waterfall');
+      if (expType === 'tour') return hay.includes('tour') || hay.includes('excursion') || hay.includes('trip') || hay.includes('temple') || hay.includes('culture');
+      if (expType === 'water') return hay.includes('water') || hay.includes('snorkel') || hay.includes('surf') || hay.includes('beach') || hay.includes('boat') || hay.includes('cruise');
+      if (expType === 'spa') return hay.includes('spa') || hay.includes('massage') || hay.includes('wellness') || hay.includes('yoga');
+      return hay.includes(expType);
+    }
+
+    function renderCard(item, tagLabel) {
+      const name = escapeHtml(item.name || 'Spot');
+      const area = escapeHtml(item.area || item.location || 'Bali');
+      const rating = escapeHtml(item.rating || '4.5');
+      const desc = escapeHtml(item.description || '');
+      const slug = createSlug(item.name);
+      const url = `./spot-detail.html?slug=${slug}`;
+      const widgetHtml = getWidgetHtml(item);
+
+      return `
+        <article class="bg-white border border-slate-200 rounded-3xl p-4 sm:p-5 shadow-sm space-y-3">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <span class="inline-block text-[10px] font-mono font-bold uppercase text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md mb-1">
+                ${tagLabel}
+              </span>
+              <h3 class="text-base font-extrabold text-slate-900 leading-snug">
+                <a href="${url}" class="hover:text-emerald-600 transition">${name}</a>
+              </h3>
+              <p class="text-xs text-slate-500 mt-0.5">📍 ${area} • ★ ${rating}</p>
+            </div>
+            <a href="${url}" class="px-3 py-1.5 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-emerald-600 transition shrink-0">
+              Detail →
+            </a>
+          </div>
+
+          ${desc ? `<p class="text-xs text-slate-600 leading-relaxed line-clamp-2">${desc}</p>` : ''}
+
+          ${widgetHtml ? `<div class="aff-widget-slot pt-2 border-t border-slate-100">${widgetHtml}</div>` : ''}
+        </article>
+      `;
+    }
+
+    function renderFilteredResults() {
+      document.querySelectorAll('.dest-btn').forEach(btn => {
+        const active = btn.getAttribute('data-dest-btn').toLowerCase() === currentKeyword.toLowerCase();
+        btn.classList.toggle('filter-active', active);
+      });
+
+      document.querySelectorAll('.exp-btn').forEach(btn => {
+        const active = btn.getAttribute('data-exp-btn') === currentExpFilter;
+        btn.classList.toggle('filter-active', active);
+      });
+
+      const matched = allPlaces.filter(p => matchesKeyword(p, currentKeyword));
+      const stays = matched.filter(p => isStayItem(p));
+      const activities = matched.filter(p => !isStayItem(p) && matchesExpType(p, currentExpFilter));
+
+      document.getElementById('resultHeading').textContent = `Results for "${currentKeyword}"`;
+      document.getElementById('resultSubheading').textContent = `${stays.length} hotels & villas • ${activities.length} activities & experiences`;
+      document.getElementById('staysCountBadge').textContent = stays.length;
+      document.getElementById('activitiesCountBadge').textContent = activities.length;
+
+      const staysEl = document.getElementById('staysList');
+      const actEl = document.getElementById('activitiesList');
+
+      staysEl.innerHTML = stays.length > 0
+        ? stays.map(s => renderCard(s, escapeHtml(s.category || 'Stay'))).join('')
+        : `<div class="bg-white border border-slate-200 rounded-2xl p-5 text-center text-xs text-slate-500">No hotels or villas matched "${escapeHtml(currentKeyword)}".</div>`;
+
+      actEl.innerHTML = activities.length > 0
+        ? activities.map(a => renderCard(a, escapeHtml(a.category || 'Experience'))).join('')
+        : `<div class="bg-white border border-slate-200 rounded-2xl p-5 text-center text-xs text-slate-500">No activities or experiences matched "${escapeHtml(currentKeyword)}" for this filter.</div>`;
+
+      lucide.createIcons();
+      ensureKlookScript();
+    }
+
+    async function loadPlaces() {
+      if (!clientSupabase) return;
+      try {
+        const { data, error } = await clientSupabase.from('places').select('*');
+        if (error) throw error;
+        allPlaces = data || [];
+        renderFilteredResults();
+      } catch (err) {
+        console.error('Error loading places:', err);
+        document.getElementById('staysList').innerHTML = `<div class="bg-white border border-rose-200 rounded-2xl p-5 text-center text-xs text-rose-600">Failed to load data from Supabase.</div>`;
+      }
+    }
+
+    lucide.createIcons();
+    loadPlaces();
+  </script>
+</body>
+</html>
