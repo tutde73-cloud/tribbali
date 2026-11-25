@@ -11,8 +11,8 @@
     body { background-color: #f8fafc; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding-bottom: 40px; }
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    .aff-widget-slot { width: 100%; overflow-x: auto; overflow-y: hidden; }
-    .aff-widget-slot iframe, .aff-widget-slot ins { max-width: 100% !important; }
+    .aff-widget-slot { width: 100%; min-height: 60px; overflow-x: auto; overflow-y: hidden; }
+    .aff-widget-slot iframe, .aff-widget-slot ins { max-width: 100% !important; width: 100% !important; }
     .exp-btn.filter-active,
     .dest-btn.filter-active {
       background-color: #059669 !important;
@@ -79,7 +79,7 @@
       </a>
     </div>
 
-    <!-- SECTION 1: HOTELS & VILLAS (FROM places TABLE) -->
+    <!-- SECTION 1: HOTELS & VILLAS -->
     <section id="staysSection" class="space-y-3">
       <div class="flex items-center justify-between px-1">
         <h2 class="text-xs font-black uppercase tracking-widest text-slate-600 flex items-center gap-2">
@@ -92,7 +92,7 @@
       </div>
     </section>
 
-    <!-- SECTION 2: ACTIVITIES & EXPERIENCES (ONLY FROM activities_widgets TABLE) -->
+    <!-- SECTION 2: ACTIVITIES & EXPERIENCES -->
     <section id="activitiesSection" class="space-y-3 pt-2 scroll-mt-20">
       <div class="flex items-center justify-between px-1">
         <h2 class="text-xs font-black uppercase tracking-widest text-slate-600 flex items-center gap-2">
@@ -118,13 +118,13 @@
       : null;
 
     const urlParams = new URLSearchParams(window.location.search);
-    let currentKeyword = (urlParams.get('q') || urlParams.get('dest') || '').trim();
+    let currentKeyword = (urlParams.get('q') || urlParams.get('dest') || 'Ubud').trim();
     let currentExpFilter = (urlParams.get('exp') || 'all').toLowerCase();
     let allPlaces = [];
     let allActivities = [];
     let placesErrorMsg = '';
     let activitiesErrorMsg = '';
-    let klookLoaded = false;
+    let klookTimer = null;
 
     document.getElementById('pageSearchInput').value = currentKeyword;
 
@@ -147,13 +147,35 @@
       return String(item.widget_code || item.widget_html || item.affiliate_widget || '').trim();
     }
 
-    function ensureKlookScript() {
-      if (klookLoaded) return;
-      klookLoaded = true;
-      const s = document.createElement('script');
-      s.src = 'https://affiliate.klook.com/widget/fetch-iframe-init.js';
-      s.async = true;
-      document.body.appendChild(s);
+    function executeEmbeddedScripts() {
+      document.querySelectorAll('.aff-widget-slot').forEach(slot => {
+        const scripts = Array.from(slot.querySelectorAll('script'));
+        scripts.forEach(oldScript => {
+          const newScript = document.createElement('script');
+          Array.from(oldScript.attributes).forEach(attr => {
+            newScript.setAttribute(attr.name, attr.value);
+          });
+          if (oldScript.textContent) {
+            newScript.textContent = oldScript.textContent;
+          }
+          oldScript.parentNode.replaceChild(newScript, oldScript);
+        });
+      });
+    }
+
+    function reloadKlookWidgets() {
+      clearTimeout(klookTimer);
+      klookTimer = setTimeout(() => {
+        executeEmbeddedScripts();
+        const existing = document.getElementById('klook-widget-loader');
+        if (existing) existing.remove();
+
+        const s = document.createElement('script');
+        s.id = 'klook-widget-loader';
+        s.src = 'https://affiliate.klook.com/widget/fetch-iframe-init.js?t=' + Date.now();
+        s.async = true;
+        document.body.appendChild(s);
+      }, 150);
     }
 
     function syncUrlParams() {
@@ -318,7 +340,7 @@
       }
 
       lucide.createIcons();
-      ensureKlookScript();
+      reloadKlookWidgets();
     }
 
     async function loadAllData() {
