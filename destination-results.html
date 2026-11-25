@@ -38,21 +38,21 @@
     <section class="bg-white border border-slate-200 rounded-3xl p-4 sm:p-5 shadow-sm space-y-4">
       <form onsubmit="submitSearchForm(event)" class="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-2xl px-3 py-1.5">
         <i data-lucide="search" class="w-4 h-4 text-emerald-600 shrink-0"></i>
-        <input id="pageSearchInput" type="text" placeholder="Search area, villa, hotel, or activity (e.g. Ubud, Kuta, Gianyar)..."
+        <input id="pageSearchInput" type="text" placeholder="Search destination, villa, hotel, or activity (e.g. Ubud, Canggu, Kuta)..."
                class="w-full bg-transparent text-sm text-slate-900 placeholder-slate-400 focus:outline-none py-1.5" />
         <button type="submit" class="px-3.5 py-1.5 rounded-xl bg-emerald-600 text-white text-xs font-extrabold hover:bg-emerald-700 transition shrink-0 cursor-pointer">
           Search
         </button>
       </form>
 
-      <!-- Quick Destination / Area Chips -->
+      <!-- Quick Destination Chips -->
       <div class="flex items-center gap-2 overflow-x-auto no-scrollbar">
         <button type="button" onclick="setDest('Ubud')" data-dest-btn="Ubud" class="dest-btn px-3.5 py-1.5 rounded-xl text-xs font-bold border border-slate-200 bg-slate-50 text-slate-700 shrink-0 cursor-pointer">Ubud</button>
-        <button type="button" onclick="setDest('Kuta')" data-dest-btn="Kuta" class="dest-btn px-3.5 py-1.5 rounded-xl text-xs font-bold border border-slate-200 bg-slate-50 text-slate-700 shrink-0 cursor-pointer">Kuta</button>
-        <button type="button" onclick="setDest('Gianyar')" data-dest-btn="Gianyar" class="dest-btn px-3.5 py-1.5 rounded-xl text-xs font-bold border border-slate-200 bg-slate-50 text-slate-700 shrink-0 cursor-pointer">Gianyar</button>
-        <button type="button" onclick="setDest('Seminyak')" data-dest-btn="Seminyak" class="dest-btn px-3.5 py-1.5 rounded-xl text-xs font-bold border border-slate-200 bg-slate-50 text-slate-700 shrink-0 cursor-pointer">Seminyak</button>
-        <button type="button" onclick="setDest('Kintamani')" data-dest-btn="Kintamani" class="dest-btn px-3.5 py-1.5 rounded-xl text-xs font-bold border border-slate-200 bg-slate-50 text-slate-700 shrink-0 cursor-pointer">Kintamani</button>
         <button type="button" onclick="setDest('Canggu')" data-dest-btn="Canggu" class="dest-btn px-3.5 py-1.5 rounded-xl text-xs font-bold border border-slate-200 bg-slate-50 text-slate-700 shrink-0 cursor-pointer">Canggu</button>
+        <button type="button" onclick="setDest('Nusa Penida')" data-dest-btn="Nusa Penida" class="dest-btn px-3.5 py-1.5 rounded-xl text-xs font-bold border border-slate-200 bg-slate-50 text-slate-700 shrink-0 cursor-pointer">Nusa Penida</button>
+        <button type="button" onclick="setDest('Uluwatu')" data-dest-btn="Uluwatu" class="dest-btn px-3.5 py-1.5 rounded-xl text-xs font-bold border border-slate-200 bg-slate-50 text-slate-700 shrink-0 cursor-pointer">Uluwatu</button>
+        <button type="button" onclick="setDest('Kuta')" data-dest-btn="Kuta" class="dest-btn px-3.5 py-1.5 rounded-xl text-xs font-bold border border-slate-200 bg-slate-50 text-slate-700 shrink-0 cursor-pointer">Kuta</button>
+        <button type="button" onclick="setDest('Sanur')" data-dest-btn="Sanur" class="dest-btn px-3.5 py-1.5 rounded-xl text-xs font-bold border border-slate-200 bg-slate-50 text-slate-700 shrink-0 cursor-pointer">Sanur</button>
       </div>
 
       <!-- Category & Activity Type Filter -->
@@ -71,7 +71,7 @@
     <div class="flex flex-wrap items-center justify-between gap-3 px-1">
       <div>
         <h1 id="resultHeading" class="text-lg sm:text-xl font-black text-slate-900">Results for Ubud</h1>
-        <p id="resultSubheading" class="text-xs text-slate-500">Loading stays and activities...</p>
+        <p id="resultSubheading" class="text-xs text-slate-500">Loading stays and experiences...</p>
       </div>
       <a href="#activitiesSection" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:border-emerald-500 hover:text-emerald-700 transition shadow-sm">
         <span>Activities</span>
@@ -79,7 +79,7 @@
       </a>
     </div>
 
-    <!-- SECTION 1: HOTELS & VILLAS (FROM places TABLE) -->
+    <!-- SECTION 1: HOTELS & VILLAS -->
     <section id="staysSection" class="space-y-3">
       <div class="flex items-center justify-between px-1">
         <h2 class="text-xs font-black uppercase tracking-widest text-slate-600 flex items-center gap-2">
@@ -92,7 +92,7 @@
       </div>
     </section>
 
-    <!-- SECTION 2: ACTIVITIES & EXPERIENCES (ONLY FROM activities TABLE) -->
+    <!-- SECTION 2: ACTIVITIES & EXPERIENCES -->
     <section id="activitiesSection" class="space-y-3 pt-2 scroll-mt-20">
       <div class="flex items-center justify-between px-1">
         <h2 class="text-xs font-black uppercase tracking-widest text-slate-600 flex items-center gap-2">
@@ -101,7 +101,7 @@
         <span id="activitiesCountBadge" class="text-[11px] font-mono font-bold text-teal-700 bg-teal-50 border border-teal-200 px-2.5 py-0.5 rounded-full">0</span>
       </div>
       <div id="activitiesList" class="space-y-4">
-        <div class="bg-white border border-slate-200 rounded-2xl p-5 text-center text-xs text-slate-400">Loading activities...</div>
+        <div class="bg-white border border-slate-200 rounded-2xl p-5 text-center text-xs text-slate-400">Loading activities & experiences...</div>
       </div>
     </section>
 
@@ -118,9 +118,6 @@
     let currentKeyword = (urlParams.get('q') || urlParams.get('dest') || 'Ubud').trim();
     let currentExpFilter = (urlParams.get('exp') || 'all').toLowerCase();
     let allPlaces = [];
-    let allActivities = [];
-    let staysErrorMsg = '';
-    let activitiesErrorMsg = '';
     let klookLoaded = false;
 
     document.getElementById('pageSearchInput').value = currentKeyword;
@@ -194,28 +191,38 @@
       if (!kw) return true;
       const q = kw.toLowerCase();
       const plainDesc = stripHtml(item.description || '');
-      const hay = `${item.name || ''} ${item.title || ''} ${item.area || ''} ${item.location || ''} ${item.category || ''} ${plainDesc}`.toLowerCase();
+      const hay = `${item.name || ''} ${item.area || ''} ${item.location || ''} ${item.category || ''} ${plainDesc}`.toLowerCase();
       return hay.includes(q);
     }
 
-    function matchesActivityCategory(item, expType) {
+    function matchesExpType(item, expType) {
       if (!expType || expType === 'all' || expType === 'stays') return true;
-      const cat = String(item.category || '').toLowerCase().trim();
-      if (expType === 'outdoor') return cat.includes('outdoor');
-      if (expType === 'tour') return cat.includes('tour');
-      if (expType === 'water') return cat.includes('water');
-      if (expType === 'spa') return cat.includes('spa') || cat.includes('wellness') || cat.includes('massage');
-      return cat.includes(expType);
+      const titleAndCat = `${item.name || ''} ${item.category || ''} ${item.type || ''}`.toLowerCase();
+      const plainDesc = stripHtml(item.description || '').toLowerCase();
+      const hay = `${titleAndCat} ${plainDesc}`;
+
+      if (expType === 'outdoor') {
+        return hay.includes('outdoor') || hay.includes('atv') || hay.includes('rafting') || hay.includes('trek') || hay.includes('volcano') || hay.includes('waterfall') || hay.includes('swing') || hay.includes('jungle');
+      }
+      if (expType === 'tour') {
+        return hay.includes('tour') || hay.includes('excursion') || hay.includes('trip') || hay.includes('temple') || hay.includes('culture') || hay.includes('day');
+      }
+      if (expType === 'water') {
+        return titleAndCat.includes('water') || titleAndCat.includes('snorkel') || titleAndCat.includes('surf') || titleAndCat.includes('beach') || titleAndCat.includes('boat') || titleAndCat.includes('cruise') || titleAndCat.includes('kayak') || plainDesc.includes('snorkeling') || plainDesc.includes('rafting') || plainDesc.includes('water');
+      }
+      if (expType === 'spa') {
+        return hay.includes('spa') || hay.includes('massage') || hay.includes('wellness') || hay.includes('yoga') || hay.includes('relax');
+      }
+      return hay.includes(expType);
     }
 
-    function renderCard(item, tagLabel, detailBase = './spot-detail.html') {
-      const rawTitle = item.name || item.title || 'Spot';
-      const name = escapeHtml(rawTitle);
+    function renderCard(item, tagLabel) {
+      const name = escapeHtml(item.name || 'Spot');
       const area = escapeHtml(item.area || item.location || 'Bali');
       const rating = escapeHtml(item.rating || '4.5');
       const cleanDesc = escapeHtml(stripHtml(item.description || ''));
-      const slug = item.slug || createSlug(rawTitle);
-      const url = `${detailBase}?slug=${slug}`;
+      const slug = item.slug || createSlug(item.name);
+      const url = `./spot-detail.html?slug=${slug}`;
       const widgetHtml = getWidgetHtml(item);
 
       return `
@@ -256,34 +263,15 @@
       const showOnlyStays = currentExpFilter === 'stays';
       const showOnlyActivities = ['outdoor', 'tour', 'water', 'spa'].includes(currentExpFilter);
 
-      const stays = showOnlyActivities
-        ? []
-        : allPlaces.filter(p => matchesKeyword(p, currentKeyword) && isStayItem(p));
-
-      const catActivities = allActivities.filter(a => matchesActivityCategory(a, currentExpFilter));
-      const areaCatActivities = catActivities.filter(a => matchesKeyword(a, currentKeyword));
-
-      let activities = [];
-      let isFallbackArea = false;
-
-      if (!showOnlyStays) {
-        if (currentExpFilter === 'all') {
-          activities = allActivities.filter(a => matchesKeyword(a, currentKeyword));
-        } else if (areaCatActivities.length > 0) {
-          activities = areaCatActivities;
-        } else {
-          activities = catActivities;
-          isFallbackArea = true;
-        }
-      }
+      const matched = allPlaces.filter(p => matchesKeyword(p, currentKeyword));
+      const stays = showOnlyActivities ? [] : matched.filter(p => isStayItem(p));
+      const activities = showOnlyStays ? [] : matched.filter(p => !isStayItem(p) && matchesExpType(p, currentExpFilter));
 
       document.getElementById('staysSection').classList.toggle('hidden', showOnlyActivities);
       document.getElementById('activitiesSection').classList.toggle('hidden', showOnlyStays);
 
       document.getElementById('resultHeading').textContent = `Results for "${currentKeyword}"`;
-      document.getElementById('resultSubheading').textContent = isFallbackArea
-        ? `${stays.length} hotels & villas • ${activities.length} ${currentExpFilter} activities across Bali (none in ${currentKeyword})`
-        : `${stays.length} hotels & villas • ${activities.length} activities`;
+      document.getElementById('resultSubheading').textContent = `${stays.length} hotels & villas • ${activities.length} activities & experiences`;
       document.getElementById('staysCountBadge').textContent = stays.length;
       document.getElementById('activitiesCountBadge').textContent = activities.length;
 
@@ -291,62 +279,37 @@
       const actEl = document.getElementById('activitiesList');
 
       if (!showOnlyActivities) {
-        if (staysErrorMsg) {
-          staysEl.innerHTML = `<div class="bg-white border border-rose-200 rounded-2xl p-5 text-center text-xs text-rose-600">Stays error: ${escapeHtml(staysErrorMsg)}</div>`;
-        } else {
-          staysEl.innerHTML = stays.length > 0
-            ? stays.map(s => renderCard(s, escapeHtml(s.category || 'Stay'), './spot-detail.html')).join('')
-            : `<div class="bg-white border border-slate-200 rounded-2xl p-5 text-center text-xs text-slate-500">No hotels or villas matched "${escapeHtml(currentKeyword)}".</div>`;
-        }
+        staysEl.innerHTML = stays.length > 0
+          ? stays.map(s => renderCard(s, escapeHtml(s.category || 'Stay'))).join('')
+          : `<div class="bg-white border border-slate-200 rounded-2xl p-5 text-center text-xs text-slate-500">No hotels or villas matched "${escapeHtml(currentKeyword)}".</div>`;
       }
 
       if (!showOnlyStays) {
-        if (activitiesErrorMsg) {
-          actEl.innerHTML = `<div class="bg-white border border-rose-200 rounded-2xl p-5 text-center text-xs text-rose-600">Activities error: ${escapeHtml(activitiesErrorMsg)}</div>`;
-        } else {
-          actEl.innerHTML = activities.length > 0
-            ? activities.map(a => renderCard(a, escapeHtml(a.category || 'Activity'), './activity-detail.html')).join('')
-            : `<div class="bg-white border border-slate-200 rounded-2xl p-5 text-center text-xs text-slate-500">No activities found for this category.</div>`;
-        }
+        actEl.innerHTML = activities.length > 0
+          ? activities.map(a => renderCard(a, escapeHtml(a.category || 'Experience'))).join('')
+          : `<div class="bg-white border border-slate-200 rounded-2xl p-5 text-center text-xs text-slate-500">No activities or experiences matched "${escapeHtml(currentKeyword)}" for this filter.</div>`;
       }
 
       lucide.createIcons();
       ensureKlookScript();
     }
 
-    async function loadAllData() {
-      if (!clientSupabase) {
-        staysErrorMsg = 'Supabase client failed to initialize';
-        activitiesErrorMsg = 'Supabase client failed to initialize';
-        renderFilteredResults();
-        return;
-      }
-
+    async function loadPlaces() {
+      if (!clientSupabase) return;
       try {
         const { data, error } = await clientSupabase.from('places').select('*');
         if (error) throw error;
         allPlaces = data || [];
-        staysErrorMsg = '';
+        renderFilteredResults();
       } catch (err) {
         console.error('Error loading places:', err);
-        staysErrorMsg = err?.message || 'Unknown error on places';
+        document.getElementById('staysList').innerHTML = `<div class="bg-white border border-rose-200 rounded-2xl p-5 text-center text-xs text-rose-600">Failed to load data from Supabase: ${escapeHtml(err?.message || '')}</div>`;
+        document.getElementById('activitiesList').innerHTML = `<div class="bg-white border border-rose-200 rounded-2xl p-5 text-center text-xs text-rose-600">Failed to load data from Supabase: ${escapeHtml(err?.message || '')}</div>`;
       }
-
-      try {
-        const { data, error } = await clientSupabase.from('activities').select('*');
-        if (error) throw error;
-        allActivities = data || [];
-        activitiesErrorMsg = '';
-      } catch (err) {
-        console.error('Error loading activities:', err);
-        activitiesErrorMsg = err?.message || 'Unknown error on activities';
-      }
-
-      renderFilteredResults();
     }
 
     lucide.createIcons();
-    loadAllData();
+    loadPlaces();
   </script>
 </body>
 </html>
