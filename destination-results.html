@@ -55,10 +55,11 @@
         <button type="button" onclick="setDest('Sanur')" data-dest-btn="Sanur" class="dest-btn px-3.5 py-1.5 rounded-xl text-xs font-bold border border-slate-200 bg-slate-50 text-slate-700 shrink-0 cursor-pointer">Sanur</button>
       </div>
 
-      <!-- Activity / Experience Type Filter -->
+      <!-- Category & Activity Type Filter -->
       <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pt-1 border-t border-slate-100">
-        <span class="text-[11px] font-bold text-slate-400 shrink-0 mr-1">Activity Type:</span>
+        <span class="text-[11px] font-bold text-slate-400 shrink-0 mr-1">Filter:</span>
         <button type="button" onclick="setExpFilter('all')" data-exp-btn="all" class="exp-btn filter-active px-3 py-1 rounded-full text-[11px] font-bold border border-slate-200 bg-slate-50 text-slate-700 shrink-0 cursor-pointer">All</button>
+        <button type="button" onclick="setExpFilter('stays')" data-exp-btn="stays" class="exp-btn px-3 py-1 rounded-full text-[11px] font-bold border border-slate-200 bg-slate-50 text-slate-700 shrink-0 cursor-pointer">Villas & Hotels</button>
         <button type="button" onclick="setExpFilter('outdoor')" data-exp-btn="outdoor" class="exp-btn px-3 py-1 rounded-full text-[11px] font-bold border border-slate-200 bg-slate-50 text-slate-700 shrink-0 cursor-pointer">Outdoor</button>
         <button type="button" onclick="setExpFilter('tour')" data-exp-btn="tour" class="exp-btn px-3 py-1 rounded-full text-[11px] font-bold border border-slate-200 bg-slate-50 text-slate-700 shrink-0 cursor-pointer">Tours</button>
         <button type="button" onclick="setExpFilter('water')" data-exp-btn="water" class="exp-btn px-3 py-1 rounded-full text-[11px] font-bold border border-slate-200 bg-slate-50 text-slate-700 shrink-0 cursor-pointer">Water</button>
@@ -67,15 +68,19 @@
     </section>
 
     <!-- RESULT HEADING -->
-    <div class="flex flex-wrap items-center justify-between gap-2 px-1">
+    <div class="flex flex-wrap items-center justify-between gap-3 px-1">
       <div>
         <h1 id="resultHeading" class="text-lg sm:text-xl font-black text-slate-900">Results for Bali</h1>
         <p id="resultSubheading" class="text-xs text-slate-500">Loading stays and experiences...</p>
       </div>
+      <a href="#activitiesSection" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:border-emerald-500 hover:text-emerald-700 transition shadow-sm">
+        <span>Activities</span>
+        <span>↓</span>
+      </a>
     </div>
 
     <!-- SECTION 1: HOTELS & VILLAS -->
-    <section class="space-y-3">
+    <section id="staysSection" class="space-y-3">
       <div class="flex items-center justify-between px-1">
         <h2 class="text-xs font-black uppercase tracking-widest text-slate-600 flex items-center gap-2">
           <i data-lucide="bed" class="w-4 h-4 text-emerald-600"></i> Hotels & Villas
@@ -88,7 +93,7 @@
     </section>
 
     <!-- SECTION 2: ACTIVITIES & EXPERIENCES -->
-    <section class="space-y-3 pt-2">
+    <section id="activitiesSection" class="space-y-3 pt-2 scroll-mt-20">
       <div class="flex items-center justify-between px-1">
         <h2 class="text-xs font-black uppercase tracking-widest text-slate-600 flex items-center gap-2">
           <i data-lucide="compass" class="w-4 h-4 text-teal-600"></i> Activities & Experiences
@@ -161,6 +166,10 @@
       currentExpFilter = expType;
       syncUrlParams();
       renderFilteredResults();
+      if (expType !== 'all' && expType !== 'stays') {
+        const actEl = document.getElementById('activitiesSection');
+        if (actEl) actEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
     }
 
     function submitSearchForm(e) {
@@ -185,13 +194,23 @@
     }
 
     function matchesExpType(item, expType) {
-      if (!expType || expType === 'all') return true;
-      const plainDesc = stripHtml(item.description || '');
-      const hay = `${item.name || ''} ${item.category || ''} ${item.type || ''} ${plainDesc}`.toLowerCase();
-      if (expType === 'outdoor') return hay.includes('outdoor') || hay.includes('atv') || hay.includes('rafting') || hay.includes('trek') || hay.includes('volcano') || hay.includes('waterfall') || hay.includes('swing') || hay.includes('jungle');
-      if (expType === 'tour') return hay.includes('tour') || hay.includes('excursion') || hay.includes('trip') || hay.includes('temple') || hay.includes('culture') || hay.includes('day');
-      if (expType === 'water') return hay.includes('water') || hay.includes('snorkel') || hay.includes('surf') || hay.includes('beach') || hay.includes('boat') || hay.includes('cruise') || hay.includes('river');
-      if (expType === 'spa') return hay.includes('spa') || hay.includes('massage') || hay.includes('wellness') || hay.includes('yoga') || hay.includes('relax');
+      if (!expType || expType === 'all' || expType === 'stays') return true;
+      const titleAndCat = `${item.name || ''} ${item.category || ''} ${item.type || ''}`.toLowerCase();
+      const plainDesc = stripHtml(item.description || '').toLowerCase();
+      const hay = `${titleAndCat} ${plainDesc}`;
+
+      if (expType === 'outdoor') {
+        return hay.includes('outdoor') || hay.includes('atv') || hay.includes('rafting') || hay.includes('trek') || hay.includes('volcano') || hay.includes('waterfall') || hay.includes('swing') || hay.includes('jungle');
+      }
+      if (expType === 'tour') {
+        return hay.includes('tour') || hay.includes('excursion') || hay.includes('trip') || hay.includes('temple') || hay.includes('culture') || hay.includes('day');
+      }
+      if (expType === 'water') {
+        return titleAndCat.includes('water') || titleAndCat.includes('snorkel') || titleAndCat.includes('surf') || titleAndCat.includes('beach') || titleAndCat.includes('boat') || titleAndCat.includes('cruise') || titleAndCat.includes('kayak') || plainDesc.includes('snorkeling') || plainDesc.includes('rafting') || plainDesc.includes('water');
+      }
+      if (expType === 'spa') {
+        return hay.includes('spa') || hay.includes('massage') || hay.includes('wellness') || hay.includes('yoga') || hay.includes('relax');
+      }
       return hay.includes(expType);
     }
 
@@ -240,8 +259,14 @@
       });
 
       const matched = allPlaces.filter(p => matchesKeyword(p, currentKeyword));
-      const stays = matched.filter(p => isStayItem(p));
-      const activities = matched.filter(p => !isStayItem(p) && matchesExpType(p, currentExpFilter));
+      const showOnlyStays = currentExpFilter === 'stays';
+      const showOnlyActivities = ['outdoor', 'tour', 'water', 'spa'].includes(currentExpFilter);
+
+      const stays = showOnlyActivities ? [] : matched.filter(p => isStayItem(p));
+      const activities = showOnlyStays ? [] : matched.filter(p => !isStayItem(p) && matchesExpType(p, currentExpFilter));
+
+      document.getElementById('staysSection').classList.toggle('hidden', showOnlyActivities);
+      document.getElementById('activitiesSection').classList.toggle('hidden', showOnlyStays);
 
       document.getElementById('resultHeading').textContent = `Results for "${currentKeyword}"`;
       document.getElementById('resultSubheading').textContent = `${stays.length} hotels & villas • ${activities.length} activities & experiences`;
@@ -251,13 +276,17 @@
       const staysEl = document.getElementById('staysList');
       const actEl = document.getElementById('activitiesList');
 
-      staysEl.innerHTML = stays.length > 0
-        ? stays.map(s => renderCard(s, escapeHtml(s.category || 'Stay'))).join('')
-        : `<div class="bg-white border border-slate-200 rounded-2xl p-5 text-center text-xs text-slate-500">No hotels or villas matched "${escapeHtml(currentKeyword)}".</div>`;
+      if (!showOnlyActivities) {
+        staysEl.innerHTML = stays.length > 0
+          ? stays.map(s => renderCard(s, escapeHtml(s.category || 'Stay'))).join('')
+          : `<div class="bg-white border border-slate-200 rounded-2xl p-5 text-center text-xs text-slate-500">No hotels or villas matched "${escapeHtml(currentKeyword)}".</div>`;
+      }
 
-      actEl.innerHTML = activities.length > 0
-        ? activities.map(a => renderCard(a, escapeHtml(a.category || 'Experience'))).join('')
-        : `<div class="bg-white border border-slate-200 rounded-2xl p-5 text-center text-xs text-slate-500">No activities or experiences matched "${escapeHtml(currentKeyword)}" for this filter.</div>`;
+      if (!showOnlyStays) {
+        actEl.innerHTML = activities.length > 0
+          ? activities.map(a => renderCard(a, escapeHtml(a.category || 'Experience'))).join('')
+          : `<div class="bg-white border border-slate-200 rounded-2xl p-5 text-center text-xs text-slate-500">No activities or experiences matched "${escapeHtml(currentKeyword)}" for this filter.</div>`;
+      }
 
       lucide.createIcons();
       ensureKlookScript();
