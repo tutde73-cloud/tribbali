@@ -197,8 +197,10 @@
     function matchesActivityCategory(item, expType) {
       if (!expType || expType === 'all' || expType === 'stays') return true;
       const cat = String(item.category || '').toLowerCase().trim();
-      if (cat === expType) return true;
-      if (expType === 'spa') return cat.includes('spa') || cat.includes('massage') || cat.includes('wellness');
+      if (expType === 'outdoor') return cat.includes('outdoor');
+      if (expType === 'tour') return cat.includes('tour');
+      if (expType === 'water') return cat.includes('water');
+      if (expType === 'spa') return cat.includes('spa') || cat.includes('wellness') || cat.includes('massage');
       return cat.includes(expType);
     }
 
@@ -254,15 +256,30 @@
         ? []
         : allPlaces.filter(p => matchesKeyword(p, currentKeyword) && isStayItem(p));
 
-      const activities = showOnlyStays
-        ? []
-        : allActivities.filter(a => matchesKeyword(a, currentKeyword) && matchesActivityCategory(a, currentExpFilter));
+      const catActivities = allActivities.filter(a => matchesActivityCategory(a, currentExpFilter));
+      const areaCatActivities = catActivities.filter(a => matchesKeyword(a, currentKeyword));
+
+      let activities = [];
+      let isFallbackArea = false;
+
+      if (!showOnlyStays) {
+        if (currentExpFilter === 'all') {
+          activities = allActivities.filter(a => matchesKeyword(a, currentKeyword));
+        } else if (areaCatActivities.length > 0) {
+          activities = areaCatActivities;
+        } else {
+          activities = catActivities;
+          isFallbackArea = true;
+        }
+      }
 
       document.getElementById('staysSection').classList.toggle('hidden', showOnlyActivities);
       document.getElementById('activitiesSection').classList.toggle('hidden', showOnlyStays);
 
       document.getElementById('resultHeading').textContent = `Results for "${currentKeyword}"`;
-      document.getElementById('resultSubheading').textContent = `${stays.length} hotels & villas • ${activities.length} activities`;
+      document.getElementById('resultSubheading').textContent = isFallbackArea
+        ? `${stays.length} hotels & villas • ${activities.length} ${currentExpFilter} activities across Bali (none in ${currentKeyword})`
+        : `${stays.length} hotels & villas • ${activities.length} activities`;
       document.getElementById('staysCountBadge').textContent = stays.length;
       document.getElementById('activitiesCountBadge').textContent = activities.length;
 
@@ -278,7 +295,7 @@
       if (!showOnlyStays) {
         actEl.innerHTML = activities.length > 0
           ? activities.map(a => renderCard(a, escapeHtml(a.category || 'Activity'), './activity-detail.html')).join('')
-          : `<div class="bg-white border border-slate-200 rounded-2xl p-5 text-center text-xs text-slate-500">No activities matched "${escapeHtml(currentKeyword)}" for this category.</div>`;
+          : `<div class="bg-white border border-slate-200 rounded-2xl p-5 text-center text-xs text-slate-500">No activities found for this category.</div>`;
       }
 
       lucide.createIcons();
